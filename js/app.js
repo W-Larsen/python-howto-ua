@@ -16,6 +16,8 @@ const ROUTES = [
     kids:[
       { slug:"list", id:"page-list", num:"5.1",
         nav:"Списки",   title:"Списки в Python — індекси, зрізи, sorted, map, filter" },
+      { slug:"shop", id:"page-shop", num:"✎", practice:true,
+        nav:"Практика: магазин", title:"Практика: оживи магазин — функції для списків" },
       { slug:"dict", id:"page-dict", num:"5.2",
         nav:"Словники", title:"Словники в Python — ключ, значення і вбудовані функції" },
       { slug:"set",  id:"page-set",  num:"5.3",
@@ -66,7 +68,7 @@ navList.innerHTML = ROUTES.map(r => `
   </a>
   <ul class="toc" data-toc="${r.slug}"></ul>` +
   (r.kids ? `<div class="subnav" data-sub="${r.slug}">` + r.kids.map(c => `
-    <a class="nav-sub" href="#/${c.slug}" data-slug="${c.slug}">
+    <a class="nav-sub${c.practice ? " practice" : ""}" href="#/${c.slug}" data-slug="${c.slug}">
       <span class="num">${c.num}</span><span class="t">${c.nav}</span>
     </a>
     <ul class="toc" data-toc="${c.slug}"></ul>`).join("") + `</div>` : "")
@@ -400,9 +402,43 @@ function vizFunc(svg){
   ]);
 }
 
+/* --- 6. практика: магазин --- */
+function vizShop(svg){
+  const line = $("[data-line]", svg), note = $("[data-note]", svg);
+  const tiles = [0,1,2,3].map(k=>$('[data-tile="' + k + '"]', svg));
+  const PRICES = [1899, 449, 3499, 799];
+  const SLOT = [2, 0, 3, 1];      /* куди стає кожна плитка після сортування */
+  const place = (sorted) => tiles.forEach((t,k)=>{
+    t.style.transform = sorted ? "translateX(" + ((SLOT[k] - k) * 76) + "px)" : "";
+  });
+  const mark = (fn) => tiles.forEach((t,k)=>t.setAttribute("class", fn ? fn(PRICES[k]) : ""));
+
+  return cycler([
+    { d:1300, run(){
+        place(false); mark(null);
+        line.textContent = "prices = [1899, 449, 3499, 799]";
+        note.textContent = "каталог як є";
+      }},
+    { d:1500, run(){
+        place(true);
+        line.textContent = "sort_values(prices)";
+        note.textContent = "→ спершу дешевші";
+      }},
+    { d:1500, run(){
+        mark(p => p <= 1000 ? "hit" : "dim");
+        line.textContent = "filter_by_price_range(prices, 0, 1000)";
+        note.textContent = "→ [1, 3] — лише товари до 1000 ₴";
+      }},
+    { d:1900, run(){
+        line.textContent = "get_average([449, 799])";
+        note.textContent = "→ 624.0 — середня ціна";
+      }}
+  ]);
+}
+
 const VIZ = {};
 (function initViz(){
-  const map = { vars: vizVars, cond: vizCond, loops: vizLoop, func: vizFunc, dicts: vizDict };
+  const map = { vars: vizVars, cond: vizCond, loops: vizLoop, func: vizFunc, dicts: vizDict, shop: vizShop };
   /* Раніше картки оживали лише на mouseenter — тобто на сенсорному екрані
      не грали ніколи. Тепер запускає поява в екрані, а наведення лишається
      додатковим тригером. */
