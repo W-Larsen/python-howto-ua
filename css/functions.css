@@ -92,6 +92,42 @@
   .tryblk.boom{border-color:#e8b7ae; background:var(--stop-soft); color:var(--stop); font-weight:700}
   .tryblk.ok .tag,.tryblk.boom .tag{color:inherit}
 
+  /* ---------- lambda: анатомія запису ---------- */
+  .lanat{display:flex; flex-wrap:wrap; align-items:flex-start; gap:6px; margin-bottom:16px}
+  .lpart{display:flex; flex-direction:column; align-items:center; gap:5px; min-width:0; max-width:100%}
+  .lpart code{font-family:var(--mono); font-size:.86rem; padding:7px 11px; border-radius:8px;
+    border:1.5px solid var(--rule); background:var(--card); color:var(--body);
+    white-space:pre-wrap; overflow-wrap:anywhere;
+    transition:border-color .2s, background .2s, color .2s, transform .2s}
+  .lpart i{font-style:normal; font-family:var(--sans); font-size:.68rem; color:#9c9184;
+    text-align:center; max-width:160px; line-height:1.25}
+  .lpart.sep code{border-style:dashed; background:var(--panel); color:var(--muted)}
+  .lpart.now code{font-weight:700; transform:translateY(-3px)}
+  .lpart.now i{color:var(--ink); font-weight:600}
+  .lpart.kw.now code{border-color:var(--i); background:var(--i-soft); color:var(--i)}
+  .lpart.params.now code{border-color:var(--hl-bar); background:var(--hl); color:#5a4406}
+  .lpart.body.now code{border-color:var(--j); background:var(--j-soft); color:var(--j)}
+
+  /* ---------- lambda в циклі: спільна змінна проти власної ---------- */
+  .lamviz{display:flex; flex-direction:column; gap:12px}
+  .lamglob{display:flex; align-items:center; gap:10px; flex-wrap:wrap}
+  .lamlab{font-family:var(--mono); font-size:.72rem; color:var(--muted)}
+  .lamfs{display:flex; gap:10px; flex-wrap:wrap}
+  .lamf{flex:1 1 150px; min-width:0; display:flex; flex-direction:column; gap:4px;
+    border:1.5px solid var(--rule); border-radius:10px; background:var(--card); padding:9px 12px;
+    font-family:var(--mono); font-size:.76rem; color:var(--muted);
+    transition:border-color .2s, background .2s, opacity .2s}
+  .lamf .nm{font-size:.8rem; font-weight:700; color:var(--i)}
+  .lamf .lb{color:var(--body)}
+  .lamf .ref{font-size:.72rem}
+  .lamf .ref.outer{color:var(--n)}
+  .lamf .ref.own{color:var(--j); font-weight:700}
+  .lamf .rv{font-size:.72rem; color:#bcb0a0}
+  .lamf .rv.on{color:var(--ink); font-weight:700}
+  .lamf.ghost{border-style:dashed; background:var(--panel); opacity:.5}
+  .lamf.ghost .nm{color:#bcb0a0}
+  .lamf.now{border-color:var(--i); background:var(--i-soft)}
+
   /* ---------- ілюстрація картки «Функції» ---------- */
   .vz-fbox{fill:var(--card); stroke:var(--rule); stroke-width:1.8; transition:stroke .25s, fill .25s}
   .vz-fbox.work{fill:var(--i-soft); stroke:var(--i); stroke-width:2.2}

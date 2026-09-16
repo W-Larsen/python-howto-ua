@@ -1,4 +1,38 @@
 "use strict";
+/* Спільні блоки візуалізації для тем «Функції» та «lambda». Живуть поза
+   PageInit: під-тему lambda можуть відкрити першою, ще до ініціалізації функцій. */
+window.FuncViz = (function(){
+const esc = window.CollKit.esc;
+
+/* чорна скринька: аргумент → функція → результат */
+function boxViz(b){
+  b = b || {};
+  const arg = b.arg == null ? "?" : String(b.arg);
+  const ret = b.ret == null ? "?" : String(b.ret);
+  return `<div class="fnhero">` +
+    `<span class="fnpill arg${b.arg == null ? "" : " on"}">${esc(arg)}</span>` +
+    `<span class="fnwire${b.in ? " on" : ""}"></span>` +
+    `<span class="fnbox${b.work ? " work" : ""}">${esc(b.name || "square(n)")}` +
+      `<b>${esc(b.body || "")}</b></span>` +
+    `<span class="fnwire${b.out ? " back" : ""}"></span>` +
+    `<span class="fnpill ret${b.ret == null ? "" : " on"}">${esc(ret)}</span>` +
+  `</div>`;
+}
+
+/* дві панелі: глобальна область і локальна область функції */
+function scopeViz(list){
+  return `<div class="scopes">` + (list || []).map(s =>
+    `<div class="scope${s.local ? " local" : ""}${s.gone ? " gone" : ""}">` +
+      `<div class="scope-t">${esc(s.t)}</div>` +
+      `<div class="svars">` + ((s.vars && s.vars.length)
+        ? s.vars.map(v => `<span class="svar ${v.cls || ""}">${esc(v.name)} = ${esc(v.val)}</span>`).join("")
+        : `<span class="svar empty">${esc(s.empty || "порожньо")}</span>`) +
+      `</div></div>`).join("") + `</div>`;
+}
+
+return { boxViz, scopeViz };
+})();
+
 window.PageInit["func"] = function(){
 
 const CK  = window.CollKit;
@@ -44,31 +78,7 @@ function txtCfg(root, sel, fallback, max){
 
 /* ================= спільні блоки візуалізації ================= */
 
-/* чорна скринька: аргумент → функція → результат */
-function boxViz(b){
-  b = b || {};
-  const arg = b.arg == null ? "?" : String(b.arg);
-  const ret = b.ret == null ? "?" : String(b.ret);
-  return `<div class="fnhero">` +
-    `<span class="fnpill arg${b.arg == null ? "" : " on"}">${esc(arg)}</span>` +
-    `<span class="fnwire${b.in ? " on" : ""}"></span>` +
-    `<span class="fnbox${b.work ? " work" : ""}">${esc(b.name || "square(n)")}` +
-      `<b>${esc(b.body || "")}</b></span>` +
-    `<span class="fnwire${b.out ? " back" : ""}"></span>` +
-    `<span class="fnpill ret${b.ret == null ? "" : " on"}">${esc(ret)}</span>` +
-  `</div>`;
-}
-
-/* дві панелі: глобальна область і локальна область функції */
-function scopeViz(list){
-  return `<div class="scopes">` + (list || []).map(s =>
-    `<div class="scope${s.local ? " local" : ""}${s.gone ? " gone" : ""}">` +
-      `<div class="scope-t">${esc(s.t)}</div>` +
-      `<div class="svars">` + ((s.vars && s.vars.length)
-        ? s.vars.map(v => `<span class="svar ${v.cls || ""}">${esc(v.name)} = ${esc(v.val)}</span>`).join("")
-        : `<span class="svar empty">${esc(s.empty || "порожньо")}</span>`) +
-      `</div></div>`).join("") + `</div>`;
-}
+const { boxViz, scopeViz } = window.FuncViz;
 
 /* коробочки параметрів: значення зверху, ім'я параметра знизу */
 function paramViz(list){

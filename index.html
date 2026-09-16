@@ -153,8 +153,8 @@
           </div>
           <div class="card-body">
             <h3>Функції</h3>
-            <p>Свій блок коду з іменем: чим <code>return</code> відрізняється від <code>print</code>, звідки береться <code>None</code>, як влаштований стек викликів і чому змінна з функції не видна ззовні.</p>
-            <div class="card-meta"><span>8 віджетів</span><span>стек викликів</span><span>try / except</span></div>
+            <p>Свій блок коду з іменем: чим <code>return</code> відрізняється від <code>print</code>, звідки береться <code>None</code>, як влаштований стек викликів, чому змінна з функції не видна ззовні і що таке <code>lambda</code>.</p>
+            <div class="card-meta"><span>12 віджетів</span><span>під-тема lambda</span><span>стек викликів</span></div>
             <div class="card-go">Читати тему <em>→</em></div>
           </div>
         </a>
@@ -814,6 +814,120 @@ print("кінець")</pre>
     <tr><td>try: / except E:</td><td>перехопити помилку типу E й не впасти</td></tr>
   </table>
 
+  <h2>Куди далі</h2>
+  <p>Функції вміють більше, ніж здається: їх можна передавати в інші функції, повертати з функцій і писати одним рядком, без імені. Про це — окрема під-тема.</p>
+
+  <div class="subcards">
+    <a class="subcard" href="#/lambda">
+      <span class="sc-mark">4.1</span>
+      <span class="sc-t">lambda</span>
+      <span class="sc-d">Функція в один рядок, key= у sorted, замикання й пастка з lambda в циклі.</span>
+    </a>
+  </div>
+
+  </div>
+  </section>
+
+  <!-- ================= під-тема: lambda ================= -->
+  <section class="page" id="page-lambda" hidden>
+  <div class="wrap">
+
+  <header class="top">
+    <h1>lambda: функції без імені</h1>
+    <p class="lede">Функцію можна написати й без <code>def</code> та без імені — одним рядком, просто там, де вона потрібна. Це і є <code>lambda</code>. Сама по собі вона нічого нового не вміє. Цікаве починається, коли функцію <b>передають в іншу функцію</b> або <b>повертають</b> із неї.</p>
+  </header>
+
+  <div class="hero" id="lambda-hero">
+    <div class="fnhero">
+      <span class="fnpill arg on" id="lambda-heroArg">7</span>
+      <span class="fnwire on" id="lambda-heroW1"></span>
+      <span class="fnbox" id="lambda-heroBox">lambda x: x * 2<b>7 * 2</b></span>
+      <span class="fnwire back" id="lambda-heroW2"></span>
+      <span class="fnpill ret on" id="lambda-heroRet">14</span>
+    </div>
+    <div class="hero-line" id="lambda-heroLine">значення виразу <b>14</b> повертається само, без return</div>
+    <button class="ctl replay" id="lambda-heroBtn">Показати ще раз</button>
+  </div>
+
+  <h2>Функція — теж значення</h2>
+  <p>У темі <a href="#/func">«Функції»</a> була підказка: <code>hello</code> без дужок — це сама функція, яку можна покласти в змінну. Із цього випливає більше, ніж здається. Функцію можна <b>передати в іншу функцію</b> як аргумент і можна <b>повернути</b> через <code>return</code> — так само, як звичайне число.</p>
+  <p>Саме в таких місцях і з'являється <code>lambda</code>. Далі в посібнику вона ще трапиться: у <code>map</code> і <code>filter</code> у <a href="#/list">списках</a> та в сортуванні <a href="#/dict">словників</a>.</p>
+
+  <h2>lambda: функція в один рядок</h2>
+  <p>Запис <code>lambda x: x * x</code> складається з трьох частин: слово <code>lambda</code>, <b class="lk" data-lk="params">параметри</b> до двокрапки й <b class="lk" data-lk="body">один вираз</b> після неї. Це повноцінна функція — її можна викликати, передати, покласти в змінну.</p>
+  <p>Від <code>def</code> вона відрізняється двома речами. У неї <b>немає імені</b> — вона анонімна. І в ній <b>немає <code>return</code></b>: значення виразу повертається автоматично, бо нічого, крім цього виразу, у lambda бути не може.</p>
+  <p>Перемикай режими: той самий квадрат через <code>def</code> і через <code>lambda</code>, а в третьому — lambda, яка обирає між двома відповідями. Аргумент угорі можна міняти.</p>
+
+  <div class="widget" id="func-w-lambda" tabindex="0"></div>
+
+  <div class="callout warn">
+    <p><b>Що в lambda не вміститься.</b> Лише один вираз — отже, ні <code>return</code>, ні присвоєння через <code>=</code>, ні циклів, ні кількох рядків: <code>lambda x: return x</code> — це <code>SyntaxError</code>. Звичайний <code>if</code> теж не можна, а умовний вираз <code>А if умова else Б</code> — можна, це один вираз. Якщо логіка не влазить у рядок — пиши <code>def</code>.</p>
+  </div>
+
+  <p>Рядок <code>square = lambda x: x * x</code> у віджеті — лише для порівняння. У справжньому коді так не пишуть: якщо функції потрібне ім'я, для цього існує <code>def</code>, і в повідомленнях про помилки вона буде підписана як <code>square</code>, а не безлико <code>&lt;lambda&gt;</code>. Сила lambda — там, де ім'я не потрібне взагалі.</p>
+
+  <h2>Функція як аргумент: key=</h2>
+  <p>Найчастіше lambda пишуть прямо в дужках іншої функції. Класичний приклад — <code>sorted</code>, <code>min</code> і <code>max</code> з аргументом <code>key=</code>. Туди передають функцію-мірку: для кожного елемента <code>sorted</code> <b>сам</b> викличе її й порівнюватиме вже результати.</p>
+  <p>Коли готова функція є, беруть її: <code>key=len</code> — сортувати за довжиною. Коли немає — пишуть lambda на місці: «за останньою буквою», «за другим елементом пари». Простеж, скільки разів викликається мірка і хто саме її кличе.</p>
+
+  <div class="widget" id="func-w-key" tabindex="0"></div>
+
+  <div class="callout">
+    <p><b>Без дужок після len.</b> <code>key=len</code> передає саму функцію, а <code>key=len()</code> спробувало б викликати її просто зараз, без жодного аргументу, — і програма впала б із <code>TypeError</code>. З lambda так само: ми її не кличемо, а віддаємо тому, хто покличе.</p>
+  </div>
+
+  <h2>Функція, яка повертає функцію</h2>
+  <p>Можна й навпаки — повернути lambda з <code>def</code>. Функція <code>multiplier(n)</code> нижче нічого не множить. Вона <b>виготовляє</b> множники: <code>multiplier(2)</code> повертає функцію, що подвоює, а <code>multiplier(3)</code> — таку, що потроює.</p>
+  <p>Цікаве тут відбувається з локальною змінною <code>n</code>. Зазвичай вона зникає разом із викликом, але lambda всередині згадує <code>n</code> — і тому забирає її з собою. Функцію з таким «рюкзаком» змінних називають <b>замиканням</b> (closure).</p>
+
+  <div class="widget" id="func-w-closure" tabindex="0"></div>
+
+  <h2>Пастка: lambda в циклі</h2>
+  <p>Рюкзак замикання зберігає не <b>значення</b> змінної, а <b>саму змінну</b>. Поки в кожної функції своя змінна, як у <code>double</code> і <code>triple</code> вище, різниці не видно. Але якщо створити кілька lambda в циклі, змінна <code>i</code> буде в них <b>одна на всіх</b> — і прочитають її лише в момент виклику, коли цикл уже давно закінчився.</p>
+  <p>Перемкни режим: <code>lambda i=i: i</code> виправляє пастку. Типове значення параметра обчислюється одразу, при створенні функції, тож кожна забирає собі тодішнє число.</p>
+
+  <div class="widget" id="func-w-late" tabindex="0"></div>
+
+  <div class="callout">
+    <p><b>Це не вада саме lambda.</b> Якщо в тому самому циклі створювати функції через <code>def</code>, вийдуть ті самі три двійки. Просто lambda частіше пишуть у циклах і спискових виразах, тож і на пастку з нею натрапляють частіше. Другий спосіб її обійти — фабрика на кшталт <code>multiplier</code>: кожен її виклик дає окрему змінну.</p>
+  </div>
+
+  <h2>Перевір себе</h2>
+
+  <div class="task">
+    <p>1. Що виведе програма?</p>
+    <pre>area = lambda a, b: a * b
+print(area(3, 4))</pre>
+    <button class="ctl" data-answer="lambda-a1">Показати відповідь</button>
+    <div class="answer" id="lambda-a1"><p><code>12</code>. У lambda може бути кілька параметрів через кому, а значення виразу <code>a * b</code> повертається само, без <code>return</code>.</p></div>
+  </div>
+
+  <div class="task">
+    <p>2. У якому порядку стануть числа?</p>
+    <pre>nums = [-5, 2, -1, 4]
+print(sorted(nums, key=lambda x: abs(x)))</pre>
+    <button class="ctl" data-answer="lambda-a2">Показати відповідь</button>
+    <div class="answer" id="lambda-a2"><p><code>[-1, 2, 4, -5]</code>. Мірки — модулі: 5, 2, 1, 4. Порівнюються саме вони, а в результаті лежать початкові числа. До речі, тут lambda зайва: <code>key=abs</code> робить те саме.</p></div>
+  </div>
+
+  <div class="task">
+    <p>3. Що надрукується?</p>
+    <pre>adders = [lambda x: x + n for n in range(3)]
+print(adders[0](10))</pre>
+    <button class="ctl" data-answer="lambda-a3">Показати відповідь</button>
+    <div class="answer" id="lambda-a3"><p><code>12</code>, а не <code>10</code>. Усі три lambda дивляться на одну змінну <code>n</code>, а на момент виклику вона вже дорівнює 2. Щоб кожна запам'ятала своє число, пишуть <code>lambda x, n=n: x + n</code>.</p></div>
+  </div>
+
+  <h2>Шпаргалка</h2>
+  <table class="cheat">
+    <tr><td>lambda x: x * 2</td><td>функція без імені; вираз повертається сам</td></tr>
+    <tr><td>lambda a, b: a + b</td><td>кілька параметрів через кому</td></tr>
+    <tr><td>lambda x: "так" if x else "ні"</td><td>умовний вираз замість інструкції if</td></tr>
+    <tr><td>sorted(a, key=lambda p: p[1])</td><td>функція як аргумент: мірка для порівняння</td></tr>
+    <tr><td>def f(n): return lambda x: x * n</td><td>замикання: функція пам'ятає n</td></tr>
+    <tr><td>lambda i=i: i</td><td>забрати значення зараз, а не в момент виклику</td></tr>
+  </table>
+
   </div>
   </section>
 
@@ -1465,6 +1579,7 @@ b = list(dict.fromkeys(names))</pre>
 <script src="js/pages/cond.js"></script>
 <script src="js/pages/loops.js"></script>
 <script src="js/pages/func.js"></script>
+<script src="js/pages/lambda.js"></script>
 <script src="js/pages/coll.js"></script>
 <script src="js/pages/list.js"></script>
 <script src="js/pages/dict.js"></script>

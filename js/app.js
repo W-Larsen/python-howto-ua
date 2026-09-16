@@ -10,7 +10,11 @@ const ROUTES = [
   { slug:"loops", id:"page-loops", num:"03",
     nav:"Цикли: for і while",    title:"Цикли в Python — покроково" },
   { slug:"func",  id:"page-func",  num:"04",
-    nav:"Функції",               title:"Функції в Python — def, return, стек викликів" },
+    nav:"Функції",               title:"Функції в Python — def, return, стек викликів",
+    kids:[
+      { slug:"lambda", id:"page-lambda", num:"4.1",
+        nav:"lambda", title:"lambda в Python — функції без імені, key= і замикання" }
+    ]},
   { slug:"coll",  id:"page-coll",  num:"05",
     nav:"Колекції",              title:"Колекції в Python — списки, словники, множини",
     kids:[
