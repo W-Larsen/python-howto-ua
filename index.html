@@ -9,12 +9,13 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,600;7..72,700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 
-<link rel="stylesheet" href="css/base.css">
-<link rel="stylesheet" href="css/topics.css">
-<link rel="stylesheet" href="css/shell.css">
-<link rel="stylesheet" href="css/collections.css">
-<link rel="stylesheet" href="css/functions.css">
-<link rel="stylesheet" href="css/shop.css">
+<!-- ?v=… — версія для кешу браузера: після змін у css/js підніми її тут і для скриптів унизу -->
+<link rel="stylesheet" href="css/base.css?v=20260917d">
+<link rel="stylesheet" href="css/topics.css?v=20260917d">
+<link rel="stylesheet" href="css/shell.css?v=20260917d">
+<link rel="stylesheet" href="css/collections.css?v=20260917d">
+<link rel="stylesheet" href="css/functions.css?v=20260917d">
+<link rel="stylesheet" href="css/shop.css?v=20260917d">
 </head>
 <body data-route="home">
 
@@ -212,8 +213,8 @@
           <div class="card-body">
             <span class="card-tag">практика до теми «Списки»</span>
             <h3>Оживи магазин</h3>
-            <p>Інтернет-магазин, у якому не працюють сортування, фільтри й статистика. Сім функцій на <code>len</code>, <code>min</code>, <code>max</code>, <code>sorted</code> і цикл з <code>append</code> вмикають їх по черзі.</p>
-            <div class="card-meta"><span>7 завдань</span><span>тести одразу</span><span>Python у браузері</span></div>
+            <p>Інтернет-магазин, у якому не працюють сортування, фільтри й статистика. Десять функцій на <code>len</code>, <code>min</code>, <code>max</code>, <code>sorted</code>, цикли й зрізи вмикають їх по черзі.</p>
+            <div class="card-meta"><span>10 завдань</span><span>тести одразу</span><span>Python у браузері</span></div>
             <div class="card-go">Відкрити практику <em>→</em></div>
           </div>
         </a>
@@ -960,7 +961,7 @@ print("кінець")</pre>
     <a class="subcard" href="#/shop">
       <span class="sc-mark">практика</span>
       <span class="sc-t">Оживи магазин</span>
-      <span class="sc-d">Сім функцій для списків, які вмикають сортування, фільтри й статистику справжнього магазину.</span>
+      <span class="sc-d">Десять функцій для списків, які вмикають сортування, фільтри й статистику справжнього магазину.</span>
     </a>
     <a class="subcard" href="#/dict">
       <span class="sc-mark">4.2</span>
@@ -1183,7 +1184,7 @@ print(res)</pre>
     <a class="subcard" href="#/shop">
       <span class="sc-mark">практика</span>
       <span class="sc-t">Оживи магазин</span>
-      <span class="sc-d">7 функцій на <code>len</code>, <code>min</code>, <code>max</code>, <code>sum</code>, <code>sorted</code> і цикл з <code>append</code>. Код запускається прямо на сторінці.</span>
+      <span class="sc-d">10 функцій на <code>len</code>, <code>min</code>, <code>max</code>, <code>sum</code>, <code>sorted</code>, цикл з <code>append</code> і зрізи. Код запускається прямо на сторінці.</span>
     </a>
   </div>
 
@@ -1197,13 +1198,13 @@ print(res)</pre>
 
   <header class="top">
     <h1>Практика: оживи магазин</h1>
-    <p class="lede">Перед тобою інтернет-магазин, у якому майже нічого не працює: каталог не сортується, товари не фільтруються, а статистика показує прочерки. Усе це тримається на <b>семи маленьких функціях</b> для роботи зі списками. Напиши їх — і магазин оживе просто на твоїх очах.</p>
+    <p class="lede">Перед тобою інтернет-магазин, у якому майже нічого не працює: каталог не сортується, товари не фільтруються, а статистика показує прочерки. Не працює ні кнопка «Показати ще», ні історія переглядів. Усе це тримається на <b>десяти маленьких функціях</b> для роботи зі списками. Напиши їх — і магазин оживе просто на твоїх очах.</p>
   </header>
 
   <div class="hero shop-hero" id="shop-hero">
     <div class="shop-prog">
       <div class="shop-prog-bar"><i id="shop-progress-fill"></i></div>
-      <span id="shop-progress-text">Виконано 0 з 7</span>
+      <span id="shop-progress-text">Виконано 0 з 10</span>
     </div>
     <div class="shop-chips" id="shop-chips"></div>
   </div>
@@ -1270,7 +1271,7 @@ print(res)</pre>
           </div>
         </aside>
 
-        <div class="store-catalog">
+        <div class="store-catalog" id="shop-catalog">
           <div class="store-toolbar">
             <span id="shop-count"></span>
             <label id="shop-sort"><span>Сортування</span>
@@ -1284,8 +1285,14 @@ print(res)</pre>
           </div>
           <div class="store-warn" id="shop-warn" hidden></div>
           <div class="shop-grid" id="shop-grid"></div>
+          <button type="button" class="store-more" id="shop-more" hidden>Показати ще</button>
         </div>
       </div>
+
+      <section class="store-recent" id="shop-recent-wrap">
+        <h4>Ви нещодавно переглядали</h4>
+        <div class="store-recent-row" id="shop-recent"></div>
+      </section>
     </div>
 
     <footer class="store-foot">PyShop — навчальний макет для практики зі списками. Не справжній магазин.</footer>
@@ -1356,6 +1363,35 @@ print(res)</pre>
     <div class="pyt-work"></div>
   </article>
 
+  <article class="pytask" id="shop-task-first_n">
+    <div class="pyt-info">
+      <h2>8. Зрізи: перші n товарів</h2>
+      <p>Справжні магазини не показують увесь каталог одразу. Наш спершу показує 8 товарів, а кнопка «Показати ще» під ними щоразу додає ще 4. Для цього потрібна <code>first_n</code>: вона повертає перші <code>n</code> елементів списку.</p>
+      <p>Згадай зріз з теми <a href="#/list">«Списки»</a>: <code>nums[:2]</code> — це перші два елементи. Ліву межу можна не писати, тоді зріз починається з початку списку. Лишилося поставити <code>n</code> замість двійки.</p>
+      <p>Якщо елементів менше, ніж <code>n</code>, зріз не падає з помилкою — просто віддає всі, що є.</p>
+    </div>
+    <div class="pyt-work"></div>
+  </article>
+
+  <article class="pytask" id="shop-task-last_n">
+    <div class="pyt-info">
+      <h2>9. Зрізи з кінця: останні переглянуті</h2>
+      <p>Під каталогом є блок «Ви нещодавно переглядали». Магазин записує кожен відкритий товар у кінець списку, а показати треба лише 4 останні. <code>last_n</code> повертає останні <code>n</code> елементів.</p>
+      <p>Від'ємний індекс рахує з кінця, і в зрізі це теж працює: <code>nums[-2:]</code> — два останні елементи. Праву межу не пишемо, тоді зріз іде до самого кінця.</p>
+      <p>Щоб перевірити в магазині, клацни на фото або назву кількох товарів.</p>
+    </div>
+    <div class="pyt-work"></div>
+  </article>
+
+  <article class="pytask" id="shop-task-reverse_items">
+    <div class="pyt-info">
+      <h2>10. Зріз навпаки: найновіші першими</h2>
+      <p>Останні перегляди стоять у порядку «від старого до нового», а на сайтах щойно відкритий товар показують першим. <code>reverse_items</code> повертає список задом наперед.</p>
+      <p>Для цього є короткий зріз: <code>nums[::-1]</code>. Обидві межі порожні, а <code>-1</code> — це крок: іти з кінця до початку. Зріз завжди створює <b>новий</b> список, тож сам <code>items</code> не зміниться — останній тест саме це й перевіряє.</p>
+    </div>
+    <div class="pyt-work"></div>
+  </article>
+
   <h2>Що ми використали</h2>
   <table class="cheat">
     <tr><td>len(items)</td><td>кількість елементів</td></tr>
@@ -1366,6 +1402,9 @@ print(res)</pre>
     <tr><td>for i, x in enumerate(items):</td><td>індекс і значення разом</td></tr>
     <tr><td>result.append(i)</td><td>додати елемент у кінець нового списку</td></tr>
     <tr><td>low &lt;= x &lt;= high</td><td>ланцюжок порівнянь: x у діапазоні</td></tr>
+    <tr><td>items[:n]</td><td>перші n елементів</td></tr>
+    <tr><td>items[-n:]</td><td>останні n елементів</td></tr>
+    <tr><td>items[::-1]</td><td>новий список у зворотному порядку</td></tr>
   </table>
 
   </div>
@@ -1681,27 +1720,27 @@ b = list(dict.fromkeys(names))</pre>
 
 
 <!-- оболонка: роутер, меню, анімації головної -->
-<script src="js/app.js"></script>
+<script src="js/app.js?v=20260917d"></script>
 <!-- рушій руху: FLIP-переїзди й твіни; має бути до collkit.js -->
-<script src="js/motion.js"></script>
+<script src="js/motion.js?v=20260917d"></script>
 <!-- спільний рушій віджетів розділу «Колекції» -->
-<script src="js/collkit.js"></script>
+<script src="js/collkit.js?v=20260917d"></script>
 <!-- цеглинки блок-схем: фігури, стрілки, полотно -->
-<script src="js/flow.js"></script>
+<script src="js/flow.js?v=20260917d"></script>
 <!-- логіка окремих сторінок -->
-<script src="js/pages/vars.js"></script>
-<script src="js/pages/cond.js"></script>
-<script src="js/pages/loops.js"></script>
-<script src="js/pages/func.js"></script>
-<script src="js/pages/coll.js"></script>
-<script src="js/pages/list.js"></script>
-<script src="js/pages/shop.js"></script>
-<script src="js/pages/dict.js"></script>
-<script src="js/pages/set.js"></script>
+<script src="js/pages/vars.js?v=20260917d"></script>
+<script src="js/pages/cond.js?v=20260917d"></script>
+<script src="js/pages/loops.js?v=20260917d"></script>
+<script src="js/pages/func.js?v=20260917d"></script>
+<script src="js/pages/coll.js?v=20260917d"></script>
+<script src="js/pages/list.js?v=20260917d"></script>
+<script src="js/pages/shop.js?v=20260917d"></script>
+<script src="js/pages/dict.js?v=20260917d"></script>
+<script src="js/pages/set.js?v=20260917d"></script>
 
 <!-- зв'язок тексту з віджетом і живі приклади в тексті -->
-<script src="js/link.js"></script>
-<script src="js/inline.js"></script>
+<script src="js/link.js?v=20260917d"></script>
+<script src="js/inline.js?v=20260917d"></script>
 
 </body>
 </html>
