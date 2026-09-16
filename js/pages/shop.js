@@ -50,7 +50,12 @@ const CATEGORY_LIST = [...new Set(ALL_CATEGORIES)].sort((a, b) => a.localeCompar
 const PRICE_MIN = Math.min(...ALL_PRICES);
 const PRICE_MAX = Math.max(...ALL_PRICES);
 
-const state = { category:null, low:PRICE_MIN, high:PRICE_MAX, sort:"default", cart:0 };
+const FIRST_SHOWN = 8;      /* скільки товарів видно одразу */
+const MORE_STEP = 4;        /* скільки додає кнопка «Показати ще» */
+const RECENT_N = 4;         /* скільки останніх переглядів показувати */
+
+/* history — індекси переглянутих товарів, від найстарішого до найновішого */
+const state = { category:null, low:PRICE_MIN, high:PRICE_MAX, sort:"default", cart:0, limit:FIRST_SHOWN, history:[] };
 
 /* ============================ завдання ============================ */
 const TASKS = [
@@ -153,6 +158,50 @@ const TASKS = [
     """
     # TODO: пройдись циклом по prices, перевіряючи low <= prices[i] <= high
     raise NotImplementedError("filter_by_price_range ще не реалізовано")
+` },
+  { name:"first_n", title:"Показати ще", sig:"first_n(items, n)",
+    usage:"кнопка «Показати ще» під товарами", target:"shop-catalog",
+    hint:"nums[:2] — це перші два елементи nums. Тут замість 2 має стояти n.",
+    starter:
+`def first_n(items, n):
+    """
+    Повернути ПЕРШІ n елементів списку items.
+    Якщо елементів менше, ніж n, — повернути всі.
+
+    Приклад: first_n([10, 20, 30, 40], 2) -> [10, 20]
+    Приклад: first_n([10, 20], 5) -> [10, 20]
+    """
+    # TODO: поверни зріз від початку до n
+    raise NotImplementedError("first_n ще не реалізовано")
+` },
+  { name:"last_n", title:"Останні переглянуті", sig:"last_n(items, n)",
+    usage:"блок «Ви нещодавно переглядали»", target:"shop-recent-wrap",
+    hint:"nums[-2:] — це два останні елементи nums. Тут замість 2 має стояти n.",
+    starter:
+`def last_n(items, n):
+    """
+    Повернути ОСТАННІ n елементів списку items.
+    Якщо елементів менше, ніж n, — повернути всі.
+
+    Приклад: last_n([10, 20, 30, 40], 2) -> [30, 40]
+    Приклад: last_n([10, 20], 5) -> [10, 20]
+    """
+    # TODO: поверни зріз від -n до кінця
+    raise NotImplementedError("last_n ще не реалізовано")
+` },
+  { name:"reverse_items", title:"Найновіші — першими", sig:"reverse_items(items)",
+    usage:"порядок у блоці «Ви нещодавно переглядали»", target:"shop-recent-wrap",
+    hint:"nums[::-1] — це nums задом наперед. Зріз створює новий список, тому items не зміниться.",
+    starter:
+`def reverse_items(items):
+    """
+    Повернути НОВИЙ список з тими самими елементами у зворотному порядку.
+    Сам items має лишитися без змін.
+
+    Приклад: reverse_items([1, 2, 3]) -> [3, 2, 1]
+    """
+    # TODO: поверни зріз з кроком -1
+    raise NotImplementedError("reverse_items ще не реалізовано")
 ` }
 ];
 const BY_NAME = Object.fromEntries(TASKS.map(t => [t.name, t]));
@@ -205,6 +254,23 @@ TESTS = {
         {"call": "filter_by_price_range([100, 200], 300, 400)", "args": ([100, 200], 300, 400),
          "expected": []},
         {"call": "filter_by_price_range([5, 5], 5, 5)", "args": ([5, 5], 5, 5), "expected": [0, 1]},
+    ],
+    "first_n": [
+        {"call": "first_n([10, 20, 30, 40], 2)", "args": ([10, 20, 30, 40], 2), "expected": [10, 20]},
+        {"call": "first_n([10, 20, 30, 40], 3)", "args": ([10, 20, 30, 40], 3), "expected": [10, 20, 30]},
+        {"call": "first_n([10, 20], 5)", "args": ([10, 20], 5), "expected": [10, 20]},
+    ],
+    "last_n": [
+        {"call": "last_n([10, 20, 30, 40], 2)", "args": ([10, 20, 30, 40], 2), "expected": [30, 40]},
+        {"call": "last_n([10, 20, 30, 40], 1)", "args": ([10, 20, 30, 40], 1), "expected": [40]},
+        {"call": "last_n([10, 20], 5)", "args": ([10, 20], 5), "expected": [10, 20]},
+    ],
+    "reverse_items": [
+        {"call": "reverse_items([1, 2, 3])", "args": ([1, 2, 3],), "expected": [3, 2, 1]},
+        {"call": "reverse_items([])", "args": ([],), "expected": []},
+        {"call": 'reverse_items(["x", "y"])', "args": (["x", "y"],), "expected": ["y", "x"]},
+        {"call": "items = [1, 2, 3]; reverse_items(items); items", "args": ([1, 2, 3],),
+         "check": "unchanged", "expected": [1, 2, 3]},
     ],
 }
 
@@ -423,11 +489,47 @@ function statTile(label, r, fmt, task){
   </div>`;
 }
 
+const isIndexList = (v) => Array.isArray(v) &&
+  v.every(i => Number.isInteger(i) && i >= 0 && i < PRODUCTS.length);
+
+/* Каталог показує лише перші state.limit товарів. Поки first_n не працює — усі одразу. */
+function visibleOf(idx){
+  const r = call("first_n", [idx, state.limit]);
+  if(!r.ok || !isIndexList(r.value))
+    return { shown: idx, more: false,
+             warn: idx.length > FIRST_SHOWN ? [`Кнопка «Показати ще» не працює — розв'яжи ${taskLink("first_n")}.`] : [] };
+  return { shown: r.value, more: idx.length > state.limit, warn: [] };
+}
+
+/* «Ви нещодавно переглядали»: last_n бере хвіст історії, reverse_items ставить найновіші першими */
+function renderRecent(){
+  const box = $id("shop-recent");
+  const fail = (task, what) =>
+    `<p class="store-recent-msg">Блок не працює: ${what} — розв'яжи ${taskLink(task)}.</p>`;
+  if(!state.history.length){
+    box.innerHTML = `<p class="store-recent-msg">Тут з'являться товари, які ти відкривав. Клацни на фото або назву будь-якого товару.</p>`;
+    return;
+  }
+  const last = call("last_n", [state.history, RECENT_N]);
+  if(!last.ok || !isIndexList(last.value)){ box.innerHTML = fail("last_n", "не вдалося взяти останні перегляди"); return; }
+  const rev = call("reverse_items", [last.value]);
+  if(!rev.ok || !isIndexList(rev.value)){ box.innerHTML = fail("reverse_items", "не вдалося поставити найновіші першими"); return; }
+  box.innerHTML = rev.value.map((i, k) => {
+    const p = PRODUCTS[i];
+    return `<div class="store-recent-i">
+      <img src="img/shop/${p.image}.jpg" alt="" loading="lazy">
+      <div><b>${esc(p.name)}</b><span>${fmtPrice(p.price)}${k === 0 ? " · щойно" : ""}</span></div>
+    </div>`;
+  }).join("");
+}
+
 function renderShop(){
   if(!py) return;
   const f = filteredIndices();
   const s = sortIndices(f.idx);
-  const idx = s.idx, warn = f.warn.concat(s.warn);
+  const idx = s.idx;
+  const vis = visibleOf(idx);
+  const warn = f.warn.concat(s.warn, vis.warn);
   const prices = idx.map(i => ALL_PRICES[i]);
 
   $id("shop-stats").innerHTML =
@@ -450,11 +552,12 @@ function renderShop(){
     ? `Ціни від <b>${fmtPrice(cheapest.value)}</b>`
     : `Ціни від <b>—</b> <span>(банеру потрібна ${taskLink("get_min")})</span>`;
 
-  $id("shop-count").innerHTML = `Знайдено <b>${idx.length}</b> з ${PRODUCTS.length} товарів`;
+  $id("shop-count").innerHTML = `Знайдено <b>${idx.length}</b> з ${PRODUCTS.length} товарів` +
+    (vis.shown.length < idx.length ? ` · показано ${vis.shown.length}` : "");
 
-  $id("shop-grid").innerHTML = idx.length ? idx.map(i => {
+  $id("shop-grid").innerHTML = vis.shown.length ? vis.shown.map(i => {
     const p = PRODUCTS[i];
-    return `<article class="shop-card">
+    return `<article class="shop-card" data-i="${i}">
       <div class="shop-img">
         <img src="img/shop/${p.image}.jpg" alt="${esc(p.name)}" loading="lazy" width="320" height="240">
         ${p.badge ? `<span class="shop-badge">${p.badge}</span>` : ""}
@@ -471,13 +574,18 @@ function renderShop(){
       </div>
     </article>`;
   }).join("") : `<p class="shop-empty">Товарів не знайдено. Спробуй змінити фільтри.</p>`;
+
+  const more = $id("shop-more");
+  more.hidden = !vis.more;
+  more.textContent = `Показати ще (${Math.min(MORE_STEP, idx.length - vis.shown.length)})`;
+  renderRecent();
 }
 
 function renderProgress(){
   const done = TASKS.filter(t => status[t.name] === "ok").length;
   $id("shop-progress-fill").style.width = (done / TASKS.length * 100) + "%";
   $id("shop-progress-text").textContent = done === TASKS.length
-    ? "Усі 7 завдань виконано — магазин працює повністю 🎉"
+    ? `Усі ${TASKS.length} завдань виконано — магазин працює повністю 🎉`
     : `Виконано ${done} з ${TASKS.length}`;
   $id("shop-chips").innerHTML = TASKS.map((t, k) =>
     `<a class="shop-chip ${status[t.name] === "ok" ? "ok" : ""}" href="#shop-task-${t.name}" data-jump="${t.name}">
@@ -583,20 +691,189 @@ function disarmResets(except){
   });
 }
 
+/* Вставка тексту на місце виділення. execCommand лишає зміну в історії Ctrl+Z;
+   якщо його нема — вставляємо вручну. */
+function insertText(ta, text){
+  if(document.execCommand && document.execCommand("insertText", false, text)) return;
+  const start = ta.selectionStart, v = ta.value;
+  ta.value = v.slice(0, start) + text + v.slice(ta.selectionEnd);
+  ta.selectionStart = ta.selectionEnd = start + text.length;
+  ta.dispatchEvent(new Event("input"));
+}
+
+/* ============================ автодоповнення ============================ */
+const AC_FUNCS = ("print len range sorted sum min max map filter any all enumerate zip list set dict " +
+  "tuple str int float abs round reversed isinstance type").split(" ");
+const AC_METHODS = "append insert remove pop sort index count copy extend clear reverse".split(" ");
+const AC_WORDS = ("def return for in if elif else while break continue and or not is " +
+  "True False None pass lambda").split(" ");
+const AC_BUILTIN = new Set([...AC_FUNCS, ...AC_METHODS, ...AC_WORDS, ...PY_KW]);
+const AC_LIMIT = 8;
+/* функції, які учень має згадати сам — саме їх і перевіряють завдання */
+const AC_HIDDEN = new Set("len min max sum sorted sort reversed reverse".split(" "));
+
+/* Проходить токенами й каже, чи позиція стоїть усередині рядка або коментаря,
+   а заодно збирає всі імена, які вже є в коді. */
+function scanCode(src, pos){
+  const re = new RegExp(PY_TOKEN.source, "g");
+  const names = new Set();
+  let inside = false, m;
+  while((m = re.exec(src))){
+    const end = m.index + m[0].length;
+    if((m[1] || m[2]) && m.index < pos && pos <= end) inside = true;
+    if(m[4] && !AC_BUILTIN.has(m[4])) names.add(m[4]);
+  }
+  return { inside, names };
+}
+
+function suggest(src, caret){
+  if(/\w/.test(src[caret] || "")) return null;             /* курсор посеред слова */
+  const prefix = (src.slice(0, caret).match(/[A-Za-z_]\w*$/) || [""])[0];
+  const start = caret - prefix.length;
+  const afterDot = src[start - 1] === ".";
+  if(!afterDot && prefix.length < 2) return null;
+  if(/\d/.test(prefix[0] || "")) return null;
+  if(afterDot && /(^|[^\w])\d+$/.test(src.slice(0, start - 1))) return null;   /* 3.14 — це число */
+
+  /* поточне недописане слово не повинно підказувати саме себе */
+  const { inside, names } = scanCode(src.slice(0, start) + src.slice(caret), start);
+  if(inside) return null;
+
+  const pool = afterDot
+    ? AC_METHODS.map(w => ({ w, kind:"метод", call:true, rank:0 }))
+    : [...names].map(w => ({ w, kind:"з коду", rank:0 }))
+        .concat(AC_FUNCS.map(w => ({ w, kind:"функція", call:true, rank:1 })),
+                AC_WORDS.map(w => ({ w, kind:"слово", rank:2 })));
+  const low = prefix.toLowerCase();
+  const items = pool
+    .filter(it => it.w !== prefix && !AC_HIDDEN.has(it.w) && it.w.toLowerCase().startsWith(low))
+    .sort((a, b) => a.rank - b.rank || a.w.length - b.w.length || a.w.localeCompare(b.w))
+    .slice(0, AC_LIMIT);
+  return items.length ? { prefix, start, items } : null;
+}
+
+let measureCtx = null;
+function charWidth(ta){
+  const cs = getComputedStyle(ta);
+  measureCtx = measureCtx || document.createElement("canvas").getContext("2d");
+  measureCtx.font = `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+  return measureCtx.measureText("0000000000").width / 10;
+}
+
+function makeAutocomplete(ta){
+  const box = document.createElement("div");
+  box.className = "pyac";
+  box.setAttribute("role", "listbox");
+  box.hidden = true;
+  ta.parentNode.appendChild(box);
+
+  let cur = null, sel = 0, accepting = false;
+
+  function close(){ cur = null; box.hidden = true; }
+
+  function paint(){
+    box.innerHTML = cur.items.map((it, k) => `
+      <div class="pyac-i${k === sel ? " on" : ""}" role="option" aria-selected="${k === sel}" data-k="${k}">
+        <span class="pyac-w"><b>${esc(it.w.slice(0, cur.prefix.length))}</b>${esc(it.w.slice(cur.prefix.length))}${it.call ? "()" : ""}</span>
+        <span class="pyac-k">${it.kind}</span>
+      </div>`).join("");
+  }
+
+  function place(){
+    const cs = getComputedStyle(ta);
+    const before = ta.value.slice(0, cur.start);
+    const line = before.split("\n").length - 1;
+    const col = before.length - before.lastIndexOf("\n") - 1;
+    const lh = parseFloat(cs.lineHeight);
+    let left = parseFloat(cs.paddingLeft) + col * charWidth(ta) - ta.scrollLeft - 8;
+    const top = parseFloat(cs.paddingTop) + (line + 1) * lh - ta.scrollTop + 2;
+    left = Math.max(4, Math.min(left, ta.clientWidth - box.offsetWidth - 4));
+    box.style.left = left + "px";
+    box.style.top = top + "px";
+  }
+
+  function update(){
+    if(ta.selectionStart !== ta.selectionEnd){ close(); return; }
+    cur = suggest(ta.value, ta.selectionStart);
+    if(!cur){ close(); return; }
+    sel = 0;
+    paint();
+    box.hidden = false;
+    place();
+  }
+
+  function accept(k){
+    const it = cur.items[k];
+    const caret = ta.selectionStart;
+    const hasParen = ta.value[caret] === "(";
+    accepting = true;
+    ta.setSelectionRange(cur.start, caret);
+    insertText(ta, it.call && !hasParen ? it.w + "()" : it.w);
+    /* курсор — між дужками, щоб одразу писати аргументи */
+    if(it.call && !hasParen) ta.selectionStart = ta.selectionEnd = ta.selectionStart - 1;
+    accepting = false;
+    close();
+  }
+
+  /* true — клавішу забрало автодоповнення */
+  function onKey(e){
+    if(!cur) return false;
+    if(e.key === "ArrowDown" || e.key === "ArrowUp"){
+      const n = cur.items.length;
+      sel = (sel + (e.key === "ArrowDown" ? 1 : n - 1)) % n;
+      paint();
+    }
+    else if((e.key === "Enter" || e.key === "Tab") && !e.ctrlKey && !e.metaKey && !e.shiftKey) accept(sel);
+    else if(e.key === "Escape") close();
+    else {
+      if(["ArrowLeft", "ArrowRight", "Home", "End", "PageUp", "PageDown"].includes(e.key) ||
+         (e.key === "Enter")) close();
+      return false;
+    }
+    e.preventDefault();
+    e.stopPropagation();       /* Esc не має закривати ще й бічне меню */
+    return true;
+  }
+
+  function onInput(e){
+    if(accepting) return;
+    const t = e.inputType || "";
+    if(t === "insertText" || (t === "deleteContentBackward" && cur)) update();
+    else close();
+  }
+
+  box.addEventListener("mousedown", (e) => {
+    const row = e.target.closest("[data-k]");
+    e.preventDefault();                   /* фокус лишається в редакторі */
+    if(row) accept(+row.dataset.k);
+  });
+  ta.addEventListener("blur", close);
+  ta.addEventListener("mousedown", close);
+  ta.addEventListener("scroll", () => { if(cur) place(); });
+
+  return { onKey, onInput };
+}
+
 function wireCard(card, name){
   const ta = part(card, "editor");
   const hlPre = card.querySelector(".pyed-hl");
+  const ac = makeAutocomplete(ta);
 
-  ta.addEventListener("input", () => { store.set(DRAFT_PREFIX + name, ta.value); syncEditor(card); });
+  ta.addEventListener("input", (e) => {
+    store.set(DRAFT_PREFIX + name, ta.value);
+    syncEditor(card);
+    ac.onInput(e);
+  });
   ta.addEventListener("scroll", () => { hlPre.scrollTop = ta.scrollTop; hlPre.scrollLeft = ta.scrollLeft; });
 
   ta.addEventListener("keydown", (e) => {
+    if(ac.onKey(e)) return;
     if(e.key === "Enter" && (e.ctrlKey || e.metaKey)){
       e.preventDefault();
       if(py){ disarmResets(); runTask(card, name, true); }
       return;
     }
-    const start = ta.selectionStart, end = ta.selectionEnd, v = ta.value;
+    const start = ta.selectionStart, v = ta.value;
     let insert = null;
     if(e.key === "Tab" && !e.shiftKey) insert = "    ";
     /* Enter тримає відступ попереднього рядка, а після двокрапки додає ще один */
@@ -607,12 +884,7 @@ function wireCard(card, name){
     }
     if(insert === null) return;
     e.preventDefault();
-    /* execCommand лишає зміну в історії Ctrl+Z; якщо його нема — вставляємо вручну */
-    if(!document.execCommand || !document.execCommand("insertText", false, insert)){
-      ta.value = v.slice(0, start) + insert + v.slice(end);
-      ta.selectionStart = ta.selectionEnd = start + insert.length;
-      ta.dispatchEvent(new Event("input"));
-    }
+    insertText(ta, insert);
   });
 
   card.addEventListener("click", (e) => {
@@ -681,16 +953,34 @@ function readPrice(inp, fallback){
   const v = parseFloat(inp.value);
   return isFinite(v) ? v : fallback;
 }
-lowIn.addEventListener("change", () => { state.low = readPrice(lowIn, PRICE_MIN); renderShop(); });
-highIn.addEventListener("change", () => { state.high = readPrice(highIn, PRICE_MAX); renderShop(); });
-$id("shop-sort-sel").addEventListener("change", (e) => { state.sort = e.target.value; renderShop(); });
+/* будь-яка зміна фільтрів знову показує лише перші товари */
+lowIn.addEventListener("change", () => { state.low = readPrice(lowIn, PRICE_MIN); state.limit = FIRST_SHOWN; renderShop(); });
+highIn.addEventListener("change", () => { state.high = readPrice(highIn, PRICE_MAX); state.limit = FIRST_SHOWN; renderShop(); });
+$id("shop-sort-sel").addEventListener("change", (e) => { state.sort = e.target.value; state.limit = FIRST_SHOWN; renderShop(); });
+$id("shop-more").addEventListener("click", () => {
+  state.limit += MORE_STEP;
+  renderShop();
+});
 $id("shop-cats").addEventListener("click", (e) => {
   const b = e.target.closest("button[data-cat]");
   if(!b) return;
   state.category = b.dataset.cat === "" ? null : b.dataset.cat;
+  state.limit = FIRST_SHOWN;
   renderShop();
 });
 $id("shop-grid").addEventListener("click", (e) => {
+  const card = e.target.closest(".shop-card");
+  if(card && e.target.closest(".shop-img, h4")){
+    /* «відкрили» товар: переносимо його в кінець історії без повторів */
+    const i = +card.dataset.i;
+    state.history = state.history.filter(x => x !== i).concat(i).slice(-20);
+    renderRecent();
+    const recent = $id("shop-recent-wrap");
+    recent.classList.remove("shop-flash");
+    void recent.offsetWidth;
+    recent.classList.add("shop-flash");
+    return;
+  }
   if(!e.target.closest(".shop-buy")) return;
   state.cart++;
   $id("shop-cart").textContent = state.cart;
