@@ -14,6 +14,7 @@
 <link rel="stylesheet" href="css/shell.css">
 <link rel="stylesheet" href="css/collections.css">
 <link rel="stylesheet" href="css/functions.css">
+<link rel="stylesheet" href="css/shop.css">
 </head>
 <body data-route="home">
 
@@ -185,6 +186,35 @@
             <p>Три контейнери для багатьох значень одразу: чим <code>list</code> відрізняється від <code>dict</code> і <code>set</code>, і що вміють <code>sorted</code>, <code>map</code>, <code>filter</code> та решта вбудованих функцій.</p>
             <div class="card-meta"><span>3 під-теми</span><span>26 віджетів</span><span>розділ Advanced</span></div>
             <div class="card-go">Читати тему <em>→</em></div>
+          </div>
+        </a>
+
+      </div>
+
+      <div class="home-sec" id="practice">
+        <h2>Практика</h2>
+        <span>пиши код — і дивись, як він оживляє справжній сайт</span>
+      </div>
+
+      <div class="cards practice-cards">
+
+        <a class="card practice reveal" href="#/shop" data-viz="shop">
+          <div class="card-viz">
+            <svg viewBox="0 0 320 152" class="viz viz-shop" aria-hidden="true">
+              <text class="vz-code" x="14" y="20" data-line>prices = [1899, 449, 3499, 799]</text>
+              <g data-tile="0"><rect class="vz-tile" x="14" y="34" width="64" height="82" rx="9"/><rect class="vz-pic" x="21" y="41" width="50" height="38" rx="5"/><text class="vz-price" x="46" y="102">1899</text></g>
+              <g data-tile="1"><rect class="vz-tile" x="90" y="34" width="64" height="82" rx="9"/><rect class="vz-pic" x="97" y="41" width="50" height="38" rx="5"/><text class="vz-price" x="122" y="102">449</text></g>
+              <g data-tile="2"><rect class="vz-tile" x="166" y="34" width="64" height="82" rx="9"/><rect class="vz-pic" x="173" y="41" width="50" height="38" rx="5"/><text class="vz-price" x="198" y="102">3499</text></g>
+              <g data-tile="3"><rect class="vz-tile" x="242" y="34" width="64" height="82" rx="9"/><rect class="vz-pic" x="249" y="41" width="50" height="38" rx="5"/><text class="vz-price" x="274" y="102">799</text></g>
+              <text class="vz-line" x="14" y="140" data-note>каталог як є</text>
+            </svg>
+          </div>
+          <div class="card-body">
+            <span class="card-tag">практика до теми «Списки»</span>
+            <h3>Оживи магазин</h3>
+            <p>Інтернет-магазин, у якому не працюють сортування, фільтри й статистика. Сім функцій на <code>len</code>, <code>min</code>, <code>max</code>, <code>sorted</code> і цикл з <code>append</code> вмикають їх по черзі.</p>
+            <div class="card-meta"><span>7 завдань</span><span>тести одразу</span><span>Python у браузері</span></div>
+            <div class="card-go">Відкрити практику <em>→</em></div>
           </div>
         </a>
 
@@ -927,6 +957,11 @@ print("кінець")</pre>
       <span class="sc-t">Списки</span>
       <span class="sc-d">Індекси, зрізи, зміна на місці. Advanced: sorted, map, filter, sum, zip, спискові вирази.</span>
     </a>
+    <a class="subcard" href="#/shop">
+      <span class="sc-mark">практика</span>
+      <span class="sc-t">Оживи магазин</span>
+      <span class="sc-d">Сім функцій для списків, які вмикають сортування, фільтри й статистику справжнього магазину.</span>
+    </a>
     <a class="subcard" href="#/dict">
       <span class="sc-mark">4.2</span>
       <span class="sc-t">Словники</span>
@@ -1138,6 +1173,199 @@ print(res)</pre>
     <tr><td>enumerate(a) &nbsp; zip(a, b)</td><td>номер + значення / пари з двох списків</td></tr>
     <tr><td>a + b &nbsp; a * 3</td><td>склеїти списки / повторити</td></tr>
     <tr><td>"-".join(words)</td><td>зібрати список рядків в один рядок</td></tr>
+  </table>
+
+
+  <h2>Далі: практика</h2>
+  <p>Теорії досить — час написати кілька функцій самому. На сторінці практики на тебе чекає магазин, у якому не працюють сортування, фільтри й статистика. Кожна функція, яку ти допишеш, вмикає одну з цих частин.</p>
+
+  <div class="subcards">
+    <a class="subcard" href="#/shop">
+      <span class="sc-mark">практика</span>
+      <span class="sc-t">Оживи магазин</span>
+      <span class="sc-d">7 функцій на <code>len</code>, <code>min</code>, <code>max</code>, <code>sum</code>, <code>sorted</code> і цикл з <code>append</code>. Код запускається прямо на сторінці.</span>
+    </a>
+  </div>
+
+  </div>
+  </section>
+
+
+  <!-- ================= практика: магазин ================= -->
+  <section class="page" id="page-shop" hidden>
+  <div class="wrap wide">
+
+  <header class="top">
+    <h1>Практика: оживи магазин</h1>
+    <p class="lede">Перед тобою інтернет-магазин, у якому майже нічого не працює: каталог не сортується, товари не фільтруються, а статистика показує прочерки. Усе це тримається на <b>семи маленьких функціях</b> для роботи зі списками. Напиши їх — і магазин оживе просто на твоїх очах.</p>
+  </header>
+
+  <div class="hero shop-hero" id="shop-hero">
+    <div class="shop-prog">
+      <div class="shop-prog-bar"><i id="shop-progress-fill"></i></div>
+      <span id="shop-progress-text">Виконано 0 з 7</span>
+    </div>
+    <div class="shop-chips" id="shop-chips"></div>
+  </div>
+
+  <h2>Як це працює</h2>
+  <div class="steps3">
+    <div class="step3"><span class="step3-n">1</span><b>Пишеш функцію</b><p>У кожного завдання є заготовка. Прибери рядок <code>raise NotImplementedError(...)</code> і напиши свою реалізацію.</p></div>
+    <div class="step3"><span class="step3-n">2</span><b>Запускаєш тести</b><p>Кнопка <b>▶ Запустити</b> або <kbd>Ctrl</kbd>+<kbd>Enter</kbd>. Праворуч з'явиться таблиця: що мало вийти і що вийшло насправді.</p></div>
+    <div class="step3"><span class="step3-n">3</span><b>Магазин оживає</b><p>Щойно функція написана, магазин одразу нею користується. Код зберігається в цьому браузері автоматично.</p></div>
+  </div>
+  <p>Усе виконує справжній Python, який працює прямо в браузері, — нічого встановлювати не треба. Одна важлива деталь: товари в магазині — це складні записи з назвою, ціною, категорією й фото, але твої функції їх <b>не бачать</b>. Магазин сам розбирає товари на прості списки, наприклад <code>[1899, 3499, 2299, …]</code> для цін, і передає у функцію саме такий список. Тож кожне завдання — про звичайний список чисел або рядків.</p>
+
+  <div class="callout warn">
+    <p><b>Обережно з <code>while</code>.</b> Якщо цикл ніколи не закінчиться, вкладка зависне. Тоді просто перезавантаж сторінку: код збережеться, а завислу функцію сторінка сама вже не запускатиме, поки ти не натиснеш «Запустити».</p>
+  </div>
+
+  <h2 id="shop-shop">Магазин</h2>
+  <p>Це і є вітрина. Поки завдання не розв'язані, під фільтрами з'являються підказки, що саме ще не працює. Посилання в них ведуть до потрібного завдання.</p>
+
+  <div class="store" id="shop-widget">
+    <header class="store-top">
+      <span class="store-logo"><span class="store-mark">Py</span>Shop</span>
+      <span class="store-nav" aria-hidden="true"><span class="on">Каталог</span><span>Новинки</span><span>Доставка</span><span>Контакти</span></span>
+      <span class="store-cart" id="shop-cartbox" title="Кошик">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2.2l2.1 10.2a2 2 0 0 0 2 1.6h7.6a2 2 0 0 0 2-1.5L20.5 8H6.4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10" cy="19.5" r="1.4"/><circle cx="17" cy="19.5" r="1.4"/></svg>
+        <span>Кошик</span><b id="shop-cart">0</b>
+      </span>
+    </header>
+
+    <div class="store-loading" id="shop-loading">
+      <span class="shop-spin" aria-hidden="true"></span>
+      <span>Завантажуємо Python у браузер… Уперше це може зайняти кілька секунд.</span>
+    </div>
+
+    <div class="store-body" id="shop-body" hidden>
+      <div class="store-banner">
+        <div class="store-banner-t">
+          <span class="store-kicker">новий сезон</span>
+          <h3>Усе для навчання, спорту й дому</h3>
+          <p id="shop-banner-price"></p>
+        </div>
+        <div class="store-banner-pics" aria-hidden="true">
+          <img src="img/shop/rgb-mechanical-keyboard.jpg" alt="">
+          <img src="img/shop/trailpack-backpack.jpg" alt="">
+          <img src="img/shop/steelflow-water-bottle.jpg" alt="">
+        </div>
+      </div>
+
+      <div class="shop-stats" id="shop-stats"></div>
+
+      <div class="store-main">
+        <aside class="store-side">
+          <div class="store-block" id="shop-cats-wrap">
+            <h4>Категорії</h4>
+            <div class="store-cats" id="shop-cats" role="group" aria-label="Категорія"></div>
+          </div>
+          <div class="store-block" id="shop-price">
+            <h4>Ціна, ₴</h4>
+            <div class="store-range">
+              <label><span>від</span><input type="number" id="shop-low" step="50"></label>
+              <label><span>до</span><input type="number" id="shop-high" step="50"></label>
+            </div>
+            <p class="store-note">Нова межа застосовується, коли виходиш з поля або тиснеш Enter.</p>
+          </div>
+        </aside>
+
+        <div class="store-catalog">
+          <div class="store-toolbar">
+            <span id="shop-count"></span>
+            <label id="shop-sort"><span>Сортування</span>
+              <select id="shop-sort-sel" class="shop-select">
+                <option value="default">за замовчуванням</option>
+                <option value="price_asc">спершу дешевші</option>
+                <option value="price_desc">спершу дорожчі</option>
+                <option value="name_asc">за назвою А–Я</option>
+              </select>
+            </label>
+          </div>
+          <div class="store-warn" id="shop-warn" hidden></div>
+          <div class="shop-grid" id="shop-grid"></div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="store-foot">PyShop — навчальний макет для практики зі списками. Не справжній магазин.</footer>
+  </div>
+
+  <article class="pytask" id="shop-task-get_length">
+    <div class="pyt-info">
+      <h2>1. len(): скільки товарів знайдено</h2>
+      <p>Почнемо з найпростішого. Над каталогом є картка «товарів знайдено» — їй потрібна кількість елементів у списку цін. Функція <code>get_length</code> отримує список <code>items</code> і має повернути, скільки в ньому елементів.</p>
+      <p>Рахувати циклом не треба: у Python для цього є вбудована функція. Зверни увагу на другий тест — порожній список теж має довжину.</p>
+    </div>
+    <div class="pyt-work"></div>
+  </article>
+
+  <article class="pytask" id="shop-task-get_min">
+    <div class="pyt-info">
+      <h2>2. min(): найдешевший товар</h2>
+      <p>Картка «мінімальна ціна» чекає на <code>get_min</code>: поверни <b>найменший</b> елемент списку. Від'ємні числа й дробові ціни на кшталт <code>449.0</code> теж мають працювати.</p>
+    </div>
+    <div class="pyt-work"></div>
+  </article>
+
+  <article class="pytask" id="shop-task-get_max">
+    <div class="pyt-info">
+      <h2>3. max(): найдорожчий товар</h2>
+      <p>Дзеркальне завдання: <code>get_max</code> повертає <b>найбільший</b> елемент списку. Коли зробиш його, увімкни фільтр за категорією чи ціною й подивись, як міняється максимальна ціна.</p>
+    </div>
+    <div class="pyt-work"></div>
+  </article>
+
+  <div class="callout">
+    <p><b>Порожній список.</b> Якщо фільтри не залишили жодного товару, <code>min([])</code> і <code>max([])</code> падають з <code>ValueError</code>. Магазин це витримає й покаже прочерк, але у своїх програмах про такий випадок варто пам'ятати.</p>
+  </div>
+
+  <article class="pytask" id="shop-task-get_average">
+    <div class="pyt-info">
+      <h2>4. sum() / len(): середня ціна</h2>
+      <p><code>get_average</code> повертає середнє арифметичне: суму всіх чисел, поділену на їхню кількість. Обидві частини цієї формули — вбудовані функції, які ти вже знаєш.</p>
+      <p>Ділення через <code>/</code> у Python завжди дає дробове число, тому для <code>[2, 4, 6]</code> вийде саме <code>4.0</code>, а не <code>4</code>.</p>
+    </div>
+    <div class="pyt-work"></div>
+  </article>
+
+  <article class="pytask" id="shop-task-sort_values">
+    <div class="pyt-info">
+      <h2>5. sorted(): сортування каталогу</h2>
+      <p>Тепер оживимо список «Сортування». <code>sort_values</code> отримує список цін чи назв і повертає <b>новий</b> відсортований список. Параметр <code>reverse=True</code> означає «від більшого до меншого».</p>
+      <p>Тут легко помилитись. Магазин знає, яка ціна якому товару належить, лише поки вхідний список не змінився. Тому <code>items</code> після виклику має лишитися таким, як був: згадай, чим <code>sorted(items)</code> відрізняється від <code>items.sort()</code>. Останній тест ловить саме цю помилку.</p>
+    </div>
+    <div class="pyt-work"></div>
+  </article>
+
+  <article class="pytask" id="shop-task-filter_by_category">
+    <div class="pyt-info">
+      <h2>6. for + append: фільтр за категорією</h2>
+      <p>Кнопки категорій працюють через <code>filter_by_category</code>. Вона отримує список <code>categories</code>, де <code>categories[i]</code> — категорія <code>i</code>-го товару, і повертає <b>список індексів</b> тих товарів, чия категорія дорівнює <code>target</code>.</p>
+      <p>Готової функції тут немає, тож знадобиться цикл: заведи порожній список, пройдись по <code>categories</code> і через <code>append</code> додавай індекс кожного потрібного елемента. <code>enumerate</code> дає індекс і значення одразу.</p>
+    </div>
+    <div class="pyt-work"></div>
+  </article>
+
+  <article class="pytask" id="shop-task-filter_by_price_range">
+    <div class="pyt-info">
+      <h2>7. for + append: фільтр за ціною</h2>
+      <p>Останнє завдання — поля «ціна від / до». <code>filter_by_price_range</code> повертає індекси всіх цін, для яких <code>low &lt;= prices[i] &lt;= high</code>. Обидві межі входять у діапазон.</p>
+      <p>Цикл той самий, що й у попередньому завданні, змінюється лише умова. У Python її можна записати ланцюжком — саме так, як у формулі вище.</p>
+    </div>
+    <div class="pyt-work"></div>
+  </article>
+
+  <h2>Що ми використали</h2>
+  <table class="cheat">
+    <tr><td>len(items)</td><td>кількість елементів</td></tr>
+    <tr><td>min(items) &nbsp; max(items)</td><td>найменший / найбільший елемент</td></tr>
+    <tr><td>sum(items) / len(items)</td><td>середнє арифметичне</td></tr>
+    <tr><td>sorted(items, reverse=True)</td><td>новий відсортований список, оригінал не змінюється</td></tr>
+    <tr><td>items.sort()</td><td>сортує на місці й повертає None</td></tr>
+    <tr><td>for i, x in enumerate(items):</td><td>індекс і значення разом</td></tr>
+    <tr><td>result.append(i)</td><td>додати елемент у кінець нового списку</td></tr>
+    <tr><td>low &lt;= x &lt;= high</td><td>ланцюжок порівнянь: x у діапазоні</td></tr>
   </table>
 
   </div>
@@ -1467,6 +1695,7 @@ b = list(dict.fromkeys(names))</pre>
 <script src="js/pages/func.js"></script>
 <script src="js/pages/coll.js"></script>
 <script src="js/pages/list.js"></script>
+<script src="js/pages/shop.js"></script>
 <script src="js/pages/dict.js"></script>
 <script src="js/pages/set.js"></script>
 
