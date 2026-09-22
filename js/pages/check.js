@@ -9,6 +9,9 @@
    випадково береться один з кількох рівноцінних варіантів і порядок
    відповідей у ньому — це зберігається назавжди в localStorage, так само
    як і остаточний результат. Переграти не можна.
+
+   Після завершення учень отримує посилання #/check/r/<дані>, у якому
+   закодовано весь результат, — його можна відкрити в будь-якому браузері.
    ========================================================================== */
 "use strict";
 window.PageInit["check"] = function(){
@@ -643,10 +646,15 @@ function makePick(){
   return pick;
 }
 
-let pick = readJSON(PICK_KEY, null);
-if(!pick){
-  pick = makePick();
-  writeJSON(PICK_KEY, pick);
+/* Набір створюється лише тоді, коли учень справді відкриває свій тест, —
+   перегляд чужого результату за посиланням нічого не записує. */
+let pick = null;
+function ensurePick(){
+  pick = readJSON(PICK_KEY, null);
+  if(!pick){
+    pick = makePick();
+    writeJSON(PICK_KEY, pick);
+  }
 }
 
 const variantOf = (slot) => slot.variants[pick[slot.id].variant];
@@ -840,29 +848,191 @@ function updateProgress(){
 }
 
 /* ============================ оцінювання й результати ============================ */
+/* Пункт результату будується лише з номера варіанта й відповіді учня —
+   так само і після тесту, і з посилання, яким поділилися. */
+function mcqItem(slot, variantIdx, chosenIdx){
+  const variant = slot.variants[variantIdx];
+  const opt = chosenIdx != null ? variant.options[chosenIdx] : null;
+  const correctIdx = variant.options.findIndex(o => o.credit === 1);
+  return { slotId:slot.id, type:"mcq", topic:slot.topic, points:slot.points,
+    variant:variantIdx, chosenIdx, earned:(opt ? opt.credit : 0) * slot.points,
+    question:variant.q, chosenText: opt ? opt.text : null, chosenCredit: opt ? opt.credit : 0,
+    correctText: variant.options[correctIdx].text, explain:variant.explain };
+}
+
+function codeItem(slot, variantIdx, source, passed, error){
+  const variant = slot.variants[variantIdx];
+  return { slotId:slot.id, type:"code", topic:slot.topic, points:slot.points,
+    variant:variantIdx, earned: passed ? slot.points : 0, passed,
+    title:variant.title, yourCode:source, error: error || null, solution:variant.solution };
+}
+
+const withTotal = (items, finishedAt) =>
+  ({ total: items.reduce((sum, it) => sum + it.earned, 0), max:MAX_POINTS, items, finishedAt });
+
 function gradeAll(){
-  let total = 0;
   const items = SLOTS.map(slot => {
-    const variant = variantOf(slot);
+    const v = pick[slot.id].variant;
     if(slot.type === "mcq"){
       const idx = draft.mcq[slot.id];
-      const opt = idx != null ? variant.options[idx] : null;
-      const correctIdx = variant.options.findIndex(o => o.credit === 1);
-      const earned = (opt ? opt.credit : 0) * slot.points;
-      total += earned;
-      return { slotId:slot.id, type:"mcq", topic:slot.topic, points:slot.points, earned,
-        question:variant.q, chosenText: opt ? opt.text : null, chosenCredit: opt ? opt.credit : 0,
-        correctText: variant.options[correctIdx].text, explain:variant.explain };
+      return mcqItem(slot, v, idx != null ? idx : null);
     }
+    const variant = slot.variants[v];
     const source = draft.code[slot.id] != null ? draft.code[slot.id] : variant.starter;
     const err = install(variant.fn, source);
     const passed = !err && testsPass(variant.fn, variant.tests);
-    const earned = passed ? slot.points : 0;
-    total += earned;
-    return { slotId:slot.id, type:"code", topic:slot.topic, points:slot.points, earned, passed,
-      title:variant.title, yourCode:source, error: err || null, solution:variant.solution };
+    return codeItem(slot, v, source, passed, err);
   });
-  return { total, max:MAX_POINTS, items, finishedAt:new Date().toISOString() };
+  return withTotal(items, new Date().toISOString());
+}
+
+/* ============================ посилання на результат ============================ */
+/* Сервера немає, тож увесь результат їде в самому посиланні #/check/r/<дані>.
+   Тексти питань, пояснення й розв'язки сторінка бере зі SLOTS, а в посиланні
+   лише відповіді учня — компактним масивом у порядку SLOTS:
+     [версія, час завершення (секунди, base36), контрольна сума, пункти…]
+     пункт з варіантами — [варіант, вибрана відповідь або -1]
+     пункт з кодом      — [варіант, 1/0 тести пройдено, код, помилка]
+   Код зберігається як різниця зі стартовим: [скільки символів збігається
+   на початку, скільки в кінці, що між ними], або 0, якщо учень його не чіпав.
+   Так docstring-и, які учні зазвичай лишають, у посилання не потрапляють.
+   Тому стартовий код уже виданих варіантів не можна міняти: старі посилання
+   відновили б код неправильно. Контрольна сума стартових кодів це ловить
+   і показує помилку замість спотвореного коду. Нове — додавай новим варіантом
+   у кінець списку.
+   JSON стискається deflate-raw і кодується base64url; перша літера — формат
+   ("z" стиснене, "j" — ні, для браузерів без CompressionStream).
+   Це не захист: хто захоче, розпакує посилання й підмінить відповіді. */
+const SHARE_VERSION = 2;
+const SHARE_RE = /^#\/?check\/r\/([A-Za-z0-9_-]+)$/;
+
+/* FNV-1a — короткий відбиток стартових кодів вибраних варіантів */
+function starterSum(variants){
+  let h = 0x811c9dc5;
+  const s = variants.map(v => v.starter).join("\u0000");
+  for(let i = 0; i < s.length; i++){ h ^= s.charCodeAt(i); h = Math.imul(h, 0x01000193); }
+  return (h >>> 0).toString(36);
+}
+const codeVariants = (variantOf) =>
+  SLOTS.filter(slot => slot.type === "code").map(slot => slot.variants[variantOf(slot)]);
+
+function codeDiff(base, s){
+  if(s === base) return 0;
+  let p = 0;
+  while(p < base.length && p < s.length && base[p] === s[p]) p++;
+  let q = 0;
+  while(q < base.length - p && q < s.length - p && base[base.length - 1 - q] === s[s.length - 1 - q]) q++;
+  return [p, q, s.slice(p, s.length - q)];
+}
+
+function sharePayload(result){
+  /* результати, збережені до появи посилань, не мають variant/chosenIdx —
+     дістаємо їх із набору учня та тексту вибраної відповіді */
+  const savedPick = readJSON(PICK_KEY, {});
+  const byId = {};
+  for(const item of result.items){
+    const slot = BY_ID[item.slotId];
+    const v = item.variant != null ? item.variant : (savedPick[item.slotId] || {}).variant;
+    if(!slot || !slot.variants[v]) return null;
+    if(item.type === "mcq"){
+      const idx = item.chosenIdx !== undefined ? item.chosenIdx
+        : slot.variants[v].options.findIndex(o => o.text === item.chosenText);
+      byId[slot.id] = [v, idx == null || idx < 0 ? -1 : idx];
+    } else {
+      byId[slot.id] = [v, item.passed ? 1 : 0, codeDiff(slot.variants[v].starter, item.yourCode), item.error || ""];
+    }
+  }
+  if(SLOTS.some(slot => !byId[slot.id])) return null;
+  const t = Date.parse(result.finishedAt);
+  return [SHARE_VERSION, isNaN(t) ? "" : Math.round(t / 1000).toString(36),
+    starterSum(codeVariants(slot => byId[slot.id][0])), ...SLOTS.map(slot => byId[slot.id])];
+}
+
+/* зворотне до sharePayload; посилання — чужі дані, тож перевіряємо кожне поле.
+   null — посилання пошкоджене, "stale" — створене до зміни стартового коду */
+function resultFromPayload(p){
+  const isIdx = (n, len) => Number.isInteger(n) && n >= 0 && n < len;
+  if(!Array.isArray(p) || p[0] !== SHARE_VERSION || p.length !== SLOTS.length + 3) return null;
+  const entries = p.slice(3);
+  if(entries.some((e, i) => !Array.isArray(e) || !isIdx(e[0], SLOTS[i].variants.length))) return null;
+  if(p[2] !== starterSum(codeVariants(slot => entries[SLOTS.indexOf(slot)][0]))) return "stale";
+
+  const items = [];
+  for(let i = 0; i < SLOTS.length; i++){
+    const slot = SLOTS[i], e = entries[i];
+    const variant = slot.variants[e[0]];
+    if(slot.type === "mcq"){
+      if(e[1] !== -1 && !isIdx(e[1], variant.options.length)) return null;
+      items.push(mcqItem(slot, e[0], e[1] === -1 ? null : e[1]));
+      continue;
+    }
+    const d = e[2], base = variant.starter;
+    let code = base;
+    if(d !== 0){
+      if(!Array.isArray(d) || !isIdx(d[0], base.length + 1) || !isIdx(d[1], base.length + 1 - d[0])
+         || typeof d[2] !== "string") return null;
+      code = base.slice(0, d[0]) + d[2] + base.slice(base.length - d[1]);
+    }
+    if(typeof e[3] !== "string") return null;
+    items.push(codeItem(slot, e[0], code, e[1] === 1, e[3]));
+  }
+  const secs = typeof p[1] === "string" && /^[0-9a-z]{1,9}$/.test(p[1]) ? parseInt(p[1], 36) : NaN;
+  return withTotal(items, isNaN(secs) ? null : new Date(secs * 1000).toISOString());
+}
+
+function b64url(bytes){
+  let bin = "";
+  for(let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+  return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+function unb64url(str){
+  const s = str.replace(/-/g, "+").replace(/_/g, "/");
+  const bin = atob(s + "===".slice((s.length + 3) % 4));
+  return Uint8Array.from(bin, ch => ch.charCodeAt(0));
+}
+const pipeBytes = (bytes, transform) =>
+  new Response(new Blob([bytes]).stream().pipeThrough(transform)).arrayBuffer().then(b => new Uint8Array(b));
+
+async function packShare(obj){
+  const bytes = new TextEncoder().encode(JSON.stringify(obj));
+  let deflate = null;
+  try { deflate = new CompressionStream("deflate-raw"); } catch(e){}
+  if(!deflate) return "j" + b64url(bytes);
+  return "z" + b64url(await pipeBytes(bytes, deflate));
+}
+async function unpackShare(str){
+  let bytes = unb64url(str.slice(1));
+  if(str[0] === "z") bytes = await pipeBytes(bytes, new DecompressionStream("deflate-raw"));
+  else if(str[0] !== "j") throw new Error("невідомий формат посилання");
+  return JSON.parse(new TextDecoder().decode(bytes));
+}
+
+async function shareUrl(result){
+  const payload = sharePayload(result);
+  if(!payload) return null;
+  return location.href.split("#")[0] + "#/check/r/" + await packShare(payload);
+}
+
+function wireShare(box, result){
+  const wrap = box.querySelector(".checkr-share");
+  const input = wrap.querySelector("input");
+  const btn = wrap.querySelector("button");
+  shareUrl(result).then(url => {
+    if(!url || !wrap.isConnected) return;
+    input.value = url;
+    wrap.hidden = false;
+  }).catch(err => console.error("не вдалося зібрати посилання", err));
+
+  let timer = null;
+  btn.addEventListener("click", async () => {
+    input.select();
+    let ok = false;
+    try { await navigator.clipboard.writeText(input.value); ok = true; }
+    catch(e){ try { ok = document.execCommand("copy"); } catch(e2){} }
+    btn.textContent = ok ? "Скопійовано ✓" : "Натисни Ctrl+C";
+    clearTimeout(timer);
+    timer = setTimeout(() => { btn.textContent = "Копіювати"; }, 2000);
+  });
 }
 
 function resultBadge(item){
@@ -870,9 +1040,11 @@ function resultBadge(item){
   return item.passed ? "ok" : "bad";
 }
 
-function renderResults(result){
+/* shared — результат відкрито за посиланням, а не з цього браузера */
+function renderResults(result, shared){
   $id("check-body").hidden = true;
   $id("check-progress-wrap").hidden = true;
+  $id("check-loading").hidden = true;
   const box = $id("check-results");
   box.hidden = false;
 
@@ -905,12 +1077,30 @@ function renderResults(result){
     </article>`;
   }).join("");
 
+  const when = result.finishedAt
+    ? new Date(result.finishedAt).toLocaleString("uk-UA", { dateStyle:"long", timeStyle:"short" }) : "";
+
+  const note = shared
+    ? `<p>Це результат, яким поділилися за посиланням${when ? ` · тест завершено ${esc(when)}` : ""}.
+         Нижче — усі завдання з правильними відповідями.</p>
+       <a class="checkr-own" href="#/check">До власного тесту →</a>`
+    : `<p>Результат збережено в цьому браузері. Нижче — усі завдання з правильними відповідями.</p>
+       <div class="checkr-share" hidden>
+         <p class="checkr-share-t">Посилання на цей результат: відкривається в будь-якому браузері, можна надіслати вчителю.</p>
+         <div class="checkr-share-row">
+           <input type="text" class="checkr-share-url" readonly aria-label="Посилання на результат">
+           <button type="button" class="ctl">Копіювати</button>
+         </div>
+       </div>`;
+
   box.innerHTML = `
     <div class="checkr-score">
       <div class="checkr-score-n">${fmt(result.total)}<span> / ${result.max}</span></div>
-      <p>Результат збережено в цьому браузері. Нижче — усі завдання з правильними відповідями.</p>
+      ${note}
     </div>
     <div class="checkr-list">${items}</div>`;
+
+  if(!shared) wireShare(box, result);
 }
 
 /* ============================ завершення тесту ============================ */
@@ -925,32 +1115,92 @@ function wireFinish(){
     const result = gradeAll();
     writeJSON(RESULT_KEY, result);
     store.del(DRAFT_KEY);
-    renderResults(result);
+    renderResults(result, false);
+    /* кнопка була внизу довгої сторінки — повертаємо на початок, де видно бал;
+       фокус (для читачів екрана) ставимо до скролу, щоб не перервати анімацію */
+    const score = $id("check-results").querySelector(".checkr-score");
+    score.tabIndex = -1;
+    score.focus({ preventScroll:true });
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.scrollTo({ top:0, behavior: reduced ? "auto" : "smooth" });
   });
 }
 
-/* ============================ старт ============================ */
-const existing = readJSON(RESULT_KEY, null);
-if(existing){
-  $id("check-loading").hidden = true;
-  $id("check-progress-wrap").hidden = true;
-  renderResults(existing);
-} else {
+/* ============================ режими сторінки ============================ */
+/* #/check — власний тест цього браузера, #/check/r/<дані> — результат за
+   посиланням. Між ними можна ходити без перезавантаження, тож власний тест
+   запускається один раз, а далі лише ховається й показується. */
+let bootState = "idle";         /* idle → loading → ready | failed */
+let viewToken = 0;              /* щоб запізніле розпакування не перемалювало інший режим */
+
+function startTest(){
+  ensurePick();
   renderSlots();
   updateProgress();
   wireFinish();
 
+  bootState = "loading";
   const loadingEl = $id("check-loading");
   bootPython().then(() => {
     $id("check-slots").querySelectorAll('[data-act="run"]').forEach(b => b.disabled = false);
-    loadingEl.hidden = true;
-    $id("check-body").hidden = false;
+    bootState = "ready";
   }).catch((err) => {
     console.error("Python не завантажився", err);
     loadingEl.innerHTML = `<b>Не вдалося завантажити Python.</b> Для практичних завдань потрібен інтернет: інтерпретатор підвантажується з cdn.jsdelivr.net. Перевір з'єднання й онови сторінку. Питання з варіантами відповіді можна проходити й так — вони не потребують Python.`;
     loadingEl.classList.add("err");
-    $id("check-body").hidden = false;
+    bootState = "failed";
+  }).then(() => {
+    if(!SHARE_RE.test(location.hash)) showOwn();
   });
 }
+
+function showOwn(){
+  $id("check-rules").hidden = false;
+  const existing = readJSON(RESULT_KEY, null);
+  if(existing){
+    renderResults(existing, false);
+    return;
+  }
+  $id("check-results").hidden = true;
+  $id("check-progress-wrap").hidden = false;
+  if(bootState === "idle") startTest();
+  $id("check-loading").hidden = bootState === "ready";
+  $id("check-body").hidden = bootState === "loading";
+}
+
+async function showShared(data, token){
+  ["check-rules", "check-progress-wrap", "check-loading", "check-body"].forEach(id => { $id(id).hidden = true; });
+  const box = $id("check-results");
+  box.hidden = false;
+  box.innerHTML = "";
+
+  let result = null;
+  try { result = resultFromPayload(await unpackShare(data)); }
+  catch(err){ console.error("не вдалося розпакувати посилання", err); }
+  if(token !== viewToken) return;
+
+  if(result && result !== "stale"){
+    renderResults(result, true);
+    return;
+  }
+  const why = result === "stale"
+    ? "Посилання створене для попередньої версії завдань — відтоді стартовий код змінився, тож відновити відповіді не вийде."
+    : "Посилання пошкоджене (можливо, його обрізало під час копіювання) або браузер застарий.";
+  box.innerHTML = `<div class="store-loading err"><span><b>Не вдалося відкрити результат.</b>
+    ${why} <a href="#/check">До власного тесту →</a></span></div>`;
+}
+
+function route(){
+  const token = ++viewToken;
+  const m = location.hash.match(SHARE_RE);
+  if(m) showShared(m[1], token);
+  else showOwn();
+}
+
+/* роутер уже показав сторінку; тут лише перемикаємо режим усередині неї */
+window.addEventListener("hashchange", () => {
+  if(/^#\/?check(\/|$)/.test(location.hash)) route();
+});
+route();
 
 };

@@ -129,8 +129,10 @@ function buildPager(route){
 }
 
 /* ============================ роутер ============================ */
+/* Після slug може йти хвіст (#/check/r/…) — його розбирає сама сторінка,
+   роутеру важливий лише перший сегмент. */
 function slugFromHash(){
-  let h = location.hash.replace(/^#\/?/, "").trim();
+  let h = location.hash.replace(/^#\/?/, "").trim().split("/")[0];
   if(ALIAS[h]) h = ALIAS[h];
   return FLAT.some(r=>r.slug===h) ? h : null;
 }
