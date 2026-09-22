@@ -1,0 +1,111 @@
+/* ==========================================================================
+   Самостійна робота «Перевір себе»: картка на головній, прогрес, картки
+   питань (MCQ і код) та екран результатів.
+   Картка завдання з кодом, редактор і підсвітка — спільні з практикою,
+   дивись css/pyeditor.css.
+   ========================================================================== */
+
+  /* ---------- картка на головній ---------- */
+  .cards.check-cards{grid-template-columns:repeat(auto-fill,minmax(min(296px,100%),1fr))}
+  .card.check{border-color:#c9b6f0}
+  .card.check .card-viz{background:linear-gradient(180deg,var(--i-soft),var(--panel-2))}
+  .card.check .card-go{color:var(--i)}
+  .check-tag{color:var(--i); background:var(--i-soft); border-color:#c9b6f0}
+
+  .check-viz{display:flex; flex-direction:column; justify-content:center; gap:8px; min-height:152px}
+  .checkviz-row{display:flex; align-items:center; gap:9px}
+  .checkviz-q{display:grid; place-items:center; width:22px; height:22px; border-radius:50%;
+    background:var(--card); border:1px solid var(--rule); font-family:var(--mono); font-size:.7rem;
+    color:var(--muted); flex:none}
+  .checkviz-row.code .checkviz-q{background:var(--i); border-color:var(--i); color:var(--card); font-weight:700}
+  .checkviz-bar{flex:1; height:8px; border-radius:999px; background:var(--rule-soft)}
+  .checkviz-row.code .checkviz-bar{background:#c9b6f0}
+  .checkviz-pt{font-family:var(--mono); font-size:.7rem; color:var(--muted); flex:none; width:54px; text-align:right}
+  .checkviz-total{margin-top:5px; font-size:.82rem; color:var(--muted); text-align:right}
+  .checkviz-total b{color:var(--i); font-family:var(--mono)}
+
+  /* ---------- прогрес на сторінці тесту ---------- */
+  .check-hero{padding:16px 20px}
+  .check-prog{display:flex; align-items:center; gap:14px; flex-wrap:wrap}
+  .check-prog-bar{flex:1 1 180px; height:8px; border-radius:999px; background:var(--panel-2);
+    border:1px solid var(--rule); overflow:hidden}
+  .check-prog-bar i{display:block; height:100%; width:0; background:var(--i); border-radius:999px;
+    transition:width var(--t-slow) var(--ease)}
+  #check-progress-text{font-family:var(--mono); font-size:.8rem; color:var(--muted); white-space:nowrap}
+
+  /* ---------- картка завдання: спільна для MCQ і практичних (з кодом) ---------- */
+  .checkq{border:1px solid var(--rule); border-radius:14px; background:var(--panel);
+    padding:20px 24px 22px; margin:0 0 18px}
+  .checkq-head{margin-bottom:10px}
+  .checkq-n{font-family:var(--mono); font-size:.76rem; color:var(--muted)}
+  .checkq-text{font-size:1rem; line-height:1.6; margin:0 0 14px}
+  .checkq-opts{display:flex; flex-direction:column; gap:8px; list-style:none; margin:0; padding:0}
+  .checkq-opt{display:flex; align-items:flex-start; gap:11px; padding:10px 14px; border:1.5px solid var(--rule);
+    border-radius:10px; cursor:pointer; background:var(--card);
+    transition:border-color var(--t-fast) var(--ease), background var(--t-fast) var(--ease)}
+  .checkq-opt:hover{border-color:var(--i)}
+  .checkq-opt.on{border-color:var(--i); background:var(--i-soft)}
+  .checkq-opt input{margin-top:3px; flex:none; accent-color:var(--i)}
+  .checkq-opt pre{margin:0; font-family:var(--mono); font-size:.86rem; line-height:1.5; white-space:pre-wrap;
+    overflow-wrap:anywhere}
+
+  /* редактор і рядок керування всередині картки завдання — без власних бічних
+     відступів і фону .pyed/.pyt-controls/.pyt-msg (інакше в .controls свій
+     var(--panel-2), і поверх фону картки з'являється темніша "заплатка"),
+     бо .checkq уже має і padding, і власний фон */
+  .checkq .pyed{margin:0 0 14px}
+  .checkq .pyt-controls{padding:10px 0; border-top:1px solid var(--rule-soft); background:none}
+  .checkq .pyt-msg{margin-top:10px; padding:10px 14px; border-radius:9px; border-top:0}
+
+  /* ---------- «Завершити тест» ---------- */
+  .check-finish{display:flex; flex-direction:column; align-items:center; gap:10px; text-align:center;
+    padding:28px 20px 8px}
+  .check-finish-note{margin:0; font-size:.86rem; color:var(--muted); max-width:52ch}
+
+  /* ---------- екран результатів ---------- */
+  .checkr-score{display:flex; flex-direction:column; align-items:center; gap:6px; padding:34px 20px;
+    border:1px solid var(--rule); border-radius:16px; background:var(--panel); margin-bottom:26px; text-align:center}
+  .checkr-score-n{font-family:var(--display); font-size:3rem; font-weight:700; color:var(--i); line-height:1}
+  .checkr-score-n span{font-size:1.35rem; color:var(--muted); font-weight:400}
+  .checkr-score p{margin:4px 0 0; color:var(--body); font-size:.96rem}
+  /* фокус ставиться сюди після завершення тесту лише для читачів екрана */
+  .checkr-score:focus{outline:none}
+
+  /* посилання на результат: своє — поле з кнопкою, чуже — перехід до власного тесту */
+  .checkr-share{width:100%; max-width:560px; margin-top:14px; padding-top:14px; border-top:1px solid var(--rule-soft)}
+  .checkr-score .checkr-share-t{margin:0 0 8px; font-size:.86rem; color:var(--muted)}
+  .checkr-share-row{display:flex; gap:8px}
+  .checkr-share-url{flex:1; min-width:0; padding:7px 11px; border:1px solid var(--rule); border-radius:8px;
+    background:var(--card); color:var(--ink); font-family:var(--mono); font-size:.8rem}
+  .checkr-share-row .ctl{flex:none}
+  .checkr-own{margin-top:10px; font-weight:600; color:var(--i)}
+
+  .checkr-list{display:flex; flex-direction:column; gap:14px}
+  .checkr-item{border:1px solid var(--rule); border-left-width:4px; border-radius:12px;
+    padding:16px 20px 18px; background:var(--card)}
+  .checkr-item.ok{border-left-color:var(--j)}
+  .checkr-item.partial{border-left-color:var(--hl-bar)}
+  .checkr-item.bad{border-left-color:var(--stop)}
+  .checkr-item-head{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:8px}
+  .checkr-item-head b{font-size:1.02rem; font-family:var(--display)}
+  .checkr-item-head span{font-family:var(--mono); font-size:.82rem; color:var(--muted); white-space:nowrap}
+  .checkr-q{margin:0 0 10px; font-size:.96rem; line-height:1.55}
+  .checkr-opts{list-style:none; margin:0 0 8px; padding:0; display:flex; flex-direction:column; gap:5px; font-size:.9rem}
+  .checkr-opts li{padding:7px 11px; border-radius:8px; background:var(--panel); font-family:var(--mono);
+    line-height:1.5; white-space:pre-wrap; overflow-wrap:anywhere}
+  .checkr-opts li b{font-family:var(--sans); font-weight:600; margin-right:6px}
+  .checkr-opts li.chosen.ok{background:var(--j-soft); color:#075c42}
+  .checkr-opts li.chosen.partial{background:#fbeecb; color:#7a5a06}
+  .checkr-opts li.chosen.bad{background:var(--stop-soft); color:#8f2419}
+  .checkr-opts li.correct{background:var(--j-soft); color:#075c42}
+  .checkr-explain{margin:6px 0 0; font-size:.88rem; color:var(--muted); line-height:1.55}
+  .checkr-code-t{margin:10px 0 4px; font-size:.78rem; color:var(--muted)}
+  .checkr-code{margin:0; padding:11px 13px; background:#fff; border:1px solid var(--rule); border-radius:9px;
+    font-family:var(--mono); font-size:.82rem; line-height:1.55; overflow-x:auto; white-space:pre}
+  .checkr-code.ref{background:var(--j-soft); border-color:#8ed3bb}
+
+  @media (max-width:640px){
+    .checkq{padding:16px 16px 18px}
+    .checkr-item{padding:14px 16px 16px}
+    .checkr-score-n{font-size:2.4rem}
+  }

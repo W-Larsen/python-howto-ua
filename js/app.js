@@ -22,7 +22,9 @@ const ROUTES = [
         nav:"Словники", title:"Словники в Python — ключ, значення і вбудовані функції" },
       { slug:"set",  id:"page-set",  num:"5.3",
         nav:"Множини",  title:"Множини в Python — набір без повторів" }
-    ]}
+    ]},
+  { slug:"check", id:"page-check", num:"✓",
+    nav:"Перевір себе", title:"Перевір себе — самостійна робота з Python" }
 ];
 /* плаский список — для «далі / назад» і для пошуку за slug */
 const FLAT = ROUTES.reduce((a, r) => a.concat([r], r.kids || []), []);
@@ -127,8 +129,10 @@ function buildPager(route){
 }
 
 /* ============================ роутер ============================ */
+/* Після slug може йти хвіст (#/check/r/…) — його розбирає сама сторінка,
+   роутеру важливий лише перший сегмент. */
 function slugFromHash(){
-  let h = location.hash.replace(/^#\/?/, "").trim();
+  let h = location.hash.replace(/^#\/?/, "").trim().split("/")[0];
   if(ALIAS[h]) h = ALIAS[h];
   return FLAT.some(r=>r.slug===h) ? h : null;
 }
