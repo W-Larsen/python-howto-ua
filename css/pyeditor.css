@@ -1,0 +1,106 @@
+/* ==========================================================================
+   Спільні стилі для сторінок з живим Python-редактором: картка завдання
+   (інфо-панель + редактор), підсвітка синтаксису, автодоповнення, вивід тестів.
+   Використовується практикою «Оживи магазин» і самостійною роботою «Перевір себе».
+   ========================================================================== */
+
+  /* ==================== картка завдання ==================== */
+  .pytask{display:grid; grid-template-columns:minmax(0,.78fr) minmax(0,1.5fr);
+    border:1px solid var(--rule); border-radius:14px; background:var(--panel); overflow:hidden}
+  .pyt-info{padding:22px 24px; border-right:1px solid var(--rule)}
+  .pyt-info h2{margin:0 0 .6em; font-size:1.4rem}
+  .pyt-info p{font-size:.97rem; line-height:1.62}
+  .pyt-info p:last-child{margin-bottom:0}
+  .pyt-work{min-width:0; background:var(--card); display:flex; flex-direction:column}
+  @media (max-width:1000px){
+    .pytask{grid-template-columns:1fr}
+    .pyt-info{border-right:0; border-bottom:1px solid var(--rule)}
+  }
+
+  .pyt-head{display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;
+    padding:11px 16px; background:var(--panel-2); border-bottom:1px solid var(--rule)}
+  .pyt-sig{font-size:.8rem; background:var(--card)}
+  .pyt-status{font-family:var(--mono); font-size:.72rem; padding:3px 10px; border-radius:999px;
+    border:1px solid var(--rule); background:var(--card); color:var(--muted); white-space:nowrap}
+  .pyt-status.ok{border-color:#8ed3bb; background:var(--j-soft); color:var(--j); font-weight:700}
+  .pyt-status.fail,.pyt-status.error,.pyt-status.hung{border-color:#e8b7ae; background:var(--stop-soft);
+    color:var(--stop)}
+  .pyt-where{padding:8px 16px 0; font-size:.84rem; color:var(--muted)}
+
+  /* редактор: прозора textarea поверх підсвіченого pre з тими самими метриками */
+  /* overflow лишається видимим, щоб список підказок міг виходити за межі редактора */
+  .pyed{position:relative; margin:10px 16px 14px; border:1px solid var(--rule); border-radius:9px;
+    background:#fff}
+  .pyed:focus-within{border-color:var(--i); box-shadow:0 0 0 3px var(--i-soft)}
+  .pyed-hl,.pyed-ta{margin:0; padding:12px 14px; font-family:var(--mono); font-size:.84rem;
+    line-height:1.65; tab-size:4; white-space:pre; overflow-wrap:normal; word-break:normal;
+    letter-spacing:0; border:0}
+  .pyed-hl{position:absolute; inset:0; overflow:hidden; pointer-events:none; color:#463c2f}
+  .pyed-ta{position:relative; display:block; width:100%; resize:vertical; min-height:9em;
+    overflow:auto; background:transparent; color:transparent; caret-color:var(--ink); outline:none}
+  .pyed-ta::selection{background:rgba(106,53,217,.22); color:transparent}
+
+  /* підсвітка Python: спільна для textarea-редактора (.pyed) і для будь-якого
+     статичного показу коду (.pysrc) — варіанти відповіді, код у результатах */
+  .pyed .kw, .pysrc .kw{color:#8a2fa6; font-weight:500}
+  .pyed .fn, .pysrc .fn{color:#2159bd}
+  .pyed .def, .pysrc .def{color:#2159bd; font-weight:700}
+  .pyed .num, .pysrc .num{color:var(--n)}
+  .pyed .str, .pysrc .str{color:#1c7148}
+  .pyed .cmt, .pysrc .cmt{color:#a29887; font-style:italic}
+
+  /* ---------- автодоповнення ---------- */
+  .pyac{position:absolute; z-index:20; min-width:210px; max-width:min(320px,calc(100% - 8px));
+    padding:4px; border:1px solid var(--rule); border-radius:9px; background:#fff;
+    box-shadow:0 14px 30px -12px rgba(60,45,25,.4); font-family:var(--mono); font-size:.8rem}
+  .pyac[hidden]{display:none}
+  .pyac-i{display:flex; align-items:baseline; justify-content:space-between; gap:14px;
+    padding:4px 8px; border-radius:6px; cursor:pointer; color:var(--body)}
+  .pyac-i:hover{background:var(--panel)}
+  .pyac-i.on{background:var(--i-soft); color:var(--ink)}
+  .pyac-w{white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .pyac-w b{color:var(--i); font-weight:700}
+  .pyac-k{flex:none; font-family:var(--sans); font-size:.7rem; color:var(--muted)}
+
+  /* .pyt-hint має flex-basis:100% — коли <details> розкривається, він завжди
+     займає весь рядок сам, а kbd-підказка й кнопка переносяться на свій
+     рядок нижче (замість накладання одне на одне поверх тексту підказки) */
+  .pyt-controls{border-top:1px solid var(--rule-soft); justify-content:flex-end}
+  .pyt-hint{flex:1 1 100%; font-size:.88rem}
+  .pyt-hint summary{cursor:pointer; color:var(--i); font-weight:500}
+  .pyt-hint p{margin:.5em 0 0; color:var(--body); max-width:60ch}
+  .pyt-kbd{font-family:var(--mono); font-size:.7rem; color:var(--muted)}
+  button.ctl.primary:disabled{opacity:.45}
+
+  .pyt-msg{padding:10px 16px; font-size:.9rem; line-height:1.5; border-top:1px solid var(--rule-soft);
+    font-family:var(--sans); white-space:pre-wrap; overflow-wrap:anywhere}
+  .pyt-msg[hidden]{display:none}
+  .pyt-msg.good{background:var(--j-soft); color:#075c42}
+  .pyt-msg.bad{background:var(--stop-soft); color:#8f2419}
+
+  .pyt-tests{background:var(--card); border-top:1px solid var(--rule-soft)}
+  .pyt-tests:empty{display:none}
+  .pyt-scroll{overflow-x:auto}
+  .pyt-table{width:100%; border-collapse:collapse; font-size:.82rem}
+  .pyt-table th{text-align:left; font-size:.7rem; letter-spacing:.06em; text-transform:uppercase;
+    color:#736a5e; font-weight:600; padding:8px 10px; border-bottom:1px solid var(--rule)}
+  .pyt-table td{padding:7px 10px; border-top:1px solid var(--rule-soft); vertical-align:top}
+  .pyt-table code{font-size:.92em; white-space:pre-wrap; overflow-wrap:anywhere}
+  .pyt-table tr.no td:last-child code{background:var(--stop-soft); border-color:#e8b7ae; color:var(--stop)}
+  .pyt-table tr.ok td:last-child code{background:var(--j-soft); border-color:#8ed3bb; color:var(--j)}
+  .pyt-mark{width:28px; font-weight:700; text-align:center}
+  tr.ok .pyt-mark{color:var(--j)}
+  tr.no .pyt-mark{color:var(--stop)}
+  .pyt-skip{margin:0; padding:12px 16px; font-size:.88rem; color:var(--muted)}
+  .pyt-out-t{padding:10px 16px 4px; font-family:var(--mono); font-size:.7rem; color:var(--muted)}
+  .pyt-out{margin:0 16px 14px; height:auto; max-height:10em}
+
+  kbd{font-family:var(--mono); font-size:.78em; padding:.05em .4em; border:1px solid var(--rule);
+    border-bottom-width:2px; border-radius:4px; background:var(--card); color:var(--ink)}
+
+  @media (max-width:520px){
+    .pyt-info{padding:16px}
+    .pyed{margin:10px 10px 12px}
+    .pyt-kbd{display:none}
+    .pyt-hint{flex:1 1 100%}
+  }

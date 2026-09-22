@@ -10,12 +10,14 @@
 <link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,600;7..72,700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 
 <!-- ?v=… — версія для кешу браузера: після змін у css/js підніми її тут і для скриптів унизу -->
-<link rel="stylesheet" href="css/base.css?v=20260917d">
-<link rel="stylesheet" href="css/topics.css?v=20260917d">
-<link rel="stylesheet" href="css/shell.css?v=20260917d">
-<link rel="stylesheet" href="css/collections.css?v=20260917d">
-<link rel="stylesheet" href="css/functions.css?v=20260917d">
-<link rel="stylesheet" href="css/shop.css?v=20260917d">
+<link rel="stylesheet" href="css/base.css?v=20260922f">
+<link rel="stylesheet" href="css/topics.css?v=20260922f">
+<link rel="stylesheet" href="css/shell.css?v=20260922f">
+<link rel="stylesheet" href="css/collections.css?v=20260922f">
+<link rel="stylesheet" href="css/functions.css?v=20260922f">
+<link rel="stylesheet" href="css/pyeditor.css?v=20260922f">
+<link rel="stylesheet" href="css/shop.css?v=20260922f">
+<link rel="stylesheet" href="css/check.css?v=20260922f">
 </head>
 <body data-route="home">
 
@@ -216,6 +218,33 @@
             <p>Інтернет-магазин, у якому не працюють сортування, фільтри й статистика. Десять функцій на <code>len</code>, <code>min</code>, <code>max</code>, <code>sorted</code>, цикли й зрізи вмикають їх по черзі.</p>
             <div class="card-meta"><span>10 завдань</span><span>тести одразу</span><span>Python у браузері</span></div>
             <div class="card-go">Відкрити практику <em>→</em></div>
+          </div>
+        </a>
+
+      </div>
+
+      <div class="home-sec" id="selfcheck">
+        <h2>Перевір себе</h2>
+        <span>підсумкова самостійна робота — одна спроба, свій набір завдань</span>
+      </div>
+
+      <div class="cards check-cards">
+
+        <a class="card check reveal" href="#/check">
+          <div class="card-viz check-viz" aria-hidden="true">
+            <div class="checkviz-row"><span class="checkviz-q">1</span><span class="checkviz-bar"></span><span class="checkviz-pt">1 бал</span></div>
+            <div class="checkviz-row"><span class="checkviz-q">2</span><span class="checkviz-bar"></span><span class="checkviz-pt">1 бал</span></div>
+            <div class="checkviz-row"><span class="checkviz-q">5</span><span class="checkviz-bar"></span><span class="checkviz-pt">1 бал</span></div>
+            <div class="checkviz-row code"><span class="checkviz-q">6</span><span class="checkviz-bar"></span><span class="checkviz-pt">2 бали</span></div>
+            <div class="checkviz-row code"><span class="checkviz-q">9</span><span class="checkviz-bar"></span><span class="checkviz-pt">1 бал</span></div>
+            <div class="checkviz-total">Разом — <b>12</b> балів</div>
+          </div>
+          <div class="card-body">
+            <span class="card-tag check-tag">самостійна робота</span>
+            <h3>Перевір себе</h3>
+            <p>12 балів на все: змінні й <code>print</code>/<code>input</code>/<code>int()</code>, умови, цикли, списки та словники. Питання з варіантами відповіді й практичні завдання з кодом — у кожного свій набір, складність однакова.</p>
+            <div class="card-meta"><span>9 завдань</span><span>12 балів</span><span>результат одразу</span></div>
+            <div class="card-go">Почати тест <em>→</em></div>
           </div>
         </a>
 
@@ -1716,31 +1745,74 @@ b = list(dict.fromkeys(names))</pre>
   </div>
   </section>
 
+  <!-- ================= самостійна робота: перевір себе ================= -->
+  <section class="page" id="page-check" hidden>
+  <div class="wrap wide">
+
+  <header class="top">
+    <h1>Перевір себе</h1>
+    <p class="lede">Підсумкова самостійна робота на <b>12 балів</b>: змінні та <code>print</code>/<code>input</code>/<code>int()</code>, умови, цикли, списки й словники. П'ять питань з варіантами відповіді та чотири практичні завдання з кодом.</p>
+  </header>
+
+  <div class="callout warn">
+    <p><b>Одна спроба.</b> У кожного свій набір завдань, але однакова складність і однакова максимальна кількість балів — 12. Результат зберігається в цьому браузері одразу після натискання «Завершити тест» і показується щоразу, коли повертаєшся на цю сторінку: переграти не можна. У практичних завданнях можна натискати «Запустити», щоб побачити вивід чи помилку свого коду, — але без підказки, пройшло воно приховані тести чи ні.</p>
+  </div>
+
+  <div class="hero check-hero" id="check-progress-wrap">
+    <div class="check-prog">
+      <div class="check-prog-bar"><i id="check-progress-fill"></i></div>
+      <span id="check-progress-text">Відповіли 0 з 9</span>
+    </div>
+  </div>
+
+  <div class="store-loading" id="check-loading">
+    <span class="shop-spin" aria-hidden="true"></span>
+    <span>Готуємо завдання й запускаємо Python у браузері… Уперше це може зайняти кілька секунд.</span>
+  </div>
+
+  <div id="check-body" hidden>
+    <div id="check-slots"></div>
+
+    <div class="check-finish">
+      <button type="button" class="ctl primary" id="check-finish-btn">Завершити тест</button>
+      <p class="check-finish-note">Після завершення побачиш бали й правильні відповіді. Змінити відповіді потім буде не можна.</p>
+    </div>
+  </div>
+
+  <div id="check-results" hidden></div>
+
+  </div>
+  </section>
+
 </main>
 
 
 <!-- оболонка: роутер, меню, анімації головної -->
-<script src="js/app.js?v=20260917d"></script>
+<script src="js/app.js?v=20260922f"></script>
 <!-- рушій руху: FLIP-переїзди й твіни; має бути до collkit.js -->
-<script src="js/motion.js?v=20260917d"></script>
+<script src="js/motion.js?v=20260922f"></script>
 <!-- спільний рушій віджетів розділу «Колекції» -->
-<script src="js/collkit.js?v=20260917d"></script>
+<script src="js/collkit.js?v=20260922f"></script>
 <!-- цеглинки блок-схем: фігури, стрілки, полотно -->
-<script src="js/flow.js?v=20260917d"></script>
+<script src="js/flow.js?v=20260922f"></script>
+<!-- спільний рушій Python-редактора (підсвітка, автодоповнення, Pyodide) —
+     потрібен і практиці, і самостійній роботі -->
+<script src="js/pyeditor.js?v=20260922f"></script>
 <!-- логіка окремих сторінок -->
-<script src="js/pages/vars.js?v=20260917d"></script>
-<script src="js/pages/cond.js?v=20260917d"></script>
-<script src="js/pages/loops.js?v=20260917d"></script>
-<script src="js/pages/func.js?v=20260917d"></script>
-<script src="js/pages/coll.js?v=20260917d"></script>
-<script src="js/pages/list.js?v=20260917d"></script>
-<script src="js/pages/shop.js?v=20260917d"></script>
-<script src="js/pages/dict.js?v=20260917d"></script>
-<script src="js/pages/set.js?v=20260917d"></script>
+<script src="js/pages/vars.js?v=20260922f"></script>
+<script src="js/pages/cond.js?v=20260922f"></script>
+<script src="js/pages/loops.js?v=20260922f"></script>
+<script src="js/pages/func.js?v=20260922f"></script>
+<script src="js/pages/coll.js?v=20260922f"></script>
+<script src="js/pages/list.js?v=20260922f"></script>
+<script src="js/pages/shop.js?v=20260922f"></script>
+<script src="js/pages/dict.js?v=20260922f"></script>
+<script src="js/pages/set.js?v=20260922f"></script>
+<script src="js/pages/check.js?v=20260922f"></script>
 
 <!-- зв'язок тексту з віджетом і живі приклади в тексті -->
-<script src="js/link.js?v=20260917d"></script>
-<script src="js/inline.js?v=20260917d"></script>
+<script src="js/link.js?v=20260922f"></script>
+<script src="js/inline.js?v=20260922f"></script>
 
 </body>
 </html>
