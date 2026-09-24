@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Самостійна робота «Перевір себе»: картка на головній, прогрес, картки
+   Самостійні роботи: картка на головній, список робіт, прогрес, картки
    питань (MCQ і код) та екран результатів.
    Картка завдання з кодом, редактор і підсвітка — спільні з практикою,
    дивись css/pyeditor.css.
@@ -11,9 +11,20 @@
   .card.check .card-viz{background:linear-gradient(180deg,var(--i-soft),var(--panel-2))}
   .card.check .card-go{color:var(--i)}
   .check-tag{color:var(--i); background:var(--i-soft); border-color:#c9b6f0}
-  /* сторінка «Самостійні роботи»: розділ класу — заголовок і картки під ним */
-  #page-tests h2{margin-top:2.2em}
-  #page-tests .cards{margin:14px 0 8px}
+  /* сторінка «Самостійні роботи»: шапка по центру, під нею таби з класами
+     й простий список робіт вибраного класу */
+  #page-tests header.top{text-align:center}
+  #page-tests header.top .lede{max-width:60ch; margin-left:auto; margin-right:auto}
+  #page-tests .tabs{margin-top:1.6em}
+  .tests-list{list-style:none; max-width:640px; margin:22px auto 0; padding:0; display:flex; flex-direction:column; gap:8px}
+  .tests-list li{margin:0}
+  .tests-list a{display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; padding:13px 18px;
+    border:1px solid var(--rule); border-radius:11px; background:var(--panel); color:var(--ink);
+    text-decoration:none; transition:border-color var(--t-fast) var(--ease), background var(--t-fast) var(--ease)}
+  .tests-list a:hover{border-color:var(--i); background:var(--i-soft)}
+  .tests-name{font-weight:600; font-size:1.02rem}
+  .tests-meta{font-family:var(--mono); font-size:.78rem; color:var(--muted)}
+  .tests-go{margin-left:auto; color:var(--i); font-weight:600}
 
   .check-viz{display:flex; flex-direction:column; justify-content:center; gap:8px; min-height:152px}
   .checkviz-row{display:flex; align-items:center; gap:9px}
@@ -50,6 +61,22 @@
   .checkq-head{margin-bottom:10px}
   .checkq-n{font-family:var(--mono); font-size:.76rem; color:var(--muted)}
   .checkq-text{font-size:1rem; line-height:1.6; margin:0 0 14px}
+  .checkq-title{font-family:var(--display); font-weight:700; font-size:1.08rem; color:var(--ink)}
+
+  /* тексти завдань з розміткою (engine.js → rich): абзаци, списки, `код` */
+  :is(.checkq-text,.checkr-q,.checkr-explain,.pyt-hint) :is(p,ul){margin:0 0 .55em}
+  :is(.checkq-text,.checkr-q,.checkr-explain) > :last-child{margin-bottom:0}
+  :is(.checkq-text,.checkr-q,.checkr-explain,.pyt-hint) ul{padding-left:1.35em}
+  :is(.checkq-text,.checkr-q,.checkr-explain,.pyt-hint) li{margin-bottom:.25em}
+  :is(.checkq-text,.checkr-q,.checkr-explain,.pyt-hint) code{font-size:.86em; white-space:nowrap}
+
+  /* вступ до тесту: лід зі списком і правила */
+  [data-check-root] .lede ul{margin:.3em 0 .8em}
+  [data-check-root] .lede > :last-child{margin-bottom:0}
+  [data-check-root] .callout ul{margin:.4em 0 0; padding-left:1.25em}
+  [data-check-root] .callout li{margin-bottom:.45em}
+  [data-check-root] .callout li:last-child{margin-bottom:0}
+  [data-check-root] .callout p{margin-bottom:.3em}
   .checkq-opts{display:flex; flex-direction:column; gap:8px; list-style:none; margin:0; padding:0}
   .checkq-opt{display:flex; align-items:flex-start; gap:11px; padding:10px 14px; border:1.5px solid var(--rule);
     border-radius:10px; cursor:pointer; background:var(--card);
@@ -138,9 +165,11 @@
   .checkr-code{margin:0; padding:11px 13px; background:#fff; border:1px solid var(--rule); border-radius:9px;
     font-family:var(--mono); font-size:.82rem; line-height:1.55; overflow-x:auto; white-space:pre}
   .checkr-code.ref{background:var(--j-soft); border-color:#8ed3bb}
+  .checkr-code + .checkr-opts{margin-top:10px}
 
   @media (max-width:640px){
     .checkq{padding:16px 16px 18px}
+    :is(.checkq-text,.checkr-q,.checkr-explain,.pyt-hint) code{white-space:normal}
     .checkr-item{padding:14px 16px 16px}
     .checkr-score-n{font-size:2.4rem}
   }

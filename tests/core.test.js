@@ -14,6 +14,32 @@ T.test("core: makePick дає варіант у межах і перестано
   T.eq(pick.p, { variant:0 });
 });
 
+T.test("core: refreshMcq перераховує питання з поточних credit, код не чіпає", () => {
+  const slots = JSON.parse(JSON.stringify(S()));
+  const old = C().withTotal(slots, [
+    C().mcqItem(slots[0], 0, 2),                                  /* credit 0 */
+    C().codeItem(slots[1], 0, "x", true, null),
+    C().programItem(slots[2], 0, "y", { passed:false, failIdx:0, failOut:"" })
+  ], "2026-09-24T10:00:00.000Z");
+  slots[0].variants[0].options[2].credit = 0.5;                  /* відтоді стало «майже правильно» */
+  const fresh = C().refreshMcq(slots, old);
+  T.eq(fresh.items[0].earned, 0.5 * slots[0].points);
+  T.eq(fresh.total, old.total + 0.5 * slots[0].points);
+  T.eq(fresh.items.slice(1), old.items.slice(1));
+  T.eq(fresh.finishedAt, old.finishedAt);
+  const legacy = JSON.parse(JSON.stringify(old));
+  delete legacy.items[0].variant; delete legacy.items[0].chosenIdx;
+  T.eq(C().refreshMcq(slots, legacy).items[0], legacy.items[0], "старий результат без variant лишається як є");
+});
+
+T.test("core: makePick не видає варіанти з retired, але номери решти не зсуваються", () => {
+  const slots = JSON.parse(JSON.stringify(S()));
+  slots[0].variants[0].retired = true;
+  [0, 0.3, 0.99].forEach(r => T.eq(C().makePick(slots, () => r).q.variant, 1, "rnd " + r));
+  const all = C().makePick(S(), () => 0);
+  T.eq(all.q.variant, 0, "без retired — як раніше");
+});
+
 T.test("core: бали форматуються без округлення до однієї цифри", () => {
   T.eq([12, 11.5, 0.25, 11.75, 0.1 + 0.2, 0].map(C().fmtPoints), ["12", "11.5", "0.25", "11.75", "0.3", "0"]);
 });

@@ -27,6 +27,11 @@ T.test("пул check-9plus: склад як у спеці §9.2", () => {
   T.eq(def.storage, "pyguide_check9plus");
 });
 
+T.test("пули: у кожному слоті лишився хоча б один варіант, не виведений з обігу", () => {
+  ["check", "check-9", "check-9plus"].forEach(slug => CheckEngine.get(slug).slots.forEach(s =>
+    T.ok(s.variants.some(v => !v.retired), slug + "/" + s.id + ": усі варіанти retired")));
+});
+
 T.test("пул check-9plus: часткова відповідь у питанні на 0.5 бала — 0.25", () => {
   const slot = CheckEngine.get("check-9plus").slots[0];
   const half = slot.variants[0].options.findIndex(o => o.credit === 0.5);

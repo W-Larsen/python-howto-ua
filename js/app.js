@@ -23,16 +23,17 @@ const ROUTES = [
       { slug:"set",  id:"page-set",  num:"5.3",
         nav:"Множини",  title:"Множини в Python — набір без повторів" }
     ]},
-  { slug:"tests", id:"page-tests", num:"✓",
+  /* toc:false — без змісту-якорів під пунктом меню: сторінка й так лише список робіт */
+  { slug:"tests", id:"page-tests", num:"✓", toc:false,
     nav:"Самостійні роботи", title:"Самостійні роботи — Python крок за кроком",
     kids:[
       { slug:"check", id:"page-check", num:"ІШ",
-        nav:"Інженерна школа: Перевір себе", title:"Перевір себе — самостійна робота з Python" },
+        nav:"Інженерна школа: Самостійна робота 1", title:"Самостійна робота 1 з Python — Старша інженерна школа" },
       { slug:"check-9", id:"page-check-9", num:"9",
-        nav:"9 клас: Самостійна робота", title:"Самостійна робота з Python — 9 клас" },
+        nav:"9 клас: Самостійна робота 1", title:"Самостійна робота 1 з Python — 9 клас" },
       /* розширений варіант — лише за прямим посиланням від учителя */
       { slug:"check-9plus", id:"page-check-9plus", num:"9+", hidden:true,
-        nav:"9 клас: розширений варіант", title:"Самостійна робота з Python — 9 клас, розширений варіант" }
+        nav:"9 клас: Самостійна робота 1, розширений варіант", title:"Самостійна робота 1 з Python — 9 клас, розширений варіант" }
     ]}
 ];
 /* усі маршрути — для пошуку за slug; hidden-маршрути існують, але їх немає
@@ -78,8 +79,8 @@ const sidebar = $("#sidebar"), scrim = $("#scrim"), burger = $("#burger"),
 navList.innerHTML = ROUTES.map(r => `
   <a class="nav-item${r.kids ? " has-kids" : ""}" href="#/${r.slug}" data-slug="${r.slug}">
     <span class="num">${r.num}</span><span class="t">${r.nav}</span>
-  </a>
-  <ul class="toc" data-toc="${r.slug}"></ul>` +
+  </a>` +
+  (r.toc === false ? "" : `<ul class="toc" data-toc="${r.slug}"></ul>`) +
   (r.kids ? `<div class="subnav" data-sub="${r.slug}">` + r.kids.filter(c => !c.hidden).map(c => `
     <a class="nav-sub${c.practice ? " practice" : ""}" href="#/${c.slug}" data-slug="${c.slug}">
       <span class="num">${c.num}</span><span class="t">${c.nav}</span>
@@ -104,7 +105,7 @@ document.addEventListener("keydown", e=>{ if(e.key==="Escape") closeMenu(); });
 function buildToc(route){
   const page = document.getElementById(route.id);
   const list = $(`[data-toc="${route.slug}"]`);
-  if(!list) return;             /* hidden-маршрут: його немає в меню, тож і змісту немає */
+  if(!list) return;             /* hidden-маршрут або toc:false — змісту в меню немає */
   const heads = $$("h2", page);
   heads.forEach((h,k)=>{ if(!h.id) h.id = route.slug + "-s" + k; });
   list.innerHTML = heads.map(h=>{
@@ -500,6 +501,41 @@ document.addEventListener("visibilitychange", ()=>homeAnim(!activeRoute));
     setTimeout(()=>el.classList.add("in"), 60);
   });
 })();
+
+/* ============================ таби ============================ */
+/* .tabs[data-tabs] з кнопками [role=tab][aria-controls] перемикає панелі
+   .tab-panel. Вибір пам'ятаємо до кінця сесії, щоб «назад» зі сторінки теми
+   повертав на той самий таб. Стрілки, Home і End — як у звичайних табах. */
+$$("[data-tabs]").forEach(box=>{
+  const key = "pyguide_tab_" + box.dataset.tabs;
+  const tabs = $$("[role=tab]", box);
+  function select(tab, focus){
+    tabs.forEach(t=>{
+      const on = t === tab;
+      t.setAttribute("aria-selected", on ? "true" : "false");
+      t.tabIndex = on ? 0 : -1;
+      document.getElementById(t.getAttribute("aria-controls")).hidden = !on;
+    });
+    if(focus) tab.focus();
+    try { sessionStorage.setItem(key, tab.id); } catch(e){}
+  }
+  box.addEventListener("click", e=>{
+    const t = e.target.closest("[role=tab]");
+    if(t) select(t);
+  });
+  box.addEventListener("keydown", e=>{
+    const i = tabs.indexOf(document.activeElement);
+    if(i < 0) return;
+    const n = tabs.length;
+    const j = { ArrowRight:(i + 1) % n, ArrowLeft:(i + n - 1) % n, Home:0, End:n - 1 }[e.key];
+    if(j === undefined) return;
+    e.preventDefault();
+    select(tabs[j], true);
+  });
+  let saved = null;
+  try { saved = sessionStorage.getItem(key); } catch(e){}
+  select(tabs.find(t=>t.id===saved) || tabs[0]);
+});
 
 /* ============================ відповіді на задачі ============================ */
 document.addEventListener("click", e=>{

@@ -7,8 +7,10 @@
    #/<slug>/r/<дані> у будь-якому браузері.
 
    Типи завдань:
-     mcq     — варіанти відповіді; credit 1 / 0.5 (логіка правильна, але
-               синтаксична помилка) / 0, помножений на points слота;
+     mcq     — варіанти відповіді; credit 1 / 0.5 (майже правильно: логіка
+               правильна, але синтаксична помилка, або у «що виведе?» —
+               правильне значення, але не той тип, зайві пробіли, вивід
+               на кожному кроці циклу) / 0, помножений на points слота;
                необов'язкове поле code — програма для питань «що виведе?»;
      code    — написати функцію; перевіряється прихованими тестами;
      program — написати програму з input()/print(); рушій підставляє
@@ -35,6 +37,27 @@ const readJSON = (k, fallback) => {
 };
 const writeJSON = (k, v) => store.set(k, JSON.stringify(v));
 
+/* Тексти завдань (q, intro, hint, explain) — звичайні рядки з легкою
+   розміткою: `код` → <code>, порожній рядок — новий абзац, рядки з «- » —
+   список, інший перенос — новий рядок. Решта екранується. */
+const inline = (s) => esc(s).replace(/`([^`\n]+)`/g, "<code>$1</code>");
+const plain = (s) => String(s).replace(/`/g, "");
+function rich(text){
+  return String(text).split(/\n{2,}/).map(block => {
+    let html = "", para = [], list = [];
+    const flushPara = () => { if(para.length) html += `<p>${para.map(inline).join("<br>")}</p>`; para = []; };
+    const flushList = () => { if(list.length) html += `<ul>${list.map(l => `<li>${inline(l)}</li>`).join("")}</ul>`; list = []; };
+    block.split("\n").forEach(line => {
+      if(line.startsWith("- ")){ flushPara(); list.push(line.slice(2)); }
+      else { flushList(); para.push(line); }
+    });
+    flushPara(); flushList();
+    return html;
+  }).join("");
+}
+/* lede і rules — готовий HTML; без блочного тега на початку — один абзац */
+const blockHtml = (html) => /^\s*<(p|ul|ol|div)[\s>]/.test(html) ? html : `<p>${html}</p>`;
+
 /* def: { slug, storage, title, lede, rules, slots, acHidden?, shareVersion? } */
 function define(def){
   def.shareVersion = def.shareVersion || 1;
@@ -58,10 +81,10 @@ function skeleton(def){
   return `
   <header class="top">
     <h1>${esc(def.title)}</h1>
-    <p class="lede">${def.lede}</p>
+    <div class="lede">${blockHtml(def.lede)}</div>
   </header>
 
-  <div class="callout warn" data-part="rules"><p>${def.rules}</p></div>
+  <div class="callout warn" data-part="rules">${blockHtml(def.rules)}</div>
 
   <div class="hero check-hero" data-part="progress-wrap">
     <div class="check-prog">
@@ -132,7 +155,7 @@ function mount(def){
 
   const controlsHtml = (hint) => `
       <div class="controls pyt-controls">
-        <details class="pyt-hint"><summary>Підказка</summary><p>${esc(hint)}</p></details>
+        <details class="pyt-hint"><summary>Підказка</summary>${rich(hint)}</details>
         <span class="pyt-kbd">Ctrl+Enter — запустити</span>
         <button type="button" class="ctl" data-act="run" disabled>▶ Запустити</button>
       </div>
@@ -152,9 +175,9 @@ function mount(def){
     return `
     <article class="checkq" data-slot="${slot.id}" data-type="mcq">
       ${head(slot, n)}
-      <p class="checkq-text">${esc(variant.q)}</p>
+      <div class="checkq-text">${rich(variant.q)}</div>
       ${variant.code ? `<pre class="checkq-code pysrc">${PyEditor.highlight(variant.code)}</pre>` : ""}
-      <div class="checkq-opts" role="radiogroup" aria-label="${esc(variant.q)}">${opts}</div>
+      <div class="checkq-opts" role="radiogroup" aria-label="${esc(plain(variant.q))}">${opts}</div>
     </article>`;
   }
 
@@ -163,7 +186,7 @@ function mount(def){
     return `
     <article class="checkq" data-slot="${slot.id}" data-type="code">
       ${head(slot, n)}
-      <p class="checkq-text"><b>${esc(variant.title)}.</b> ${esc(variant.intro)}</p>
+      <div class="checkq-text"><p class="checkq-title">${esc(variant.title)}</p>${rich(variant.intro)}</div>
       ${editorHtml("Код функції " + variant.fn)}
       ${controlsHtml(variant.hint)}
     </article>`;
@@ -175,7 +198,7 @@ function mount(def){
     return `
     <article class="checkq" data-slot="${slot.id}" data-type="program">
       ${head(slot, n)}
-      <p class="checkq-text"><b>${esc(variant.title)}.</b> ${esc(variant.intro)}</p>
+      <div class="checkq-text"><p class="checkq-title">${esc(variant.title)}</p>${rich(variant.intro)}</div>
       <div class="checkq-io">
         <div><span>Приклад: ввели</span><pre>${esc(variant.sample)}</pre></div>
         <div><span>Має вивести</span><pre>${esc(variant.sampleOut)}</pre></div>
@@ -343,10 +366,10 @@ function mount(def){
       `<li class="correct"><b>Правильно:</b> ${esc(item.correctText)}</li>`;
     return `<article class="checkr-item ${resultBadge(item)}">
       ${itemHead(n, item.topic, item)}
-      <p class="checkr-q">${esc(item.question)}</p>
+      <div class="checkr-q">${rich(item.question)}</div>
       ${item.code ? `<pre class="checkr-code pysrc">${PyEditor.highlight(item.code)}</pre>` : ""}
       <ul class="checkr-opts">${chosenRow}${correctRow}</ul>
-      <p class="checkr-explain">${esc(item.explain)}</p>
+      <div class="checkr-explain">${rich(item.explain)}</div>
     </article>`;
   }
 
@@ -466,7 +489,9 @@ function mount(def){
     $p("rules").hidden = false;
     const existing = readJSON(KEY.result, null);
     if(existing){
-      renderResults(existing, false);
+      const fresh = C.refreshMcq(SLOTS, existing);
+      if(fresh.total !== existing.total) writeJSON(KEY.result, fresh);
+      renderResults(fresh, false);
       return;
     }
     $p("results").hidden = true;

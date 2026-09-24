@@ -98,10 +98,22 @@
     max-width:60ch; margin-left:auto; margin-right:auto; text-wrap:pretty}
   .home-hero .lede b{color:var(--ink)}
 
-  .home-sec{display:flex; align-items:baseline; gap:14px; margin:58px 0 6px}
-  .home-sec h2{font-family:var(--display); font-size:1.35rem; margin:0; color:var(--ink);
-    letter-spacing:-.015em}
-  .home-sec span{font-size:.84rem; color:var(--muted)}
+  /* ---------- таби (головна, «Самостійні роботи») ---------- */
+  /* Перемикач по центру; панелі — .tab-panel з hidden, логіка в js/app.js.
+     На вузькому екрані список табів прокручується вбік, а не переноситься. */
+  .tabs{display:flex; justify-content:center; margin:44px 0 0}
+  .tabs-list{display:inline-flex; gap:4px; padding:4px; max-width:100%; overflow-x:auto;
+    background:var(--panel-2); border:1px solid var(--rule); border-radius:999px; scrollbar-width:none}
+  .tabs-list [role=tab]{appearance:none; border:0; background:none; font:inherit; font-size:.95rem;
+    font-weight:500; color:var(--muted); padding:9px 20px; border-radius:999px; cursor:pointer;
+    white-space:nowrap; transition:background .2s, color .2s, box-shadow .2s}
+  .tabs-list [role=tab]:hover{color:var(--ink)}
+  .tabs-list [role=tab][aria-selected=true]{background:var(--card); color:var(--ink); font-weight:600;
+    box-shadow:0 1px 2px rgba(60,45,25,.08), 0 4px 12px -6px rgba(60,45,25,.3)}
+  .tabs-list [role=tab]:focus-visible{outline:2px solid var(--i); outline-offset:2px}
+  .tab-note{text-align:center; font-size:.88rem; color:var(--muted); margin:14px 0 0}
+  /* одна картка на вкладці — по центру, під табами, а не під лівим краєм */
+  .tab-panel .cards:has(> .card:only-child){grid-template-columns:minmax(0,360px); justify-content:center}
 
   /* min(296px,100%) — інакше на вузькому екрані колонка лишається 296px
      завширшки і сітка вилазить за край, даючи горизонтальну прокрутку */
@@ -133,7 +145,8 @@
 
   @media (max-width:720px){
     .home{padding:40px 18px 64px}      /* 78px згори на телефоні — задарма */
-    .home-sec{margin-top:40px}
+    .tabs{margin-top:30px}
+    .tabs-list [role=tab]{padding:8px 14px; font-size:.9rem}
     .cards{gap:16px}
   }
 

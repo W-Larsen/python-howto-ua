@@ -36,12 +36,16 @@ function shuffled(n, rnd){
   return a;
 }
 
-/* кожному слоту — випадковий варіант, а питанням ще й порядок відповідей */
+/* кожному слоту — випадковий варіант, а питанням ще й порядок відповідей.
+   Варіант з retired:true новим учням не видається, але лишається в списку:
+   на його номер посилаються вже видані набори й посилання на результати,
+   тож видаляти варіанти не можна — лише виводити з обігу. */
 function makePick(slots, rnd){
   rnd = rnd || Math.random;
   const pick = {};
   slots.forEach(slot => {
-    const variant = Math.floor(rnd() * slot.variants.length);
+    const live = slot.variants.map((v, i) => i).filter(i => !slot.variants[i].retired);
+    const variant = live[Math.floor(rnd() * live.length)];
     const entry = { variant };
     if(slot.type === "mcq") entry.order = shuffled(slot.variants[variant].options.length, rnd);
     pick[slot.id] = entry;
@@ -110,6 +114,20 @@ function programItem(slot, variantIdx, source, grade){
 
 const withTotal = (slots, items, finishedAt) =>
   ({ total: items.reduce((sum, it) => sum + it.earned, 0), max:maxPoints(slots), items, finishedAt });
+
+/* Питання перераховуються з поточних даних тесту — так само, як результат
+   з посилання: якщо відтоді якійсь відповіді додали часткові бали, збережений
+   результат покаже той самий бал. Код і програми не чіпаємо — їх оцінено
+   прихованими тестами на момент завершення. */
+function refreshMcq(slots, result){
+  const known = Object.fromEntries(slots.map(s => [s.id, s]));
+  const items = result.items.map(item => {
+    const slot = known[item.slotId];
+    if(item.type !== "mcq" || !slot || !slot.variants[item.variant] || item.chosenIdx === undefined) return item;
+    return mcqItem(slot, item.variant, item.chosenIdx);
+  });
+  return Object.assign({}, result, { items, total: items.reduce((sum, it) => sum + it.earned, 0) });
+}
 
 /* ============================ посилання на результат ============================ */
 /* FNV-1a — короткий відбиток стартових кодів вибраних варіантів */
@@ -229,7 +247,7 @@ async function unpackShare(str){
 }
 
 return { makePick, maxPoints, fmtPoints, pointsWord, pointsLabel, normOutput, sameOutput, FAIL_OUT_MAX,
-  mcqItem, codeItem, programItem, withTotal, starterSum, codeDiff, applyDiff,
+  mcqItem, codeItem, programItem, withTotal, refreshMcq, starterSum, codeDiff, applyDiff,
   buildPayload, parsePayload, packShare, unpackShare };
 
 })();
