@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<title>Тести самостійних робіт</title>
+<style>
+  body{font:14px/1.5 system-ui, sans-serif; margin:24px; max-width:960px}
+  .pass{color:#075c42} .fail{color:#8f2419}
+  #summary{font-weight:700; font-size:18px}
+  #sandbox{margin-top:40px; border-top:1px dashed #ccc; padding-top:20px}
+</style>
+</head>
+<body>
+<h1>Тести самостійних робіт</h1>
+<p id="summary">Виконується…</p>
+<ul id="out"></ul>
+
+<!-- сюди інтеграційні тести монтують тестові сторінки рушія -->
+<div id="sandbox"></div>
+
+<script>window.PageInit = {};</script>
+<script src="../js/pyeditor.js"></script>
+<script src="runner.js"></script>
+<!-- МОДУЛІ: додаються по задачах плану -->
+<script src="../js/checks/core.js"></script>
+<script src="fixtures/toy.js"></script>
+<script src="../js/checks/harness.js"></script>
+<script src="../js/checks/python.js"></script>
+<script src="../js/checks/engine.js"></script>
+<script src="../js/checks/engineering/check.js"></script>
+<script src="fixtures/engineering-legacy.js"></script>
+<script src="../js/checks/grade9/base.js"></script>
+<script src="../js/checks/grade9/plus.js"></script>
+<!-- ТЕСТИ: додаються по задачах плану -->
+<script src="core.test.js"></script>
+<script src="python.test.js"></script>
+<script src="engine.test.js"></script>
+<script src="pools.test.js"></script>
+<script src="pyeditor.test.js"></script>
+<script>T.run();</script>
+</body>
+</html>

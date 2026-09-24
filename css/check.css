@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Самостійна робота «Перевір себе»: картка на головній, прогрес, картки
+   Самостійні роботи: картка на головній, список робіт, прогрес, картки
    питань (MCQ і код) та екран результатів.
    Картка завдання з кодом, редактор і підсвітка — спільні з практикою,
    дивись css/pyeditor.css.
@@ -11,6 +11,20 @@
   .card.check .card-viz{background:linear-gradient(180deg,var(--i-soft),var(--panel-2))}
   .card.check .card-go{color:var(--i)}
   .check-tag{color:var(--i); background:var(--i-soft); border-color:#c9b6f0}
+  /* сторінка «Самостійні роботи»: шапка по центру, під нею таби з класами
+     й простий список робіт вибраного класу */
+  #page-tests header.top{text-align:center}
+  #page-tests header.top .lede{max-width:60ch; margin-left:auto; margin-right:auto}
+  #page-tests .tabs{margin-top:1.6em}
+  .tests-list{list-style:none; max-width:640px; margin:22px auto 0; padding:0; display:flex; flex-direction:column; gap:8px}
+  .tests-list li{margin:0}
+  .tests-list a{display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; padding:13px 18px;
+    border:1px solid var(--rule); border-radius:11px; background:var(--panel); color:var(--ink);
+    text-decoration:none; transition:border-color var(--t-fast) var(--ease), background var(--t-fast) var(--ease)}
+  .tests-list a:hover{border-color:var(--i); background:var(--i-soft)}
+  .tests-name{font-weight:600; font-size:1.02rem}
+  .tests-meta{font-family:var(--mono); font-size:.78rem; color:var(--muted)}
+  .tests-go{margin-left:auto; color:var(--i); font-weight:600}
 
   .check-viz{display:flex; flex-direction:column; justify-content:center; gap:8px; min-height:152px}
   .checkviz-row{display:flex; align-items:center; gap:9px}
@@ -24,6 +38,14 @@
   .checkviz-total{margin-top:5px; font-size:.82rem; color:var(--muted); text-align:right}
   .checkviz-total b{color:var(--i); font-family:var(--mono)}
 
+  /* Рушій (js/checks/engine.js) малює сторінку тесту всередині [data-check-root],
+     а ритм відступів .wrap > * з base.css діє лише на прямих дітей .wrap —
+     повторюємо його тут. .callout лишає власний відступ, як і в .wrap. */
+  [data-check-root] > :not(.callout){margin:1.35em 0 0}
+  [data-check-root] > .hero{margin-top:1.5em}
+  [data-check-root] > .hero + *{margin-top:1.9em}
+  [data-check-root] > header.top{margin-top:0}
+
   /* ---------- прогрес на сторінці тесту ---------- */
   .check-hero{padding:16px 20px}
   .check-prog{display:flex; align-items:center; gap:14px; flex-wrap:wrap}
@@ -31,7 +53,7 @@
     border:1px solid var(--rule); overflow:hidden}
   .check-prog-bar i{display:block; height:100%; width:0; background:var(--i); border-radius:999px;
     transition:width var(--t-slow) var(--ease)}
-  #check-progress-text{font-family:var(--mono); font-size:.8rem; color:var(--muted); white-space:nowrap}
+  .check-prog-text{font-family:var(--mono); font-size:.8rem; color:var(--muted); white-space:nowrap}
 
   /* ---------- картка завдання: спільна для MCQ і практичних (з кодом) ---------- */
   .checkq{border:1px solid var(--rule); border-radius:14px; background:var(--panel);
@@ -39,6 +61,22 @@
   .checkq-head{margin-bottom:10px}
   .checkq-n{font-family:var(--mono); font-size:.76rem; color:var(--muted)}
   .checkq-text{font-size:1rem; line-height:1.6; margin:0 0 14px}
+  .checkq-title{font-family:var(--display); font-weight:700; font-size:1.08rem; color:var(--ink)}
+
+  /* тексти завдань з розміткою (engine.js → rich): абзаци, списки, `код` */
+  :is(.checkq-text,.checkr-q,.checkr-explain,.pyt-hint) :is(p,ul){margin:0 0 .55em}
+  :is(.checkq-text,.checkr-q,.checkr-explain) > :last-child{margin-bottom:0}
+  :is(.checkq-text,.checkr-q,.checkr-explain,.pyt-hint) ul{padding-left:1.35em}
+  :is(.checkq-text,.checkr-q,.checkr-explain,.pyt-hint) li{margin-bottom:.25em}
+  :is(.checkq-text,.checkr-q,.checkr-explain,.pyt-hint) code{font-size:.86em; white-space:nowrap}
+
+  /* вступ до тесту: лід зі списком і правила */
+  [data-check-root] .lede ul{margin:.3em 0 .8em}
+  [data-check-root] .lede > :last-child{margin-bottom:0}
+  [data-check-root] .callout ul{margin:.4em 0 0; padding-left:1.25em}
+  [data-check-root] .callout li{margin-bottom:.45em}
+  [data-check-root] .callout li:last-child{margin-bottom:0}
+  [data-check-root] .callout p{margin-bottom:.3em}
   .checkq-opts{display:flex; flex-direction:column; gap:8px; list-style:none; margin:0; padding:0}
   .checkq-opt{display:flex; align-items:flex-start; gap:11px; padding:10px 14px; border:1.5px solid var(--rule);
     border-radius:10px; cursor:pointer; background:var(--card);
@@ -56,6 +94,30 @@
   .checkq .pyed{margin:0 0 14px}
   .checkq .pyt-controls{padding:10px 0; border-top:1px solid var(--rule-soft); background:none}
   .checkq .pyt-msg{margin-top:10px; padding:10px 14px; border-radius:9px; border-top:0}
+
+  /* код у питанні «що виведе програма?» */
+  .checkq-code{margin:0 0 14px; padding:11px 14px; background:var(--card); border:1px solid var(--rule);
+    border-radius:10px; font-family:var(--mono); font-size:.86rem; line-height:1.55; white-space:pre; overflow-x:auto}
+
+  /* завдання «програма»: приклад, поле вхідних даних, вивід запуску;
+     .checkr-io — те саме для проваленого набору в результатах */
+  .checkq-io,.checkr-io{display:grid; grid-template-columns:repeat(auto-fit,minmax(min(180px,100%),1fr));
+    gap:10px; margin:0 0 14px}
+  .checkq-io span,.checkr-io span{display:block; font-size:.76rem; color:var(--muted); margin-bottom:4px}
+  .checkq-io pre,.checkr-io pre{margin:0; padding:8px 11px; background:var(--card); border:1px solid var(--rule);
+    border-radius:8px; font-family:var(--mono); font-size:.84rem; line-height:1.5; white-space:pre-wrap;
+    overflow-wrap:anywhere}
+  .checkr-io-err{margin:6px 0 0; font-size:.82rem; color:#8f2419}
+  .checkq-stdin{display:block; margin:0 0 4px}
+  .checkq-stdin span{display:block; font-size:.8rem; color:var(--muted); margin-bottom:4px}
+  .checkq-stdin textarea{width:100%; box-sizing:border-box; padding:8px 11px; border:1px solid var(--rule);
+    border-radius:8px; background:var(--card); color:var(--ink); font-family:var(--mono); font-size:.86rem;
+    line-height:1.5; resize:vertical}
+  .checkq-out{margin:10px 0 0; padding:10px 14px; background:#fff; border:1px solid var(--rule); border-radius:9px;
+    font-family:var(--mono); font-size:.84rem; line-height:1.5; white-space:pre-wrap; overflow-wrap:anywhere;
+    max-height:320px; overflow:auto}
+  .checkq-out[hidden]{display:none}
+  .checkq-out.empty{color:var(--muted); font-style:italic}
 
   /* ---------- «Завершити тест» ---------- */
   .check-finish{display:flex; flex-direction:column; align-items:center; gap:10px; text-align:center;
@@ -103,9 +165,11 @@
   .checkr-code{margin:0; padding:11px 13px; background:#fff; border:1px solid var(--rule); border-radius:9px;
     font-family:var(--mono); font-size:.82rem; line-height:1.55; overflow-x:auto; white-space:pre}
   .checkr-code.ref{background:var(--j-soft); border-color:#8ed3bb}
+  .checkr-code + .checkr-opts{margin-top:10px}
 
   @media (max-width:640px){
     .checkq{padding:16px 16px 18px}
+    :is(.checkq-text,.checkr-q,.checkr-explain,.pyt-hint) code{white-space:normal}
     .checkr-item{padding:14px 16px 16px}
     .checkr-score-n{font-size:2.4rem}
   }

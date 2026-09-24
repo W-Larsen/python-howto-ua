@@ -12,12 +12,12 @@
 <!-- ?v=… — версія для кешу браузера: після змін у css/js підніми її тут і для скриптів унизу -->
 <link rel="stylesheet" href="css/base.css?v=20260922f">
 <link rel="stylesheet" href="css/topics.css?v=20260922f">
-<link rel="stylesheet" href="css/shell.css?v=20260922f">
+<link rel="stylesheet" href="css/shell.css?v=20260924c">
 <link rel="stylesheet" href="css/collections.css?v=20260922f">
 <link rel="stylesheet" href="css/functions.css?v=20260922f">
-<link rel="stylesheet" href="css/pyeditor.css?v=20260922f">
+<link rel="stylesheet" href="css/pyeditor.css?v=20260924f">
 <link rel="stylesheet" href="css/shop.css?v=20260922f">
-<link rel="stylesheet" href="css/check.css?v=20260922g">
+<link rel="stylesheet" href="css/check.css?v=20260924e">
 </head>
 <body data-route="home">
 
@@ -55,11 +55,16 @@
         <p class="lede">Основи мови, які видно. Кожна тема — це не стіна тексту, а <b>віджети, які можна прокрутити кроками</b>: змінити числа, натиснути «Крок» і подивитись, що саме відбувається в пам'яті, у коді й у виводі.</p>
       </div>
 
-      <div class="home-sec">
-        <h2>Теми</h2>
-        <span>обери, з чого почати</span>
+      <div class="tabs" data-tabs="home">
+        <div class="tabs-list" role="tablist" aria-label="Розділи">
+          <button type="button" role="tab" id="home-t-topics" aria-controls="home-p-topics">Теми</button>
+          <button type="button" role="tab" id="home-t-practice" aria-controls="home-p-practice">Практика</button>
+          <button type="button" role="tab" id="home-t-tests" aria-controls="home-p-tests">Самостійні роботи</button>
+        </div>
       </div>
 
+      <div class="tab-panel" role="tabpanel" id="home-p-topics" aria-labelledby="home-t-topics">
+      <p class="tab-note">обери, з чого почати</p>
       <div class="cards">
 
         <a class="card reveal" href="#/vars" data-viz="vars">
@@ -193,12 +198,10 @@
         </a>
 
       </div>
-
-      <div class="home-sec" id="practice">
-        <h2>Практика</h2>
-        <span>пиши код — і дивись, як він оживляє справжній сайт</span>
       </div>
 
+      <div class="tab-panel" role="tabpanel" id="home-p-practice" aria-labelledby="home-t-practice" hidden>
+      <p class="tab-note">пиши код — і дивись, як він оживляє справжній сайт</p>
       <div class="cards practice-cards">
 
         <a class="card practice reveal" href="#/shop" data-viz="shop">
@@ -222,15 +225,13 @@
         </a>
 
       </div>
-
-      <div class="home-sec" id="selfcheck">
-        <h2>Перевір себе</h2>
-        <span>підсумкова самостійна робота — одна спроба, свій набір завдань</span>
       </div>
 
+      <div class="tab-panel" role="tabpanel" id="home-p-tests" aria-labelledby="home-t-tests" hidden>
+      <p class="tab-note">підсумкові роботи — одна спроба, у кожного свій набір завдань</p>
       <div class="cards check-cards">
 
-        <a class="card check reveal" href="#/check">
+        <a class="card check reveal" href="#/tests">
           <div class="card-viz check-viz" aria-hidden="true">
             <div class="checkviz-row"><span class="checkviz-q">1</span><span class="checkviz-bar"></span><span class="checkviz-pt">1 бал</span></div>
             <div class="checkviz-row"><span class="checkviz-q">2</span><span class="checkviz-bar"></span><span class="checkviz-pt">1 бал</span></div>
@@ -240,14 +241,15 @@
             <div class="checkviz-total">Разом — <b>12</b> балів</div>
           </div>
           <div class="card-body">
-            <span class="card-tag check-tag">самостійна робота</span>
-            <h3>Перевір себе</h3>
-            <p>12 балів на все: змінні й <code>print</code>/<code>input</code>/<code>int()</code>, умови, цикли, списки та словники. Питання з варіантами відповіді й практичні завдання з кодом — у кожного свій набір, складність однакова.</p>
-            <div class="card-meta"><span>9 завдань</span><span>12 балів</span><span>результат одразу</span></div>
-            <div class="card-go">Почати тест <em>→</em></div>
+            <span class="card-tag check-tag">обери свій клас</span>
+            <h3>Самостійні роботи</h3>
+            <p>Підсумкові самостійні роботи на 12 балів — окремо для Старшої інженерної школи й для 9 класу. Питання з варіантами відповіді й практичні завдання з кодом, у кожного свій набір.</p>
+            <div class="card-meta"><span>2 класи</span><span>12 балів</span><span>результат одразу</span></div>
+            <div class="card-go">До самостійних робіт <em>→</em></div>
           </div>
         </a>
 
+      </div>
       </div>
 
     </div>
@@ -1745,50 +1747,64 @@ b = list(dict.fromkeys(names))</pre>
   </div>
   </section>
 
-  <!-- ================= самостійна робота: перевір себе ================= -->
-  <section class="page" id="page-check" hidden>
+  <!-- ================= самостійні роботи: загальна сторінка ================= -->
+  <section class="page" id="page-tests" hidden>
   <div class="wrap wide">
 
   <header class="top">
-    <h1>Перевір себе</h1>
-    <p class="lede">Підсумкова самостійна робота на <b>12 балів</b>: змінні та <code>print</code>/<code>input</code>/<code>int()</code>, умови, цикли, списки й словники. П'ять питань з варіантами відповіді та чотири практичні завдання з кодом.</p>
+    <h1>Самостійні роботи</h1>
+    <p class="lede"><b>Обери свій клас</b> на вкладках нижче, а потім роботу, яку задав учитель. Одна спроба, у кожного учня свій набір завдань, результат — одразу після завершення, разом із посиланням, яке можна надіслати вчителю.</p>
   </header>
 
-  <div class="callout warn" id="check-rules">
-    <p><b>Одна спроба.</b> У кожного свій набір завдань, але однакова складність і однакова максимальна кількість балів — 12. Результат зберігається в цьому браузері одразу після натискання «Завершити тест» і показується щоразу, коли повертаєшся на цю сторінку: переграти не можна. У практичних завданнях можна натискати «Запустити», щоб побачити вивід чи помилку свого коду, — але без підказки, пройшло воно приховані тести чи ні.</p>
-  </div>
-
-  <div class="hero check-hero" id="check-progress-wrap">
-    <div class="check-prog">
-      <div class="check-prog-bar"><i id="check-progress-fill"></i></div>
-      <span id="check-progress-text">Відповіли 0 з 9</span>
+  <div class="tabs" data-tabs="tests">
+    <div class="tabs-list" role="tablist" aria-label="Клас">
+      <button type="button" role="tab" id="tests-t-eng" aria-controls="tests-p-eng">Старша інженерна школа</button>
+      <button type="button" role="tab" id="tests-t-9" aria-controls="tests-p-9">9 клас</button>
     </div>
   </div>
 
-  <div class="store-loading" id="check-loading">
-    <span class="shop-spin" aria-hidden="true"></span>
-    <span>Готуємо завдання й запускаємо Python у браузері… Уперше це може зайняти кілька секунд.</span>
+  <div class="tab-panel" role="tabpanel" id="tests-p-eng" aria-labelledby="tests-t-eng">
+  <ul class="tests-list">
+    <li><a href="#/check">
+      <span class="tests-name">Самостійна робота 1</span>
+      <span class="tests-meta">9 завдань · 12 балів</span>
+      <span class="tests-go" aria-hidden="true">→</span>
+    </a></li>
+  </ul>
   </div>
 
-  <div id="check-body" hidden>
-    <div id="check-slots"></div>
-
-    <div class="check-finish">
-      <button type="button" class="ctl primary" id="check-finish-btn">Завершити тест</button>
-      <p class="check-finish-note">Після завершення побачиш бали й правильні відповіді. Змінити відповіді потім буде не можна.</p>
-    </div>
+  <div class="tab-panel" role="tabpanel" id="tests-p-9" aria-labelledby="tests-t-9" hidden>
+  <ul class="tests-list">
+    <li><a href="#/check-9">
+      <span class="tests-name">Самостійна робота 1</span>
+      <span class="tests-meta">11 завдань · 12 балів</span>
+      <span class="tests-go" aria-hidden="true">→</span>
+    </a></li>
+  </ul>
   </div>
 
-  <div id="check-results" hidden></div>
-
   </div>
+  </section>
+
+  <!-- ================= самостійні роботи: сторінки тестів ================= -->
+  <!-- вміст малює js/checks/engine.js за даними з js/checks/<клас>/*.js -->
+  <section class="page" id="page-check" hidden>
+  <div class="wrap wide"><div data-check-root></div></div>
+  </section>
+
+  <section class="page" id="page-check-9" hidden>
+  <div class="wrap wide"><div data-check-root></div></div>
+  </section>
+
+  <section class="page" id="page-check-9plus" hidden>
+  <div class="wrap wide"><div data-check-root></div></div>
   </section>
 
 </main>
 
 
 <!-- оболонка: роутер, меню, анімації головної -->
-<script src="js/app.js?v=20260922g"></script>
+<script src="js/app.js?v=20260924d"></script>
 <!-- рушій руху: FLIP-переїзди й твіни; має бути до collkit.js -->
 <script src="js/motion.js?v=20260922f"></script>
 <!-- спільний рушій віджетів розділу «Колекції» -->
@@ -1797,7 +1813,7 @@ b = list(dict.fromkeys(names))</pre>
 <script src="js/flow.js?v=20260922f"></script>
 <!-- спільний рушій Python-редактора (підсвітка, автодоповнення, Pyodide) —
      потрібен і практиці, і самостійній роботі -->
-<script src="js/pyeditor.js?v=20260922f"></script>
+<script src="js/pyeditor.js?v=20260924j"></script>
 <!-- логіка окремих сторінок -->
 <script src="js/pages/vars.js?v=20260922f"></script>
 <script src="js/pages/cond.js?v=20260922f"></script>
@@ -1808,7 +1824,14 @@ b = list(dict.fromkeys(names))</pre>
 <script src="js/pages/shop.js?v=20260922f"></script>
 <script src="js/pages/dict.js?v=20260922f"></script>
 <script src="js/pages/set.js?v=20260922f"></script>
-<script src="js/pages/check.js?v=20260922g"></script>
+<!-- самостійні роботи: ядро, Python, рушій і дані тестів по класах -->
+<script src="js/checks/core.js?v=20260924g"></script>
+<script src="js/checks/harness.js?v=20260924a"></script>
+<script src="js/checks/python.js?v=20260924a"></script>
+<script src="js/checks/engine.js?v=20260924b"></script>
+<script src="js/checks/engineering/check.js?v=20260924e"></script>
+<script src="js/checks/grade9/base.js?v=20260924e"></script>
+<script src="js/checks/grade9/plus.js?v=20260924k"></script>
 
 <!-- зв'язок тексту з віджетом і живі приклади в тексті -->
 <script src="js/link.js?v=20260922f"></script>

@@ -2,7 +2,7 @@
    Спільний рушій для сторінок з живим Python-редактором (Pyodide в браузері):
    підсвітка синтаксису, автодоповнення, поведінка Tab/Enter/Ctrl+Enter.
    Використовується і в практиці «Оживи магазин» (js/pages/shop.js),
-   і в самостійній роботі (js/pages/check.js) — щоб редактор виглядав
+   і в самостійних роботах (js/checks/engine.js) — щоб редактор виглядав
    і поводився однаково в обох місцях.
    ========================================================================== */
 "use strict";
@@ -42,17 +42,61 @@ const PY_FN = new Set(("print len range sorted sum min max map filter any all en
   "NotImplementedError ValueError TypeError").split(" "));
 const PY_TOKEN = /("""[\s\S]*?(?:"""|$)|'''[\s\S]*?(?:'''|$)|"(?:\\.|[^"\\\n])*"?|'(?:\\.|[^'\\\n])*'?)|(#[^\n]*)|\b(\d+(?:\.\d+)?)\b|\b([A-Za-z_]\w*)\b/g;
 
+/* префікс f-рядка: f, F, rf, fr (у будь-якому регістрі) — одразу перед лапкою */
+const FSTR_PREFIX = /^(?:[fF][rR]?|[rR][fF])$/;
+
+/* f-рядок, як у VS Code: текст — зеленим, {вираз} — фігурні дужки окремим
+   кольором, а вираз усередині підсвічується як звичайний код.
+   {{ і }} — це екрановані дужки, тобто звичайний текст. */
+function highlightFString(tok){
+  let out = "", text = "", i = 0;
+  const flush = () => { if(text) out += `<span class="str">${esc(text)}</span>`; text = ""; };
+  while(i < tok.length){
+    const ch = tok[i];
+    if((ch === "{" || ch === "}") && tok[i + 1] === ch){ text += ch + ch; i += 2; continue; }
+    if(ch !== "{"){ text += ch; i++; continue; }
+    /* шукаємо парну } з урахуванням вкладених дужок і рядків усередині виразу */
+    let j = i + 1, depth = 0, quote = null;
+    for(; j < tok.length; j++){
+      const c = tok[j];
+      if(quote){ if(c === quote) quote = null; continue; }
+      if(c === "'" || c === '"'){
+        /* лапка того ж типу, що й у самого f-рядка, його закриває */
+        if(c === tok[tok.length - 1] && j === tok.length - 1) break;
+        quote = c; continue;
+      }
+      if(c === "(" || c === "[" || c === "{") depth++;
+      else if(c === ")" || c === "]") depth--;
+      else if(c === "}"){ if(depth === 0) break; depth--; }
+    }
+    flush();
+    const closed = tok[j] === "}";
+    out += `<span class="fmt">{</span>` + highlight(tok.slice(i + 1, j)) + (closed ? `<span class="fmt">}</span>` : "");
+    i = closed ? j + 1 : j;
+  }
+  flush();
+  return out;
+}
+
 function highlight(src){
-  let out = "", last = 0, afterDef = false, m;
-  PY_TOKEN.lastIndex = 0;
-  while((m = PY_TOKEN.exec(src))){
+  let out = "", last = 0, afterDef = false, fstr = false, m;
+  const re = new RegExp(PY_TOKEN.source, "g");   /* свій — бо highlight рекурсивний (f-рядки) */
+  while((m = re.exec(src))){
     out += esc(src.slice(last, m.index));
-    last = PY_TOKEN.lastIndex;
+    last = re.lastIndex;
     const [tok, str, cmt, num, word] = m;
-    if(str) out += `<span class="str">${esc(tok)}</span>`;
+    if(str){
+      out += fstr ? highlightFString(tok) : `<span class="str">${esc(tok)}</span>`;
+      fstr = false;
+    }
     else if(cmt) out += `<span class="cmt">${esc(tok)}</span>`;
     else if(num) out += `<span class="num">${tok}</span>`;
     else if(word){
+      if(FSTR_PREFIX.test(word) && (src[last] === '"' || src[last] === "'")){
+        out += `<span class="fpre">${tok}</span>`;
+        fstr = true;
+        continue;
+      }
       if(afterDef){ out += `<span class="def">${tok}</span>`; afterDef = false; continue; }
       if(PY_KW.has(word)){ out += `<span class="kw">${tok}</span>`; afterDef = word === "def"; continue; }
       out += PY_FN.has(word) ? `<span class="fn">${tok}</span>` : tok;
@@ -65,7 +109,11 @@ function highlight(src){
 /* Вставка тексту на місце виділення. execCommand лишає зміну в історії Ctrl+Z;
    якщо його нема — вставляємо вручну. */
 function insertText(ta, text){
-  if(document.execCommand && document.execCommand("insertText", false, text)) return;
+  /* Стирання — через "delete": insertText з порожнім рядком у кінці тексту
+     лишає курсор на попередньому рядку (Chrome), а delete ставить його туди,
+     де був виділений фрагмент. */
+  if(text === "" && ta.selectionStart === ta.selectionEnd) return;
+  if(document.execCommand && document.execCommand(text === "" ? "delete" : "insertText", false, text)) return;
   const start = ta.selectionStart, v = ta.value;
   ta.value = v.slice(0, start) + text + v.slice(ta.selectionEnd);
   ta.selectionStart = ta.selectionEnd = start + text.length;
@@ -224,6 +272,79 @@ function makeAutocomplete(ta, hiddenWords){
   return { onKey, onInput };
 }
 
+/* ============================ парні дужки й лапки ============================ */
+const PAIRS = { "(":")", "[":"]", "{":"}", "\"":"\"", "'":"'" };
+const CLOSERS = new Set([")", "]", "}"]);
+const WORD_CH = /[\p{L}\p{N}_]/u;
+
+/* де стоїть позиція: "cmt" — у коментарі, "str" — усередині рядка
+   (зокрема ще не закритого), null — у звичайному коді */
+function contextAt(src, pos){
+  const re = new RegExp(PY_TOKEN.source, "g");
+  let m;
+  while((m = re.exec(src)) && m.index < pos){
+    const end = m.index + m[0].length;
+    if(m[2] && pos <= end) return "cmt";
+    if(m[1]){
+      const tok = m[1], q3 = tok.slice(0, 3);
+      const closed = q3 === '"""' || q3 === "'''"
+        ? tok.length >= 6 && tok.endsWith(q3)
+        : /^(["'])(?:\\.|(?!\1)[^\\\n])*\1$/.test(tok);
+      if(pos < end || (pos === end && !closed)) return "str";
+    }
+  }
+  return null;
+}
+
+/* Друкуєш ( [ { " ' — одразу ставиться й закриваюча, курсор між ними;
+   з виділенням — воно обгортається. Закриваючу, яка вже стоїть під
+   курсором, просто «перескакуємо». true — клавішу оброблено. */
+function autoPair(ta, key){
+  const start = ta.selectionStart, end = ta.selectionEnd, v = ta.value;
+  const next = v[start] || "", prev = v[start - 1] || "";
+  const isQuote = key === "\"" || key === "'";
+
+  if(start !== end && PAIRS[key]){
+    const sel = v.slice(start, end);
+    insertText(ta, key + sel + PAIRS[key]);
+    ta.setSelectionRange(start + 1, start + 1 + sel.length);
+    return true;
+  }
+  if(start !== end) return false;
+
+  if((CLOSERS.has(key) || isQuote) && next === key){
+    ta.selectionStart = ta.selectionEnd = start + 1;
+    return true;
+  }
+  if(!PAIRS[key] || CLOSERS.has(key)) return false;
+  if(WORD_CH.test(next)) return false;                    /* перед словом — не закриваємо */
+  const ctx = contextAt(v, start);
+  if(ctx === "cmt") return false;
+  if(isQuote){
+    if(ctx === "str") return false;                       /* апостроф у тексті: "Ім'я" */
+    if(v.slice(start - 2, start) === key + key) return false;   /* третя лапка """ */
+    /* після літери лапки не парні, крім префіксів рядка: f"..", r"..", b".." */
+    if(WORD_CH.test(prev) && !/(^|[^\p{L}\p{N}_])[fFrRbBuU]{1,2}$/u.test(v.slice(0, start))) return false;
+  }
+
+  insertText(ta, key + PAIRS[key]);
+  ta.selectionStart = ta.selectionEnd = start + 1;
+  return true;
+}
+
+/* Backspace між порожньою парою — () "" '' [] {} — прибирає обидві */
+function deletePair(ta){
+  const start = ta.selectionStart, v = ta.value;
+  if(start !== ta.selectionEnd || start === 0) return false;
+  /* close перевіряємо окремо: у кінці тексту v[start] — undefined, і без цього
+     «немає пари» === «немає символу» сприймалось як порожня пара */
+  const close = PAIRS[v[start - 1]];
+  if(!close || v[start] !== close) return false;
+  ta.setSelectionRange(start - 1, start + 1);
+  insertText(ta, "");
+  return true;
+}
+
 /* ============================ редактор ============================ */
 function syncEditor(ta, hlPre, minRows){
   ta.rows = Math.max(minRows || 8, ta.value.split("\n").length + 1);
@@ -254,6 +375,10 @@ function wireEditor(ta, hlPre, opts){
       return;
     }
     const start = ta.selectionStart, v = ta.value;
+
+    if(!e.ctrlKey && !e.metaKey && !e.altKey && !e.isComposing){
+      if(e.key === "Backspace" ? deletePair(ta) : autoPair(ta, e.key)){ e.preventDefault(); return; }
+    }
 
     /* Backspace у відступі на початку рядка забирає одразу цілий крок
        табуляції (до попереднього кратного 4), а не по одному пробілу. */
