@@ -17,6 +17,13 @@ T.test("python: boot завантажує Pyodide і обв'язку", async () 
   T.ok(P().isReady());
 });
 
+T.test("python: обв'язка не залежить від глобальних імен інших сторінок (практика магазину)", async () => {
+  /* js/pages/shop.js виконує свою обв'язку в тому ж Pyodide й має власну _error_text */
+  (await PyEditor.bootPyodide()).runPython('def _error_text(error):\n    return "boom"');
+  T.ok(P().runProgram("while True:\n    pass", "").error.startsWith("Схоже, цикл ніколи"));
+  T.eq(P().runProgram("input()", "").error, "Програма просить більше даних, ніж передбачено умовою");
+});
+
 T.test("python: runProgram — вивід і помилки", () => {
   T.eq(P().runProgram("print(int(input()) * 2)", "21"), { out:"42\n", error:"" });
   T.ok(P().runProgram("while True:\n    pass", "").error.startsWith("Схоже, цикл ніколи"));

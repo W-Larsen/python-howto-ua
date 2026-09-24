@@ -14,9 +14,11 @@ let booting = null, fns = null;
 
 function boot(){
   if(!booting) booting = PyEditor.bootPyodide().then(py => {
-    py.runPython(CheckHarness.PY);
-    fns = { install: py.globals.get("check_install"), test: py.globals.get("check_test"),
-            run: py.globals.get("prog_run") };
+    /* власний простір імен: Pyodide спільний з практикою (js/pages/shop.js),
+       а її обв'язка має функції з тими самими іменами, напр. _error_text */
+    const ns = py.globals.get("dict")();
+    py.runPython(CheckHarness.PY, { globals:ns });
+    fns = { install: ns.get("check_install"), test: ns.get("check_test"), run: ns.get("prog_run") };
   });
   return booting;
 }
