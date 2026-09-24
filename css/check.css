@@ -27,6 +27,14 @@
   .checkviz-total{margin-top:5px; font-size:.82rem; color:var(--muted); text-align:right}
   .checkviz-total b{color:var(--i); font-family:var(--mono)}
 
+  /* Рушій (js/checks/engine.js) малює сторінку тесту всередині [data-check-root],
+     а ритм відступів .wrap > * з base.css діє лише на прямих дітей .wrap —
+     повторюємо його тут. .callout лишає власний відступ, як і в .wrap. */
+  [data-check-root] > :not(.callout){margin:1.35em 0 0}
+  [data-check-root] > .hero{margin-top:1.5em}
+  [data-check-root] > .hero + *{margin-top:1.9em}
+  [data-check-root] > header.top{margin-top:0}
+
   /* ---------- прогрес на сторінці тесту ---------- */
   .check-hero{padding:16px 20px}
   .check-prog{display:flex; align-items:center; gap:14px; flex-wrap:wrap}
