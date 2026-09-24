@@ -23,11 +23,22 @@ const ROUTES = [
       { slug:"set",  id:"page-set",  num:"5.3",
         nav:"Множини",  title:"Множини в Python — набір без повторів" }
     ]},
-  { slug:"check", id:"page-check", num:"✓",
-    nav:"Перевір себе", title:"Перевір себе — самостійна робота з Python" }
+  { slug:"tests", id:"page-tests", num:"✓",
+    nav:"Самостійні роботи", title:"Самостійні роботи — Python крок за кроком",
+    kids:[
+      { slug:"check", id:"page-check", num:"ІШ",
+        nav:"Інженерна школа: Перевір себе", title:"Перевір себе — самостійна робота з Python" },
+      { slug:"check-9", id:"page-check-9", num:"9",
+        nav:"9 клас: Самостійна робота", title:"Самостійна робота з Python — 9 клас" },
+      /* розширений варіант — лише за прямим посиланням від учителя */
+      { slug:"check-9plus", id:"page-check-9plus", num:"9+", hidden:true,
+        nav:"9 клас: розширений варіант", title:"Самостійна робота з Python — 9 клас, розширений варіант" }
+    ]}
 ];
-/* плаский список — для «далі / назад» і для пошуку за slug */
-const FLAT = ROUTES.reduce((a, r) => a.concat([r], r.kids || []), []);
+/* усі маршрути — для пошуку за slug; hidden-маршрути існують, але їх немає
+   в меню й у «далі / назад» (FLAT) */
+const ALL  = ROUTES.reduce((a, r) => a.concat([r], r.kids || []), []);
+const FLAT = ALL.filter(r => !r.hidden);
 /* старі посилання не мають ламатись */
 const ALIAS = { dicts:"coll", sets:"set", lists:"list" };
 const HOME_TITLE = "Python крок за кроком";
@@ -69,7 +80,7 @@ navList.innerHTML = ROUTES.map(r => `
     <span class="num">${r.num}</span><span class="t">${r.nav}</span>
   </a>
   <ul class="toc" data-toc="${r.slug}"></ul>` +
-  (r.kids ? `<div class="subnav" data-sub="${r.slug}">` + r.kids.map(c => `
+  (r.kids ? `<div class="subnav" data-sub="${r.slug}">` + r.kids.filter(c => !c.hidden).map(c => `
     <a class="nav-sub${c.practice ? " practice" : ""}" href="#/${c.slug}" data-slug="${c.slug}">
       <span class="num">${c.num}</span><span class="t">${c.nav}</span>
     </a>
@@ -93,6 +104,7 @@ document.addEventListener("keydown", e=>{ if(e.key==="Escape") closeMenu(); });
 function buildToc(route){
   const page = document.getElementById(route.id);
   const list = $(`[data-toc="${route.slug}"]`);
+  if(!list) return;             /* hidden-маршрут: його немає в меню, тож і змісту немає */
   const heads = $$("h2", page);
   heads.forEach((h,k)=>{ if(!h.id) h.id = route.slug + "-s" + k; });
   list.innerHTML = heads.map(h=>{
@@ -114,12 +126,19 @@ function buildToc(route){
 
 /* ============================ навігація «далі / назад» ============================ */
 function buildPager(route){
-  const i = FLAT.indexOf(route);
-  const prev = FLAT[i-1], next = FLAT[i+1];
   const wrap = $(".wrap", document.getElementById(route.id));
   if(!wrap) return;
   const box = document.createElement("div");
   box.className = "pager";
+  if(route.hidden){
+    box.innerHTML =
+      `<a class="prev" href="#/tests"><span class="lbl">← назад</span><span class="ttl">Самостійні роботи</span></a>` +
+      `<a class="next" href="#/"><span class="lbl">на початок →</span><span class="ttl">Усі теми</span></a>`;
+    wrap.appendChild(box);
+    return;
+  }
+  const i = FLAT.indexOf(route);
+  const prev = FLAT[i-1], next = FLAT[i+1];
   box.innerHTML =
     (prev ? `<a class="prev" href="#/${prev.slug}"><span class="lbl">← попередня тема</span><span class="ttl">${prev.nav}</span></a>`
           : `<a class="prev" href="#/"><span class="lbl">← на початок</span><span class="ttl">Усі теми</span></a>`) +
@@ -134,14 +153,14 @@ function buildPager(route){
 function slugFromHash(){
   let h = location.hash.replace(/^#\/?/, "").trim().split("/")[0];
   if(ALIAS[h]) h = ALIAS[h];
-  return FLAT.some(r=>r.slug===h) ? h : null;
+  return ALL.some(r=>r.slug===h) ? h : null;
 }
 
 let activeRoute = null;
 
 function render(){
   const slug = slugFromHash();
-  const route = FLAT.find(r=>r.slug===slug) || null;
+  const route = ALL.find(r=>r.slug===slug) || null;
   activeRoute = route;
 
   stopPageAnims();              /* спершу гасимо те, що анімувалось досі */

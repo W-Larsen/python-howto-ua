@@ -11,6 +11,9 @@
   .card.check .card-viz{background:linear-gradient(180deg,var(--i-soft),var(--panel-2))}
   .card.check .card-go{color:var(--i)}
   .check-tag{color:var(--i); background:var(--i-soft); border-color:#c9b6f0}
+  /* сторінка «Самостійні роботи»: розділ класу — заголовок і картки під ним */
+  #page-tests h2{margin-top:2.2em}
+  #page-tests .cards{margin:14px 0 8px}
 
   .check-viz{display:flex; flex-direction:column; justify-content:center; gap:8px; min-height:152px}
   .checkviz-row{display:flex; align-items:center; gap:9px}
