@@ -17,7 +17,7 @@
 <link rel="stylesheet" href="css/functions.css?v=20260922f">
 <link rel="stylesheet" href="css/pyeditor.css?v=20260922f">
 <link rel="stylesheet" href="css/shop.css?v=20260922f">
-<link rel="stylesheet" href="css/check.css?v=20260922g">
+<link rel="stylesheet" href="css/check.css?v=20260924a">
 </head>
 <body data-route="home">
 
@@ -1745,43 +1745,10 @@ b = list(dict.fromkeys(names))</pre>
   </div>
   </section>
 
-  <!-- ================= самостійна робота: перевір себе ================= -->
+  <!-- ================= самостійні роботи: сторінки тестів ================= -->
+  <!-- вміст малює js/checks/engine.js за даними з js/checks/<клас>/*.js -->
   <section class="page" id="page-check" hidden>
-  <div class="wrap wide">
-
-  <header class="top">
-    <h1>Перевір себе</h1>
-    <p class="lede">Підсумкова самостійна робота на <b>12 балів</b>: змінні та <code>print</code>/<code>input</code>/<code>int()</code>, умови, цикли, списки й словники. П'ять питань з варіантами відповіді та чотири практичні завдання з кодом.</p>
-  </header>
-
-  <div class="callout warn" id="check-rules">
-    <p><b>Одна спроба.</b> У кожного свій набір завдань, але однакова складність і однакова максимальна кількість балів — 12. Результат зберігається в цьому браузері одразу після натискання «Завершити тест» і показується щоразу, коли повертаєшся на цю сторінку: переграти не можна. У практичних завданнях можна натискати «Запустити», щоб побачити вивід чи помилку свого коду, — але без підказки, пройшло воно приховані тести чи ні.</p>
-  </div>
-
-  <div class="hero check-hero" id="check-progress-wrap">
-    <div class="check-prog">
-      <div class="check-prog-bar"><i id="check-progress-fill"></i></div>
-      <span id="check-progress-text">Відповіли 0 з 9</span>
-    </div>
-  </div>
-
-  <div class="store-loading" id="check-loading">
-    <span class="shop-spin" aria-hidden="true"></span>
-    <span>Готуємо завдання й запускаємо Python у браузері… Уперше це може зайняти кілька секунд.</span>
-  </div>
-
-  <div id="check-body" hidden>
-    <div id="check-slots"></div>
-
-    <div class="check-finish">
-      <button type="button" class="ctl primary" id="check-finish-btn">Завершити тест</button>
-      <p class="check-finish-note">Після завершення побачиш бали й правильні відповіді. Змінити відповіді потім буде не можна.</p>
-    </div>
-  </div>
-
-  <div id="check-results" hidden></div>
-
-  </div>
+  <div class="wrap wide"><div data-check-root></div></div>
   </section>
 
 </main>
@@ -1797,7 +1764,7 @@ b = list(dict.fromkeys(names))</pre>
 <script src="js/flow.js?v=20260922f"></script>
 <!-- спільний рушій Python-редактора (підсвітка, автодоповнення, Pyodide) —
      потрібен і практиці, і самостійній роботі -->
-<script src="js/pyeditor.js?v=20260922f"></script>
+<script src="js/pyeditor.js?v=20260924a"></script>
 <!-- логіка окремих сторінок -->
 <script src="js/pages/vars.js?v=20260922f"></script>
 <script src="js/pages/cond.js?v=20260922f"></script>
@@ -1808,7 +1775,12 @@ b = list(dict.fromkeys(names))</pre>
 <script src="js/pages/shop.js?v=20260922f"></script>
 <script src="js/pages/dict.js?v=20260922f"></script>
 <script src="js/pages/set.js?v=20260922f"></script>
-<script src="js/pages/check.js?v=20260922g"></script>
+<!-- самостійні роботи: ядро, Python, рушій і дані тестів по класах -->
+<script src="js/checks/core.js?v=20260924a"></script>
+<script src="js/checks/harness.js?v=20260924a"></script>
+<script src="js/checks/python.js?v=20260924a"></script>
+<script src="js/checks/engine.js?v=20260924a"></script>
+<script src="js/checks/engineering/check.js?v=20260924a"></script>
 
 <!-- зв'язок тексту з віджетом і живі приклади в тексті -->
 <script src="js/link.js?v=20260922f"></script>

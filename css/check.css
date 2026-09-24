@@ -31,7 +31,7 @@
     border:1px solid var(--rule); overflow:hidden}
   .check-prog-bar i{display:block; height:100%; width:0; background:var(--i); border-radius:999px;
     transition:width var(--t-slow) var(--ease)}
-  #check-progress-text{font-family:var(--mono); font-size:.8rem; color:var(--muted); white-space:nowrap}
+  .check-prog-text{font-family:var(--mono); font-size:.8rem; color:var(--muted); white-space:nowrap}
 
   /* ---------- картка завдання: спільна для MCQ і практичних (з кодом) ---------- */
   .checkq{border:1px solid var(--rule); border-radius:14px; background:var(--panel);
@@ -56,6 +56,30 @@
   .checkq .pyed{margin:0 0 14px}
   .checkq .pyt-controls{padding:10px 0; border-top:1px solid var(--rule-soft); background:none}
   .checkq .pyt-msg{margin-top:10px; padding:10px 14px; border-radius:9px; border-top:0}
+
+  /* код у питанні «що виведе програма?» */
+  .checkq-code{margin:0 0 14px; padding:11px 14px; background:var(--card); border:1px solid var(--rule);
+    border-radius:10px; font-family:var(--mono); font-size:.86rem; line-height:1.55; white-space:pre; overflow-x:auto}
+
+  /* завдання «програма»: приклад, поле вхідних даних, вивід запуску;
+     .checkr-io — те саме для проваленого набору в результатах */
+  .checkq-io,.checkr-io{display:grid; grid-template-columns:repeat(auto-fit,minmax(min(180px,100%),1fr));
+    gap:10px; margin:0 0 14px}
+  .checkq-io span,.checkr-io span{display:block; font-size:.76rem; color:var(--muted); margin-bottom:4px}
+  .checkq-io pre,.checkr-io pre{margin:0; padding:8px 11px; background:var(--card); border:1px solid var(--rule);
+    border-radius:8px; font-family:var(--mono); font-size:.84rem; line-height:1.5; white-space:pre-wrap;
+    overflow-wrap:anywhere}
+  .checkr-io-err{margin:6px 0 0; font-size:.82rem; color:#8f2419}
+  .checkq-stdin{display:block; margin:0 0 4px}
+  .checkq-stdin span{display:block; font-size:.8rem; color:var(--muted); margin-bottom:4px}
+  .checkq-stdin textarea{width:100%; box-sizing:border-box; padding:8px 11px; border:1px solid var(--rule);
+    border-radius:8px; background:var(--card); color:var(--ink); font-family:var(--mono); font-size:.86rem;
+    line-height:1.5; resize:vertical}
+  .checkq-out{margin:10px 0 0; padding:10px 14px; background:#fff; border:1px solid var(--rule); border-radius:9px;
+    font-family:var(--mono); font-size:.84rem; line-height:1.5; white-space:pre-wrap; overflow-wrap:anywhere;
+    max-height:320px; overflow:auto}
+  .checkq-out[hidden]{display:none}
+  .checkq-out.empty{color:var(--muted); font-style:italic}
 
   /* ---------- «Завершити тест» ---------- */
   .check-finish{display:flex; flex-direction:column; align-items:center; gap:10px; text-align:center;
