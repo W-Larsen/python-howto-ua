@@ -100,7 +100,7 @@
     row-gap:0;
     max-width:800px; margin:40px auto 60px; background:var(--card);
     border:1px solid var(--rule); border-radius:16px;
-    box-shadow:0 1px 2px rgba(60,45,25,.05), 0 12px 34px -18px rgba(60,45,25,.28);
+    box-shadow:var(--shadow-1), var(--shadow-2);
     padding:8px 44px 64px;
   }
   .wrap > *{grid-column:text; min-width:0; margin:1.35em 0 0}
@@ -139,12 +139,12 @@
     letter-spacing:0; margin:2.3em 0 .4em; text-wrap:balance}
   header.top{padding:52px 0 4px}
   p{margin:0 0 1.1em; text-wrap:pretty}
-  .lede{font-size:1.13rem; line-height:1.62; color:#4a4238; text-wrap:pretty}
+  .lede{font-size:1.13rem; line-height:1.62; color:var(--body); text-wrap:pretty}
   .muted{color:var(--muted)}
   b,strong{font-weight:600; color:var(--ink)}
-  em{color:#4a4238}
+  em{color:var(--body)}
   code{font-family:var(--mono); font-size:.8em; background:var(--panel-2);
-    border:1px solid var(--rule-soft); padding:.06em .34em; border-radius:4px; color:#463c2f}
+    border:1px solid var(--rule-soft); padding:.06em .34em; border-radius:4px; color:var(--body)}
   .vi,.vj{font-family:var(--mono); font-style:normal; font-weight:700; font-size:.9em}
   .vi{color:var(--i)} .vj{color:var(--j)}
   ul{padding-left:1.15em; margin:0 0 1.1em}
@@ -175,7 +175,7 @@
   .ilive-out .iv.cut{opacity:.42; transform:none; text-decoration:line-through}
   .ilive-out .iv.res{opacity:1; transform:none; border-color:var(--j); background:var(--j-soft);
     color:var(--j); font-weight:700}
-  .ilive-out .iv.no{opacity:1; transform:none; border-color:#e8b7ae; background:var(--stop-soft);
+  .ilive-out .iv.no{opacity:1; transform:none; border-color:var(--stop-line); background:var(--stop-soft);
     color:var(--stop); font-weight:700}
   .ilive-out .isep{color:var(--muted); opacity:.7}
 
@@ -185,7 +185,7 @@
   .hero-row{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px}
   .cellbox{width:40px;height:40px;border-radius:9px;border:1.5px solid var(--rule);
     background:var(--card);
-    display:grid;place-items:center;font-family:var(--mono);font-size:.85rem;color:#bbae9c;
+    display:grid;place-items:center;font-family:var(--mono);font-size:.85rem;color:var(--faint);
     transition:background var(--t-base) var(--ease),border-color var(--t-base) var(--ease),
       color var(--t-base) var(--ease),transform var(--t-base) var(--ease)}
   .cellbox.on{background:var(--i-soft); border-color:var(--i); color:var(--i); font-weight:700}
@@ -244,25 +244,25 @@
   .pane-title+.chips{margin-bottom:14px}
 
   pre.code{margin:0; font-family:var(--mono); font-size:.84rem; line-height:1.7;
-    white-space:pre; overflow-x:auto; color:#463c2f}
+    white-space:pre; overflow-x:auto; color:var(--body)}
   /* рядок коду — це теж перемотка: клік веде на перший кадр із цим рядком */
   .cl{display:block; white-space:pre; word-break:normal; overflow-wrap:normal;
     padding:2px 8px 2px 11px; border-left:3px solid transparent; border-radius:0 5px 5px 0;
     cursor:pointer; transition:background var(--t-fast) var(--ease)}
   .cl:hover{background:var(--panel-2)}
-  .cl.active{background:var(--hl); border-left-color:var(--hl-bar); color:#2b2318}
+  .cl.active{background:var(--hl); border-left-color:var(--hl-bar); color:var(--ink)}
   .cl.active:hover{background:var(--hl)}
-  .cl .kw{color:#8a2fa6; font-weight:500} .cl .fn{color:#2159bd} .cl .num{color:var(--n)}
-  .cl .str,.cl .lit{color:#1c7148} .cl .cmt{color:#a29887}
+  .cl .kw{color:var(--syn-kw); font-weight:500} .cl .fn{color:var(--syn-fn)} .cl .num{color:var(--n)}
+  .cl .str,.cl .lit{color:var(--syn-str)} .cl .cmt{color:var(--syn-cmt)}
 
   /* position:relative — щоб програвач міг заміряти найвищий кадр (див. lockHeight) */
   .chips{display:flex; flex-wrap:wrap; gap:8px; min-height:36px; margin-bottom:14px;
     position:relative}
   .chip{font-family:var(--mono); font-size:.84rem; padding:5px 11px; border-radius:7px;
     border:1px solid var(--rule); background:var(--card); color:var(--muted)}
-  .chip.i{border-color:#bda8f7; background:var(--i-soft); color:var(--i)}
-  .chip.j{border-color:#8ed3bb; background:var(--j-soft); color:var(--j)}
-  .chip.n{border-color:#e5c383; background:var(--n-soft); color:#8a5300}
+  .chip.i{border-color:var(--i-line); background:var(--i-soft); color:var(--i)}
+  .chip.j{border-color:var(--j-line); background:var(--j-soft); color:var(--j)}
+  .chip.n{border-color:var(--n-line); background:var(--n-soft); color:var(--n)}
   .chip b{font-weight:700}
   /* поява нових деталей — рушій руху бере її на себе, але «свіжі» комірки
      в темах усе ще спираються на цей кадр */
@@ -292,11 +292,11 @@
   .extra [data-key].jump:hover,.chips [data-key].jump:hover{filter:brightness(.975)}
   .grid{display:inline-grid; gap:6px}
   .gc{width:36px;height:36px;border-radius:7px;border:1.5px solid var(--rule);background:var(--card);
-    display:grid;place-items:center;font-family:var(--mono);font-size:.68rem;color:#bcb0a0;
+    display:grid;place-items:center;font-family:var(--mono);font-size:.68rem;color:var(--faint);
     transition:background var(--t-fast) var(--ease),border-color var(--t-fast) var(--ease)}
-  .gc.done{background:var(--j-soft); border-color:#8ed3bb; color:var(--j)}
+  .gc.done{background:var(--j-soft); border-color:var(--j-line); color:var(--j)}
   .gc.now{background:var(--i); border-color:var(--i); color:var(--card); font-weight:700}
-  .gc.row-now{border-color:#bda8f7}
+  .gc.row-now{border-color:var(--i-line)}
   .gaxis{font-family:var(--mono); font-size:.72rem; color:var(--muted);
     display:grid; place-items:center; width:36px; height:36px}
   .listviz{display:flex; gap:8px; flex-wrap:wrap}
@@ -306,7 +306,7 @@
   .item.done{opacity:.5; text-decoration:line-through}
 
   .note{padding:13px 16px; border-top:1px solid var(--rule-soft); background:var(--panel);
-    font-size:.95rem; line-height:1.55; color:#4a4238; min-height:60px;
+    font-size:.95rem; line-height:1.55; color:var(--body); min-height:60px;
     display:flex; align-items:center; gap:10px; position:relative}
   .note .dot{width:9px;height:9px;border-radius:50%;background:var(--i);flex:none}
   .note.inner .dot{background:var(--j)}
@@ -325,11 +325,11 @@
   button.ctl:active:not(:disabled){transform:translateY(1px)}
   button.ctl:disabled{opacity:.4; cursor:default; transform:none}
   button.ctl.primary{background:var(--ink); color:var(--card); border-color:var(--ink); min-width:108px}
-  button.ctl.primary:hover{background:#332b22}
+  button.ctl.primary:hover{background:color-mix(in srgb, var(--ink) 86%, var(--card))}
   .ctl.ico{width:34px; height:34px; padding:0; display:grid; place-items:center; flex:none}
   .ctl.play{width:38px; height:38px; padding:0; display:grid; place-items:center; flex:none;
     background:var(--ink); color:var(--card); border-color:var(--ink)}
-  .ctl.play:hover{background:#332b22}
+  .ctl.play:hover{background:color-mix(in srgb, var(--ink) 86%, var(--card))}
   .ctl svg{width:17px; height:17px; fill:currentColor; display:block}
   .ctl.speed{font-family:var(--mono); font-size:.78rem; padding:7px 9px; min-width:46px; flex:none}
   .timeline{flex:1 1 150px; min-width:130px; display:flex; flex-direction:column; gap:1px}
