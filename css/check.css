@@ -15,12 +15,13 @@
   .tests-list{list-style:none; max-width:640px; margin:22px auto 0; padding:0; display:flex; flex-direction:column; gap:8px}
   .tests-list li{margin:0}
   .tests-list a{display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; padding:13px 18px;
-    border:1px solid var(--rule); border-radius:11px; background:var(--panel); color:var(--ink);
-    text-decoration:none; transition:border-color var(--t-fast) var(--ease), background var(--t-fast) var(--ease)}
-  .tests-list a:hover{border-color:var(--i); background:var(--i-soft)}
+    border:1px solid var(--rule); border-radius:12px; background:var(--card); color:var(--ink);
+    text-decoration:none; transition:border-color var(--t-fast) var(--ease), background var(--t-fast) var(--ease);
+    box-shadow:0 2px 0 var(--rule)}
+  .tests-list a:hover{border-color:var(--tc); background:var(--tc-soft)}
   .tests-name{font-weight:600; font-size:1.02rem}
   .tests-meta{font-family:var(--mono); font-size:.78rem; color:var(--muted)}
-  .tests-go{margin-left:auto; color:var(--i); font-weight:600}
+  .tests-go{margin-left:auto; color:var(--tc-ink); font-weight:600}
 
   .check-viz{display:flex; flex-direction:column; justify-content:center; gap:8px; min-height:152px}
   .checkviz-row{display:flex; align-items:center; gap:9px}
@@ -52,10 +53,11 @@
   .check-prog-text{font-family:var(--mono); font-size:.8rem; color:var(--muted); white-space:nowrap}
 
   /* ---------- картка завдання: спільна для MCQ і практичних (з кодом) ---------- */
-  .checkq{border:1px solid var(--rule); border-radius:14px; background:var(--panel);
-    padding:20px 24px 22px; margin:0 0 18px}
+  .checkq{border:1px solid var(--rule); border-radius:14px; background:var(--card);
+    padding:20px 24px 22px; margin:0 0 18px; box-shadow:0 2px 0 var(--rule)}
   .checkq-head{margin-bottom:10px}
-  .checkq-n{font-family:var(--mono); font-size:.76rem; color:var(--muted)}
+  .checkq-n{display:inline-block; padding:2px 9px; border-radius:999px; background:var(--tc-soft);
+    color:var(--tc-ink); font-family:var(--mono); font-size:.74rem; font-weight:700}
   .checkq-text{font-size:1rem; line-height:1.6; margin:0 0 14px}
   .checkq-title{font-family:var(--display); font-weight:700; font-size:1.08rem; color:var(--ink)}
 
@@ -123,7 +125,7 @@
   /* ---------- екран результатів ---------- */
   .checkr-score{display:flex; flex-direction:column; align-items:center; gap:6px; padding:34px 20px;
     border:1px solid var(--rule); border-radius:16px; background:var(--panel); margin-bottom:26px; text-align:center}
-  .checkr-score-n{font-family:var(--display); font-size:3rem; font-weight:700; color:var(--i); line-height:1}
+  .checkr-score-n{font-family:var(--display); font-size:3rem; font-weight:800; letter-spacing:-.03em; color:var(--i); line-height:1}
   .checkr-score-n span{font-size:1.35rem; color:var(--muted); font-weight:400}
   .checkr-score p{margin:4px 0 0; color:var(--body); font-size:.96rem}
   /* фокус ставиться сюди після завершення тесту лише для читачів екрана */

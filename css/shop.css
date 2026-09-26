@@ -57,12 +57,12 @@
 
   /* ---------- три кроки ---------- */
   .steps3{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px}
-  .step3{border:1px solid var(--rule); border-radius:12px; background:var(--panel); padding:16px 18px;
-    display:flex; flex-direction:column; gap:4px}
+  .step3{border:1px solid var(--rule); border-radius:12px; background:var(--card); padding:16px 18px;
+    display:flex; flex-direction:column; gap:4px; box-shadow:0 2px 0 var(--rule)}
   .step3 > b{font-family:var(--display); font-size:1.08rem}
   .step3 p{margin:0; font-size:.92rem; line-height:1.55}
   .step3-n{display:grid; place-items:center; width:28px; height:28px; border-radius:50%;
-    background:var(--i); color:var(--card); font-family:var(--mono); font-weight:700; font-size:.85rem;
+    background:var(--tc); color:var(--on-tc); font-family:var(--mono); font-weight:700; font-size:.85rem;
     margin-bottom:6px}
   @media (max-width:820px){ .steps3{grid-template-columns:1fr} }
 

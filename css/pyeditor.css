@@ -6,7 +6,8 @@
 
   /* ==================== картка завдання ==================== */
   .pytask{display:grid; grid-template-columns:minmax(0,.78fr) minmax(0,1.5fr);
-    border:1px solid var(--rule); border-radius:14px; background:var(--panel); overflow:hidden}
+    border:1px solid var(--rule); border-radius:16px; background:var(--panel); overflow:hidden;
+    box-shadow:var(--shadow-1), var(--shadow-2)}
   .pyt-info{padding:22px 24px; border-right:1px solid var(--rule)}
   .pyt-info h2{margin:0 0 .6em; font-size:1.4rem}
   .pyt-info p{font-size:.97rem; line-height:1.62}
@@ -29,8 +30,8 @@
 
   /* редактор: прозора textarea поверх підсвіченого pre з тими самими метриками */
   /* overflow лишається видимим, щоб список підказок міг виходити за межі редактора */
-  .pyed{position:relative; margin:10px 16px 14px; border:1px solid var(--rule); border-radius:9px;
-    background:var(--card)}
+  .pyed{position:relative; margin:10px 16px 14px; border:1px solid var(--rule); border-radius:10px;
+    background:var(--card); box-shadow:0 2px 0 var(--rule)}
   .pyed:focus-within{border-color:var(--i); box-shadow:0 0 0 3px var(--i-soft)}
   .pyed-hl,.pyed-ta{margin:0; padding:12px 14px; font-family:var(--mono); font-size:.84rem;
     line-height:1.65; tab-size:4; white-space:pre; overflow-wrap:normal; word-break:normal;
