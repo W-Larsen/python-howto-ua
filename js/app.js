@@ -81,7 +81,10 @@ const sidebar = $("#sidebar"), scrim = $("#scrim"), burger = $("#burger"),
       navList = $("#navList"), progBar = $("#progBar"), topbarTitle = $("#topbarTitle");
 
 /* ============================ бічне меню ============================ */
+/* Кожна тема — група: пункт, зміст і під-сторінки. Група поточної теми
+   піднімається карткою; колір кружка — колір теми (--tc інлайном). */
 navList.innerHTML = ROUTES.map(r => `
+  <div class="nav-group" data-group="${r.slug}" style="--tc:var(--tc-${r.slug})">
   <a class="nav-item${r.kids ? " has-kids" : ""}" href="#/${r.slug}" data-slug="${r.slug}">
     <span class="num">${r.num}</span><span class="t">${r.nav}</span>
   </a>` +
@@ -90,7 +93,8 @@ navList.innerHTML = ROUTES.map(r => `
     <a class="nav-sub${c.practice ? " practice" : ""}" href="#/${c.slug}" data-slug="${c.slug}">
       <span class="num">${c.num}</span><span class="t">${c.nav}</span>
     </a>
-    <ul class="toc" data-toc="${c.slug}"></ul>`).join("") + `</div>` : "")
+    <ul class="toc" data-toc="${c.slug}"></ul>`).join("") + `</div>` : "") +
+  `</div>`
 ).join("");
 
 function closeMenu(){
@@ -190,6 +194,10 @@ function render(){
     d.classList.toggle("open", on);
     const head = $(`.nav-item[data-slug="${d.dataset.sub}"]`);
     if(head) head.classList.toggle("trail", on && route.slug!==parent.slug);
+  });
+  $$(".nav-group").forEach(g=>{
+    const r = ROUTES.find(x=>x.slug===g.dataset.group);
+    g.classList.toggle("current", !!route && (r===route || (r.kids||[]).includes(route)));
   });
 
   if(route && !started[route.slug]){
@@ -531,6 +539,7 @@ if(routeBox) $$(".card", routeBox).forEach((card, k)=>{
 /* Мітки «пройдено» на головній (далі тут же — меню й стежка) */
 function paintVisited(){
   const list = Book.visited.list();
+  $$(".nav-item").forEach(a=>a.classList.toggle("done", Book.isDone(a.dataset.slug, list)));
   homeCards.forEach(card=>{
     const on = Book.isDone(card.dataset.slug, list);
     let tag = $(".card-done", card);

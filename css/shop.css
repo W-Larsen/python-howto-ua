@@ -4,7 +4,7 @@
 
   /* ---------- пункт практики в меню: висить під «Списками» ---------- */
   .nav-sub.practice{margin-left:14px}
-  .nav-sub.practice .num{color:var(--i)}
+  .nav-sub.practice .num{color:var(--tc-ink)}
   .subnav .toc[data-toc="shop"]{padding-left:34px}
 
   /* ---------- практика на головній ---------- */

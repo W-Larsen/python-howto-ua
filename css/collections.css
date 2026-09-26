@@ -3,7 +3,7 @@
    ========================================================================== */
 
   /* ---------- під-сторінки в бічному меню ---------- */
-  .subnav{display:none; margin:2px 0 6px; padding:0 0 0 14px}
+  .subnav{display:none; margin:2px 0 6px; padding:0 0 0 30px}
   .subnav.open{display:block}
   .nav-sub{display:flex; gap:9px; align-items:baseline; padding:7px 10px; border-radius:8px;
     text-decoration:none; color:var(--body); border-left:2px solid var(--rule-soft);
@@ -11,16 +11,14 @@
   .nav-sub:hover{background:var(--panel-2); color:var(--ink)}
   .nav-sub .num{font-family:var(--mono); font-size:.68rem; color:var(--muted); flex:none}
   .nav-sub .t{font-size:.88rem; line-height:1.3}
-  .nav-sub.active{background:var(--i-soft); color:var(--i); border-left-color:var(--i)}
-  .nav-sub.active .num{color:var(--i)}
+  .nav-sub.active{background:var(--tc-soft); color:var(--tc-ink); border-left-color:var(--tc)}
+  .nav-sub.active .num{color:var(--tc-ink)}
   .nav-sub.active .t{font-weight:600}
   .nav-item.has-kids .t::after{content:"›"; display:inline-block; margin-left:7px; color:var(--faint);
     transform:rotate(90deg); font-size:.9rem}
   .subnav .toc{padding-left:20px; margin:0 0 4px}
   .toc.open{display:block}
-  .nav-item.trail{background:var(--panel-2)}
-  .nav-item.trail .t{font-weight:600; color:var(--ink)}
-  .nav-item.trail .num{color:var(--i)}
+  .nav-item.trail .t{font-weight:700; color:var(--ink)}
 
   /* ---------- перемикач на головній «Колекції» ---------- */
   #coll-hero .seg{margin-bottom:16px}
