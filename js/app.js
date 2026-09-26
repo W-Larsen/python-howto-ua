@@ -40,6 +40,11 @@ const ROUTES = [
    в меню й у «далі / назад» (FLAT) */
 const ALL  = ROUTES.reduce((a, r) => a.concat([r], r.kids || []), []);
 const FLAT = ALL.filter(r => !r.hidden);
+/* теми, які учень «проходить»: для них — номери розділів і позначка «пройдено» */
+const TOPIC_SLUGS = ["vars","cond","loops","func","coll","list","dict","set"];
+/* корінь маршруту: підтема належить своєму розділу (list → coll, check-9 → tests) */
+const topicOf = (route) =>
+  (ROUTES.find(r => r === route || (r.kids || []).includes(route)) || route).slug;
 /* старі посилання не мають ламатись */
 const ALIAS = { dicts:"coll", sets:"set", lists:"list" };
 const HOME_TITLE = "Python крок за кроком";
@@ -172,6 +177,8 @@ function render(){
   document.body.dataset.route = route ? "article" : "home";
   document.title = route ? route.title : HOME_TITLE;
   if(route) topbarTitle.textContent = route.nav;
+  /* тему відкрили — вона пройдена */
+  if(route && TOPIC_SLUGS.includes(route.slug)) Book.visited.add(route.slug);
 
   $$(".nav-item, .nav-sub").forEach(a=>
     a.classList.toggle("active", !!route && a.dataset.slug===route.slug));
