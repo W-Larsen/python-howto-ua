@@ -96,7 +96,7 @@ createPlayer(document.getElementById("coll-w-three"), {
   ];
   const ans = {label:false, dup:true, order:true};
 
-  root.innerHTML = Q.map(qq=>`
+  root.innerHTML = K.titleBar(root) + Q.map(qq=>`
     <div class="sandbox" style="padding-bottom:10px">
       <span style="flex:1 1 220px; font-size:.93rem">${qq.t}</span>
       <span class="seg">

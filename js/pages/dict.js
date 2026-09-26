@@ -162,7 +162,7 @@ createPlayer($id("dict-w-loop"), {
     {t:`{"a": 1}`, ok:false, why:`Словник теж змінюваний, тому ключем бути не може.`},
     {t:`{1, 2}`, ok:false, why:`Звичайна множина змінювана. Для таких випадків існує frozenset — незмінна версія множини.`}
   ];
-  root.innerHTML =
+  root.innerHTML = K.titleBar(root) +
     `<div class="hashgrid">${VALUES.map((v, k)=>
       `<button data-h="${k}" aria-pressed="${k === 0}">${esc(v.t)}</button>`).join("")}</div>
      <div class="sandbox" style="padding-top:0">

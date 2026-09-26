@@ -218,7 +218,7 @@ function chain({code, setupLine, vars, branches, elseBr, tail}){
 /* ================= 1. пісочниця з порівняннями ================= */
 (function(){
   const root = document.getElementById("cond-w-sandbox");
-  root.innerHTML = `
+  root.innerHTML = window.CollKit.titleBar(root) + `
     <div class="sandbox">
       <input type="number" id="cond-sb-a" value="7">
       <select id="cond-sb-op">
