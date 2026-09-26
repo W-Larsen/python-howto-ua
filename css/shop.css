@@ -10,12 +10,9 @@
   /* ---------- практика на головній ---------- */
   /* auto-fill, а не auto-fit: поки практика одна, картка не розтягується на всю ширину */
   .cards.practice-cards{grid-template-columns:repeat(auto-fill,minmax(min(296px,100%),1fr))}
-  .card.practice{border-color:var(--j-line)}
-  .card.practice .card-viz{background:linear-gradient(180deg,var(--j-soft),var(--panel-2))}
-  .card.practice .card-go{color:var(--j)}
   .card-tag{align-self:flex-start; font-family:var(--mono); font-size:.68rem; font-weight:700;
-    color:var(--j); background:var(--j-soft); border:1px solid var(--j-line); border-radius:999px;
-    padding:2px 9px; margin-bottom:9px}
+    color:var(--tc-ink); background:var(--tc-soft); border:1px solid color-mix(in srgb, var(--tc) 35%, var(--card));
+    border-radius:999px; padding:2px 9px; margin-bottom:9px}
   .viz-shop g{transition:transform .55s var(--ease), opacity .35s var(--ease)}
   .vz-tile{fill:var(--card); stroke:var(--rule); stroke-width:1.5; transition:stroke .3s, fill .3s}
   .vz-pic{fill:var(--panel-2); transition:fill .3s}

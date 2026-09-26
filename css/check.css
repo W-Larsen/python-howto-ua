@@ -7,10 +7,6 @@
 
   /* ---------- картка на головній ---------- */
   .cards.check-cards{grid-template-columns:repeat(auto-fill,minmax(min(296px,100%),1fr))}
-  .card.check{border-color:var(--i-line)}
-  .card.check .card-viz{background:linear-gradient(180deg,var(--i-soft),var(--panel-2))}
-  .card.check .card-go{color:var(--i)}
-  .check-tag{color:var(--i); background:var(--i-soft); border-color:var(--i-line)}
   /* сторінка «Самостійні роботи»: шапка по центру, під нею таби з класами
      й простий список робіт вибраного класу */
   #page-tests header.top{text-align:center}
