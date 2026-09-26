@@ -15,7 +15,7 @@
 <!-- ?v=… — версія для кешу браузера: після змін у css/js підніми її тут і для скриптів унизу -->
 <link rel="stylesheet" href="css/base.css?v=20260926t10">
 <link rel="stylesheet" href="css/topics.css?v=20260926t3">
-<link rel="stylesheet" href="css/shell.css?v=20260926t11">
+<link rel="stylesheet" href="css/shell.css?v=20260926t12">
 <link rel="stylesheet" href="css/collections.css?v=20260926t4">
 <link rel="stylesheet" href="css/functions.css?v=20260926t4">
 <link rel="stylesheet" href="css/pyeditor.css?v=20260926t5">
@@ -77,7 +77,7 @@
 
       <div class="tab-panel" role="tabpanel" id="home-p-topics" aria-labelledby="home-t-topics">
       <p class="tab-note">обери, з чого почати</p>
-      <div class="cards">
+      <div class="cards route">
 
         <a class="card reveal" href="#/vars" data-viz="vars">
           <div class="card-viz">
@@ -104,7 +104,7 @@
           <div class="card-body">
             <h3>Змінні, print і input</h3>
             <p>Коробка з іменем: як значення потрапляє в пам'ять, чому <code>b = a</code> — це копія, і чому <code>input</code> завжди повертає рядок.</p>
-            <div class="card-meta"><span>7 віджетів</span><span>типи даних</span><span>для початківців</span></div>
+            <div class="card-meta"><span>типи даних</span><span>для початківців</span></div>
             <div class="card-go">Читати тему <em>→</em></div>
           </div>
         </a>
@@ -130,7 +130,7 @@
           <div class="card-body">
             <h3>Умови: if, elif, else</h3>
             <p>Розвилка в програмі. Що таке <code>True</code> і <code>False</code>, чому порядок <code>elif</code> має значення і чим ланцюжок відрізняється від кількох окремих <code>if</code>.</p>
-            <div class="card-meta"><span>6 віджетів</span><span>and / or / not</span><span>вкладені умови</span></div>
+            <div class="card-meta"><span>and / or / not</span><span>вкладені умови</span></div>
             <div class="card-go">Читати тему <em>→</em></div>
           </div>
         </a>
@@ -147,7 +147,7 @@
           <div class="card-body">
             <h3>Цикли: for і while</h3>
             <p>Чому <code>range(5)</code> — це не п'ятірка, як працює <code>break</code>, і що насправді відбувається, коли один цикл стоїть усередині іншого.</p>
-            <div class="card-meta"><span>5 віджетів</span><span>break / continue</span><span>вкладені цикли</span></div>
+            <div class="card-meta"><span>break / continue</span><span>вкладені цикли</span></div>
             <div class="card-go">Читати тему <em>→</em></div>
           </div>
         </a>
@@ -175,7 +175,7 @@
           <div class="card-body">
             <h3>Функції</h3>
             <p>Свій блок коду з іменем: чим <code>return</code> відрізняється від <code>print</code>, звідки береться <code>None</code>, як влаштований стек викликів і чому змінна з функції не видна ззовні.</p>
-            <div class="card-meta"><span>8 віджетів</span><span>стек викликів</span><span>try / except</span></div>
+            <div class="card-meta"><span>стек викликів</span><span>try / except</span></div>
             <div class="card-go">Читати тему <em>→</em></div>
           </div>
         </a>
@@ -204,7 +204,7 @@
           <div class="card-body">
             <h3>Колекції: списки, словники, множини</h3>
             <p>Три контейнери для багатьох значень одразу: чим <code>list</code> відрізняється від <code>dict</code> і <code>set</code>, і що вміють <code>sorted</code>, <code>map</code>, <code>filter</code> та решта вбудованих функцій.</p>
-            <div class="card-meta"><span>3 під-теми</span><span>26 віджетів</span><span>розділ Advanced</span></div>
+            <div class="card-meta"><span>3 під-теми</span><span>розділ Advanced</span></div>
             <div class="card-go">Читати тему <em>→</em></div>
           </div>
         </a>
@@ -1818,7 +1818,7 @@ b = list(dict.fromkeys(names))</pre>
 <!-- чисті помічники оболонки: «пройдено», номери розділів, стежка, пагінація -->
 <script src="js/book.js?v=20260926t9"></script>
 <!-- оболонка: роутер, меню, анімації головної -->
-<script src="js/app.js?v=20260926t11"></script>
+<script src="js/app.js?v=20260926t12"></script>
 <!-- перемикач теми оформлення -->
 <script src="js/theme.js?v=20260926t7"></script>
 <!-- рушій руху: FLIP-переїзди й твіни; має бути до collkit.js -->

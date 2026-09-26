@@ -199,6 +199,7 @@ function render(){
     try { if(window.PageInit[route.slug]) window.PageInit[route.slug](); }
     catch(err){ console.error("Помилка теми " + route.slug, err); }
   }
+  paintVisited();
 
   closeMenu();
   window.scrollTo(0, 0);
@@ -508,6 +509,39 @@ document.addEventListener("visibilitychange", ()=>homeAnim(!activeRoute));
     setTimeout(()=>el.classList.add("in"), 60);
   });
 })();
+
+/* ============================ головна: шлях учня ============================ */
+/* Картки знають свій маршрут: колір обкладинки (--tc), водяний номер і місце
+   в шаховій сітці .route (--row, .alt — права колонка). */
+const homeCards = $$("#page-home a.card");
+homeCards.forEach(card=>{
+  const route = ALL.find(r => "#/" + r.slug === card.getAttribute("href"));
+  if(!route) return;
+  card.dataset.slug = route.slug;
+  card.style.setProperty("--tc", "var(--tc-" + topicOf(route) + ")");
+  const viz = $(".card-viz", card);
+  if(viz && /^\d/.test(route.num)) viz.dataset.n = route.num;
+});
+const routeBox = $("#home-p-topics .cards.route");
+if(routeBox) $$(".card", routeBox).forEach((card, k)=>{
+  card.style.setProperty("--row", String(k + 1));
+  card.classList.toggle("alt", k % 2 === 1);
+});
+
+/* Мітки «пройдено» на головній (далі тут же — меню й стежка) */
+function paintVisited(){
+  const list = Book.visited.list();
+  homeCards.forEach(card=>{
+    const on = Book.isDone(card.dataset.slug, list);
+    let tag = $(".card-done", card);
+    if(on && !tag){
+      tag = document.createElement("span");
+      tag.className = "card-done";
+      tag.textContent = "✓ пройдено";
+      $(".card-body", card).prepend(tag);
+    } else if(!on && tag) tag.remove();
+  });
+}
 
 /* ============================ таби ============================ */
 /* .tabs[data-tabs] з кнопками [role=tab][aria-controls] перемикає панелі

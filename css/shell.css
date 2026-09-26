@@ -153,6 +153,18 @@
      завширшки і сітка вилазить за край, даючи горизонтальну прокрутку */
   .cards{display:grid; grid-template-columns:repeat(auto-fit,minmax(min(296px,100%),1fr));
     gap:22px; margin-top:22px}
+  /* ---------- шлях учня ----------
+     Три колонки: картка — 70px під стежку — картка. Картка k займає рядки
+     k і k+1 (--row ставить app.js), непарні ліворуч, парні праворуч (.alt) —
+     так праві картки стоять «сходинкою» на пів картки нижче за ліві. */
+  .cards.route{position:relative; grid-template-columns:minmax(0,1fr) 70px minmax(0,1fr);
+    column-gap:0; row-gap:22px; margin-top:26px}
+  .cards.route > .card{--row:auto; grid-row:var(--row) / span 2; grid-column:1; position:relative; z-index:1}
+  .cards.route > .card.alt{grid-column:3}
+  @media (max-width:720px){
+    .cards.route{grid-template-columns:minmax(0,1fr); row-gap:16px}
+    .cards.route > .card, .cards.route > .card.alt{grid-row:auto; grid-column:1}
+  }
   .card{display:flex; flex-direction:column; text-decoration:none; color:inherit; background:var(--card);
     border:1px solid var(--rule); border-radius:16px; overflow:hidden;
     box-shadow:var(--shadow-1), var(--shadow-2);
@@ -163,16 +175,28 @@
   .card:focus-visible{outline:2px solid var(--i); outline-offset:3px}
   /* panel-2, а не panel: на теплому папері --panel майже збігається з --page,
      і зона ілюстрації зливалася б із фоном сторінки */
-  .card-viz{background:var(--panel-2); border-bottom:1px solid var(--rule); padding:14px 16px 10px}
-  .card-viz svg{display:block; width:100%; height:auto}
+  /* «обкладинка» картки: тонована кольором своєї теми, з крапковою
+     фактурою, кольоровою смугою й водяним номером. Суцільний --tc тут не
+     годиться: SVG-ілюстрації намальовані токенами для світлих поверхонь. */
+  .card-viz{position:relative; overflow:hidden; padding:14px 16px 10px;
+    border-top:4px solid var(--tc); border-bottom:1px solid var(--rule);
+    background-color:var(--tc-soft);
+    background-image:radial-gradient(color-mix(in srgb, var(--tc) 22%, transparent) 1px, transparent 1.4px);
+    background-size:5px 5px}
+  .card-viz svg{position:relative; z-index:1; display:block; width:100%; height:auto}
+  .card-viz[data-n]::after{content:attr(data-n); position:absolute; right:10px; bottom:-16px; z-index:0;
+    font:800 5.4rem/1 var(--display); letter-spacing:-.05em; color:var(--tc); opacity:.16;
+    pointer-events:none}
+  .card-done{align-self:flex-start; margin-bottom:9px; padding:2px 9px; border-radius:999px;
+    font:700 .7rem/1.5 var(--mono); color:var(--j); background:var(--j-soft)}
   .card-body{padding:18px 20px 20px; display:flex; flex-direction:column; flex:1}
-  .card h3{font-family:var(--display); font-size:1.24rem; font-weight:700; color:var(--ink);
-    letter-spacing:-.015em; margin:0 0 .38em; line-height:1.18}
+  .card h3{font-family:var(--display); font-size:1.24rem; font-weight:800; color:var(--ink);
+    letter-spacing:-.03em; margin:0 0 .38em; line-height:1.18}
   .card p{font-size:.93rem; line-height:1.55; color:var(--body); margin:0 0 15px}
   .card-meta{display:flex; flex-wrap:wrap; gap:7px; margin-top:auto}
   .card-meta span{font-family:var(--mono); font-size:.71rem; color:var(--muted); background:var(--panel);
     border:1px solid var(--rule-soft); border-radius:999px; padding:3px 10px}
-  .card-go{margin-top:15px; font-size:.87rem; font-weight:600; color:var(--i);
+  .card-go{margin-top:15px; font-size:.87rem; font-weight:600; color:var(--tc-ink);
     display:inline-flex; align-items:center; gap:7px}
   .card-go em{font-style:normal; transition:transform .25s}
   .card:hover .card-go em{transform:translateX(5px)}
