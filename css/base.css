@@ -27,6 +27,38 @@
     --term:#2a241d;
     --term-ink:#f2ece0;
     --term-hi:#ffd479;
+    /* ---------- редизайн v2 ---------- */
+    /* акцент «книжки»: курсив у заголовках, стежка, підкреслення табів */
+    --accent:#c2410c;
+    /* підсвітка Python — одна на віджети, редактор і код у тексті */
+    --syn-kw:#8a2fa6;
+    --syn-fn:#2159bd;
+    --syn-num:var(--n);
+    --syn-str:#1c7148;
+    --syn-cmt:#a29887;
+    /* тіні: дрібна; картка; піднята (наведення, спливні списки) */
+    --shadow-1:0 1px 2px rgba(60,45,25,.06);
+    --shadow-2:0 18px 40px -28px rgba(60,45,25,.35);
+    --shadow-3:0 26px 48px -26px rgba(60,45,25,.5);
+    --paper-dot:rgba(120,90,50,.07);
+    /* кольори тем; --tc — колір поточної (його перевизначає body[data-topic]) */
+    --tc-vars:#6a35d9;
+    --tc-cond:#0f766e;
+    --tc-loops:#c2410c;
+    --tc-func:#b45309;
+    --tc-coll:#2563eb;
+    --tc-tests:var(--ink);
+    --tc:var(--accent);
+    --on-tc:#fff;
+    /* блідий текст-заглушка; текст на жовтій підсвітці; затемнення під меню */
+    --faint:#bcb0a0;
+    --hl-ink:#5a4406;
+    --scrim:rgba(40,32,22,.42);
+    /* рамки-відтінки семантичних кольорів (раніше зашиті #bda8f7, #8ed3bb…) */
+    --i-line:color-mix(in srgb, var(--i) 45%, var(--card));
+    --j-line:color-mix(in srgb, var(--j) 45%, var(--card));
+    --n-line:color-mix(in srgb, var(--n) 45%, var(--card));
+    --stop-line:color-mix(in srgb, var(--stop) 38%, var(--card));
     --display:"Literata",Georgia,"Times New Roman",serif;
     --sans:"IBM Plex Sans","Segoe UI",system-ui,-apple-system,sans-serif;
     --mono:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
@@ -36,6 +68,14 @@
     --t-slow:460ms;
     --ease:cubic-bezier(.32,.72,.28,1);
     --ease-out-back:cubic-bezier(.24,1.2,.4,1);
+  }
+  /* Похідні від кольору теми рахуються там, де цей колір задано: на body
+     (сторінка теми) і на кожному елементі з інлайновим --tc (картки, меню,
+     «далі» в пагінації). У :root їх не можна: var() розв'язався б кольором
+     кореня, а не теми. */
+  body, [style*="--tc"]{
+    --tc-soft:color-mix(in srgb, var(--tc) 14%, var(--card));
+    --tc-ink:color-mix(in srgb, var(--tc) 80%, var(--ink));
   }
   *{box-sizing:border-box}
   /* смуга прокрутки завжди займає своє місце — інакше при переході між
