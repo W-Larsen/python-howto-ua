@@ -15,7 +15,7 @@
 <!-- ?v=… — версія для кешу браузера: після змін у css/js підніми її тут і для скриптів унизу -->
 <link rel="stylesheet" href="css/base.css?v=20260926t6">
 <link rel="stylesheet" href="css/topics.css?v=20260926t3">
-<link rel="stylesheet" href="css/shell.css?v=20260926t3">
+<link rel="stylesheet" href="css/shell.css?v=20260926t7">
 <link rel="stylesheet" href="css/collections.css?v=20260926t4">
 <link rel="stylesheet" href="css/functions.css?v=20260926t4">
 <link rel="stylesheet" href="css/pyeditor.css?v=20260926t5">
@@ -36,7 +36,12 @@
     <div id="navList"></div>
   </nav>
   <div class="sidebar-foot">
-    Усі приклади можна крутити кроками вперед і назад.
+    <span class="sidebar-foot-t">Оформлення</span>
+    <div class="theme-switch" role="group" aria-label="Тема оформлення">
+      <button type="button" data-theme-set="light" aria-pressed="false" aria-label="Світла тема" title="Світла тема">&#x2600;&#xFE0E;</button>
+      <button type="button" data-theme-set="auto" aria-pressed="true" aria-label="Як у системі" title="Як у системі">авто</button>
+      <button type="button" data-theme-set="dark" aria-pressed="false" aria-label="Темна тема" title="Темна тема">&#x263E;&#xFE0E;</button>
+    </div>
   </div>
 </aside>
 <div class="scrim" id="scrim"></div>
@@ -48,11 +53,13 @@
       <span></span><span></span><span></span>
     </button>
     <a class="topbar-t" href="#/" id="topbarTitle">Python крок за кроком</a>
+    <button type="button" class="theme-cycle" data-theme-cycle aria-label="Тема оформлення">&#x25D0;</button>
   </header>
 
   <!-- ================= головна ================= -->
   <section class="page" id="page-home">
     <div class="home">
+      <div class="home-bar"><button type="button" class="theme-cycle" data-theme-cycle aria-label="Тема оформлення">&#x25D0;</button></div>
       <div class="home-hero">
         <h1>Python крок за кроком</h1>
         <p class="lede">Основи мови, які видно. Кожна тема — це не стіна тексту, а <b>віджети, які можна прокрутити кроками</b>: змінити числа, натиснути «Крок» і подивитись, що саме відбувається в пам'яті, у коді й у виводі.</p>
@@ -1808,6 +1815,8 @@ b = list(dict.fromkeys(names))</pre>
 
 <!-- оболонка: роутер, меню, анімації головної -->
 <script src="js/app.js?v=20260924d"></script>
+<!-- перемикач теми оформлення -->
+<script src="js/theme.js?v=20260926t7"></script>
 <!-- рушій руху: FLIP-переїзди й твіни; має бути до collkit.js -->
 <script src="js/motion.js?v=20260922f"></script>
 <!-- спільний рушій віджетів розділу «Колекції» -->
