@@ -7,10 +7,10 @@
 
   /* ---------- картка на головній ---------- */
   .cards.check-cards{grid-template-columns:repeat(auto-fill,minmax(min(296px,100%),1fr))}
-  .card.check{border-color:#c9b6f0}
+  .card.check{border-color:var(--i-line)}
   .card.check .card-viz{background:linear-gradient(180deg,var(--i-soft),var(--panel-2))}
   .card.check .card-go{color:var(--i)}
-  .check-tag{color:var(--i); background:var(--i-soft); border-color:#c9b6f0}
+  .check-tag{color:var(--i); background:var(--i-soft); border-color:var(--i-line)}
   /* сторінка «Самостійні роботи»: шапка по центру, під нею таби з класами
      й простий список робіт вибраного класу */
   #page-tests header.top{text-align:center}
@@ -33,7 +33,7 @@
     color:var(--muted); flex:none}
   .checkviz-row.code .checkviz-q{background:var(--i); border-color:var(--i); color:var(--card); font-weight:700}
   .checkviz-bar{flex:1; height:8px; border-radius:999px; background:var(--rule-soft)}
-  .checkviz-row.code .checkviz-bar{background:#c9b6f0}
+  .checkviz-row.code .checkviz-bar{background:var(--i-line)}
   .checkviz-pt{font-family:var(--mono); font-size:.7rem; color:var(--muted); flex:none; width:54px; text-align:right}
   .checkviz-total{margin-top:5px; font-size:.82rem; color:var(--muted); text-align:right}
   .checkviz-total b{color:var(--i); font-family:var(--mono)}
@@ -107,13 +107,13 @@
   .checkq-io pre,.checkr-io pre{margin:0; padding:8px 11px; background:var(--card); border:1px solid var(--rule);
     border-radius:8px; font-family:var(--mono); font-size:.84rem; line-height:1.5; white-space:pre-wrap;
     overflow-wrap:anywhere}
-  .checkr-io-err{margin:6px 0 0; font-size:.82rem; color:#8f2419}
+  .checkr-io-err{margin:6px 0 0; font-size:.82rem; color:var(--stop)}
   .checkq-stdin{display:block; margin:0 0 4px}
   .checkq-stdin span{display:block; font-size:.8rem; color:var(--muted); margin-bottom:4px}
   .checkq-stdin textarea{width:100%; box-sizing:border-box; padding:8px 11px; border:1px solid var(--rule);
     border-radius:8px; background:var(--card); color:var(--ink); font-family:var(--mono); font-size:.86rem;
     line-height:1.5; resize:vertical}
-  .checkq-out{margin:10px 0 0; padding:10px 14px; background:#fff; border:1px solid var(--rule); border-radius:9px;
+  .checkq-out{margin:10px 0 0; padding:10px 14px; background:var(--card); border:1px solid var(--rule); border-radius:9px;
     font-family:var(--mono); font-size:.84rem; line-height:1.5; white-space:pre-wrap; overflow-wrap:anywhere;
     max-height:320px; overflow:auto}
   .checkq-out[hidden]{display:none}
@@ -156,15 +156,15 @@
   .checkr-opts li{padding:7px 11px; border-radius:8px; background:var(--panel); font-family:var(--mono);
     line-height:1.5; white-space:pre-wrap; overflow-wrap:anywhere}
   .checkr-opts li b{font-family:var(--sans); font-weight:600; margin-right:6px}
-  .checkr-opts li.chosen.ok{background:var(--j-soft); color:#075c42}
-  .checkr-opts li.chosen.partial{background:#fbeecb; color:#7a5a06}
-  .checkr-opts li.chosen.bad{background:var(--stop-soft); color:#8f2419}
-  .checkr-opts li.correct{background:var(--j-soft); color:#075c42}
+  .checkr-opts li.chosen.ok{background:var(--j-soft); color:var(--j)}
+  .checkr-opts li.chosen.partial{background:var(--hl); color:var(--hl-ink)}
+  .checkr-opts li.chosen.bad{background:var(--stop-soft); color:var(--stop)}
+  .checkr-opts li.correct{background:var(--j-soft); color:var(--j)}
   .checkr-explain{margin:6px 0 0; font-size:.88rem; color:var(--muted); line-height:1.55}
   .checkr-code-t{margin:10px 0 4px; font-size:.78rem; color:var(--muted)}
-  .checkr-code{margin:0; padding:11px 13px; background:#fff; border:1px solid var(--rule); border-radius:9px;
+  .checkr-code{margin:0; padding:11px 13px; background:var(--card); border:1px solid var(--rule); border-radius:9px;
     font-family:var(--mono); font-size:.82rem; line-height:1.55; overflow-x:auto; white-space:pre}
-  .checkr-code.ref{background:var(--j-soft); border-color:#8ed3bb}
+  .checkr-code.ref{background:var(--j-soft); border-color:var(--j-line)}
   .checkr-code + .checkr-opts{margin-top:10px}
 
   @media (max-width:640px){

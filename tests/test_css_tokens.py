@@ -15,7 +15,8 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 CSS = sorted((ROOT / "css").glob("*.css"))
 COLOR = re.compile(r"#[0-9a-fA-F]{3,8}\b|rgba?\(")
 # файли, де зашиті кольори вже замінено токенами (розширюється в Task 2–5)
-MIGRATED = ["base.css", "shell.css", "topics.css", "collections.css", "functions.css"]
+# усі файли css/ (css_decls(None) — без фільтра)
+MIGRATED = None
 LIGHT = (":root",)
 
 

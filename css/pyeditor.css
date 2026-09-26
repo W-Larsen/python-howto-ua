@@ -22,40 +22,40 @@
   .pyt-sig{font-size:.8rem; background:var(--card)}
   .pyt-status{font-family:var(--mono); font-size:.72rem; padding:3px 10px; border-radius:999px;
     border:1px solid var(--rule); background:var(--card); color:var(--muted); white-space:nowrap}
-  .pyt-status.ok{border-color:#8ed3bb; background:var(--j-soft); color:var(--j); font-weight:700}
-  .pyt-status.fail,.pyt-status.error,.pyt-status.hung{border-color:#e8b7ae; background:var(--stop-soft);
+  .pyt-status.ok{border-color:var(--j-line); background:var(--j-soft); color:var(--j); font-weight:700}
+  .pyt-status.fail,.pyt-status.error,.pyt-status.hung{border-color:var(--stop-line); background:var(--stop-soft);
     color:var(--stop)}
   .pyt-where{padding:8px 16px 0; font-size:.84rem; color:var(--muted)}
 
   /* редактор: прозора textarea поверх підсвіченого pre з тими самими метриками */
   /* overflow лишається видимим, щоб список підказок міг виходити за межі редактора */
   .pyed{position:relative; margin:10px 16px 14px; border:1px solid var(--rule); border-radius:9px;
-    background:#fff}
+    background:var(--card)}
   .pyed:focus-within{border-color:var(--i); box-shadow:0 0 0 3px var(--i-soft)}
   .pyed-hl,.pyed-ta{margin:0; padding:12px 14px; font-family:var(--mono); font-size:.84rem;
     line-height:1.65; tab-size:4; white-space:pre; overflow-wrap:normal; word-break:normal;
     letter-spacing:0; border:0}
-  .pyed-hl{position:absolute; inset:0; overflow:hidden; pointer-events:none; color:#463c2f}
+  .pyed-hl{position:absolute; inset:0; overflow:hidden; pointer-events:none; color:var(--body)}
   .pyed-ta{position:relative; display:block; width:100%; resize:vertical; min-height:9em;
     overflow:auto; background:transparent; color:transparent; caret-color:var(--ink); outline:none}
-  .pyed-ta::selection{background:rgba(106,53,217,.22); color:transparent}
+  .pyed-ta::selection{background:color-mix(in srgb, var(--i) 22%, transparent); color:transparent}
 
   /* підсвітка Python: спільна для textarea-редактора (.pyed) і для будь-якого
      статичного показу коду (.pysrc) — варіанти відповіді, код у результатах */
-  .pyed .kw, .pysrc .kw{color:#8a2fa6; font-weight:500}
-  .pyed .fn, .pysrc .fn{color:#2159bd}
-  .pyed .def, .pysrc .def{color:#2159bd; font-weight:700}
+  .pyed .kw, .pysrc .kw{color:var(--syn-kw); font-weight:500}
+  .pyed .fn, .pysrc .fn{color:var(--syn-fn)}
+  .pyed .def, .pysrc .def{color:var(--syn-fn); font-weight:700}
   .pyed .num, .pysrc .num{color:var(--n)}
-  .pyed .str, .pysrc .str{color:#1c7148}
+  .pyed .str, .pysrc .str{color:var(--syn-str)}
   /* f-рядок, як у VS Code: префікс f і {дужки} — синім, вираз усередині — як код */
-  .pyed .fpre, .pysrc .fpre{color:#2159bd}
-  .pyed .fmt, .pysrc .fmt{color:#2159bd; font-weight:700}
-  .pyed .cmt, .pysrc .cmt{color:#a29887; font-style:italic}
+  .pyed .fpre, .pysrc .fpre{color:var(--syn-fn)}
+  .pyed .fmt, .pysrc .fmt{color:var(--syn-fn); font-weight:700}
+  .pyed .cmt, .pysrc .cmt{color:var(--syn-cmt); font-style:italic}
 
   /* ---------- автодоповнення ---------- */
   .pyac{position:absolute; z-index:20; min-width:210px; max-width:min(320px,calc(100% - 8px));
-    padding:4px; border:1px solid var(--rule); border-radius:9px; background:#fff;
-    box-shadow:0 14px 30px -12px rgba(60,45,25,.4); font-family:var(--mono); font-size:.8rem}
+    padding:4px; border:1px solid var(--rule); border-radius:9px; background:var(--card);
+    box-shadow:var(--shadow-3); font-family:var(--mono); font-size:.8rem}
   .pyac[hidden]{display:none}
   .pyac-i{display:flex; align-items:baseline; justify-content:space-between; gap:14px;
     padding:4px 8px; border-radius:6px; cursor:pointer; color:var(--body)}
@@ -78,19 +78,19 @@
   .pyt-msg{padding:10px 16px; font-size:.9rem; line-height:1.5; border-top:1px solid var(--rule-soft);
     font-family:var(--sans); white-space:pre-wrap; overflow-wrap:anywhere}
   .pyt-msg[hidden]{display:none}
-  .pyt-msg.good{background:var(--j-soft); color:#075c42}
-  .pyt-msg.bad{background:var(--stop-soft); color:#8f2419}
+  .pyt-msg.good{background:var(--j-soft); color:var(--j)}
+  .pyt-msg.bad{background:var(--stop-soft); color:var(--stop)}
 
   .pyt-tests{background:var(--card); border-top:1px solid var(--rule-soft)}
   .pyt-tests:empty{display:none}
   .pyt-scroll{overflow-x:auto}
   .pyt-table{width:100%; border-collapse:collapse; font-size:.82rem}
   .pyt-table th{text-align:left; font-size:.7rem; letter-spacing:.06em; text-transform:uppercase;
-    color:#736a5e; font-weight:600; padding:8px 10px; border-bottom:1px solid var(--rule)}
+    color:var(--muted); font-weight:600; padding:8px 10px; border-bottom:1px solid var(--rule)}
   .pyt-table td{padding:7px 10px; border-top:1px solid var(--rule-soft); vertical-align:top}
   .pyt-table code{font-size:.92em; white-space:pre-wrap; overflow-wrap:anywhere}
-  .pyt-table tr.no td:last-child code{background:var(--stop-soft); border-color:#e8b7ae; color:var(--stop)}
-  .pyt-table tr.ok td:last-child code{background:var(--j-soft); border-color:#8ed3bb; color:var(--j)}
+  .pyt-table tr.no td:last-child code{background:var(--stop-soft); border-color:var(--stop-line); color:var(--stop)}
+  .pyt-table tr.ok td:last-child code{background:var(--j-soft); border-color:var(--j-line); color:var(--j)}
   .pyt-mark{width:28px; font-weight:700; text-align:center}
   tr.ok .pyt-mark{color:var(--j)}
   tr.no .pyt-mark{color:var(--stop)}
