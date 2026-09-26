@@ -110,6 +110,25 @@ burger.addEventListener("click", ()=>{
 scrim.addEventListener("click", closeMenu);
 document.addEventListener("keydown", e=>{ if(e.key==="Escape") closeMenu(); });
 
+/* ============================ книжкові прикраси сторінок ============================ */
+/* Один прохід під час завантаження — раніше, ніж скрипти тем збудують віджети
+   (їхні PageInit запускаються лише з render()): смужка віджета читає номер
+   розділу з h2[data-sec]. Шапку самостійних робіт рушій малює пізніше —
+   їхня обкладинка виходить самим CSS, без підпису. */
+ALL.forEach(route=>{
+  const page = document.getElementById(route.id);
+  if(!page) return;
+  const count = TOPIC_SLUGS.includes(route.slug)
+    ? Book.numberHeads(page, route.num)
+    : $$("h2", page).length;
+  const h1 = $("header.top > h1", page);
+  if(h1){
+    const cap = Book.coverCaption(route, count);
+    if(cap) h1.dataset.cap = cap;
+    if(route.num) h1.dataset.num = route.num;
+  }
+});
+
 /* ============================ зміст теми ============================ */
 function buildToc(route){
   const page = document.getElementById(route.id);
@@ -179,6 +198,9 @@ function render(){
   document.getElementById(route ? route.id : "page-home").hidden = false;
 
   document.body.dataset.route = route ? "article" : "home";
+  /* колір теми: --tc задає CSS за body[data-topic] */
+  if(route) document.body.dataset.topic = topicOf(route);
+  else delete document.body.dataset.topic;
   document.title = route ? route.title : HOME_TITLE;
   if(route) topbarTitle.textContent = route.nav;
   /* тему відкрили — вона пройдена */

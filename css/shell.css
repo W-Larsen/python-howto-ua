@@ -8,6 +8,14 @@
   body[data-route=article] main{margin-left:var(--sbw)}
   body[data-route=article] .wrap{margin-top:34px}
 
+  /* ---------- колір теми ---------- */
+  body[data-topic="vars"]{--tc:var(--tc-vars)}
+  body[data-topic="cond"]{--tc:var(--tc-cond)}
+  body[data-topic="loops"]{--tc:var(--tc-loops)}
+  body[data-topic="func"]{--tc:var(--tc-func)}
+  body[data-topic="coll"]{--tc:var(--tc-coll)}
+  body[data-topic="tests"]{--tc:var(--tc-tests)}
+
   /* ---------- бічне меню ---------- */
   .sidebar{
     position:fixed; top:0; left:0; bottom:0; width:var(--sbw); z-index:40;
@@ -89,7 +97,7 @@
 
   /* ---------- смуга прогресу ---------- */
   .progress{position:fixed; top:0; left:var(--sbw); right:0; height:3px; z-index:45; pointer-events:none}
-  .progress i{display:block; height:100%; width:0; background:var(--i); border-radius:0 3px 3px 0;
+  .progress i{display:block; height:100%; width:0; background:var(--tc); border-radius:0 3px 3px 0;
     transition:width .1s linear}
 
   /* ---------- верхня панель (мобільна) ---------- */

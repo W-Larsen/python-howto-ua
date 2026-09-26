@@ -143,13 +143,14 @@
      У grid вертикальні відступи НЕ схлопуються, тому ритм тримається на
      односторонніх margin-top; margin-bottom у прямих дітей .wrap завжди 0. */
   .wrap{
+    --wrap-px:44px; --wrap-pt:8px;
     display:grid;
     grid-template-columns:[full-start text-start] minmax(0,1fr) [text-end full-end];
     row-gap:0;
     max-width:800px; margin:40px auto 60px; background:var(--card);
     border:1px solid var(--rule); border-radius:16px;
     box-shadow:var(--shadow-1), var(--shadow-2);
-    padding:8px 44px 64px;
+    padding:var(--wrap-pt) var(--wrap-px) 64px;
   }
   .wrap > *{grid-column:text; min-width:0; margin:1.35em 0 0}
 
@@ -167,7 +168,8 @@
 
   @media (max-width:720px){
     body{font-size:17px}
-    .wrap{margin:0; border-radius:0; border-left:0; border-right:0; padding:4px 18px 48px}
+    .wrap{--wrap-px:18px; --wrap-pt:4px; margin:0; border-radius:0; border-left:0; border-right:0;
+      padding-bottom:48px}
   }
   /* balance у заголовках рівняє довжину рядків, pretty в абзацах прибирає
      самотнє слово на останньому рядку */
@@ -181,8 +183,37 @@
     font-weight:700; color:var(--ink); margin:3.2em 0 .5em; padding-top:.6em; position:relative;
     text-wrap:balance;
   }
+  /* коротка риска над h2 — на практиці й самостійних; на сторінках тем її
+     замінює плашка з номером розділу (h2[data-sec]) */
   h2::before{content:""; position:absolute; top:0; left:0; width:34px; height:3px;
-    background:var(--i); border-radius:2px}
+    background:var(--accent); border-radius:2px}
+  h2[data-sec]{padding-top:0}
+  h2[data-sec]::before{content:attr(data-sec); position:static; display:table; width:auto; height:auto;
+    margin:0 0 .7em; padding:3px 8px; border-radius:6px; background:var(--tc-soft); color:var(--tc-ink);
+    font:700 11px/1.3 var(--mono); letter-spacing:.02em}
+
+  /* ---------- обкладинка теми ----------
+     Кольорова плашка на всю ширину аркуша — це сам h1: від'ємні поля
+     дорівнюють полям .wrap, верхні кути заокруглені разом з аркушем.
+     Лід лишається під нею, на папері. Підпис і водяний номер — атрибути,
+     які ставить app.js (у самостійних робіт їх нема — лише колір). */
+  .page .wrap header.top{padding-top:0}
+  .page .wrap header.top > h1{position:relative; overflow:hidden;
+    margin:calc(-1 * var(--wrap-pt)) calc(-1 * var(--wrap-px)) 0;
+    padding:44px var(--wrap-px) 34px; border-radius:15px 15px 0 0;
+    background-color:var(--tc);
+    background-image:radial-gradient(color-mix(in srgb, var(--on-tc) 22%, transparent) 1px, transparent 1.4px);
+    background-size:5px 5px; color:var(--on-tc)}
+  .page .wrap header.top > h1 em{color:inherit}
+  .page .wrap header.top > h1[data-cap]::before{content:attr(data-cap); display:block; margin-bottom:14px;
+    font:600 .74rem/1.2 var(--mono); letter-spacing:.08em; text-transform:uppercase; opacity:.86}
+  .page .wrap header.top > h1[data-num]::after{content:attr(data-num); position:absolute;
+    right:calc(var(--wrap-px) - 6px); bottom:-.22em; font-size:2.6em; font-weight:800;
+    letter-spacing:-.05em; line-height:1; opacity:.18; pointer-events:none}
+  .page .wrap header.top > h1 + .lede{margin-top:1.1em}
+  @media (max-width:720px){
+    .page .wrap header.top > h1{border-radius:0; padding:34px var(--wrap-px) 26px}
+  }
   h3{font-family:var(--display); font-size:1.18rem; font-weight:600; color:var(--ink);
     letter-spacing:0; margin:2.3em 0 .4em; text-wrap:balance}
   /* курсив у заголовках — теракотовий акцент «книжки з характером» */

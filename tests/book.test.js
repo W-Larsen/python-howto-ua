@@ -66,4 +66,37 @@ T.test("book: стежка — кубічні криві між станціям
   T.eq(Book.trailPath(pts, () => false), "");
   T.eq(Book.trailPath([]), "");
 });
+
+T.test("book: номер теми для плашок — без провідного нуля", () => {
+  T.eq(Book.secBase("03"), "3");
+  T.eq(Book.secBase("01"), "1");
+  T.eq(Book.secBase("5.1"), "5.1");
+  T.eq(Book.secBase("10"), "10");
+});
+
+T.test("book: розділ / розділи / розділів", () => {
+  const f = ["розділ", "розділи", "розділів"];
+  T.eq([1, 2, 4, 5, 11, 12, 14, 21, 22, 25].map(n => Book.plural(n, f)),
+       ["розділ", "розділи", "розділи", "розділів", "розділів", "розділів", "розділів",
+        "розділ", "розділи", "розділів"]);
+});
+
+T.test("book: h2 теми нумеруються в data-sec, текст не змінюється", () => {
+  const s = page(`<h2>Перший</h2><p>x</p><h2>Другий <span class="badge">advanced</span></h2>`);
+  try {
+    T.eq(Book.numberHeads(s, "03"), 2);
+    T.eq([...s.querySelectorAll("h2")].map(h => h.dataset.sec), ["3.1", "3.2"]);
+    T.eq(s.querySelector("h2").textContent, "Перший");
+    Book.numberHeads(s, "5.1");
+    T.eq(s.querySelector("h2").dataset.sec, "5.1.1");
+  } finally { s.remove(); }
+});
+
+T.test("book: підпис обкладинки — тема, практика; для робіт — нічого", () => {
+  T.eq(Book.coverCaption({ slug:"loops", num:"03" }, 6), "тема 03 · 6 розділів");
+  T.eq(Book.coverCaption({ slug:"list", num:"5.1" }, 1), "тема 5.1 · 1 розділ");
+  T.eq(Book.coverCaption({ slug:"shop", num:"✎", practice:true }, 4), "практика · 4 розділи");
+  T.eq(Book.coverCaption({ slug:"tests", num:"✓" }, 0), "");
+  T.eq(Book.coverCaption({ slug:"check-9", num:"9" }, 3), "");
+});
 })();

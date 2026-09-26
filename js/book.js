@@ -55,5 +55,37 @@ function trailPath(pts, pick){
   return d;
 }
 
-return { esc, visited:{ list, add }, isDone, trailPoints, trailPath };
+/* ============================ номери розділів і обкладинка ============================ */
+/* «03» → «3», «5.1» → «5.1»: номер теми в плашці «3.2» без провідного нуля */
+const secBase = (num) => String(num).replace(/^0+(?=\d)/, "");
+
+function plural(n, forms){
+  const a = n % 10, b = n % 100;
+  if(a === 1 && b !== 11) return forms[0];
+  if(a >= 2 && a <= 4 && (b < 12 || b > 14)) return forms[1];
+  return forms[2];
+}
+const SECTIONS = ["розділ", "розділи", "розділів"];
+
+/* Номер пишеться в сам заголовок: h2[data-sec="3.2"]. Його малює CSS
+   (::before) і читає смужка віджета (CollKit.titleBar). Віддає кількість h2. */
+function numberHeads(page, num){
+  const base = secBase(num);
+  const heads = page.querySelectorAll("h2");
+  heads.forEach((h, k)=>{ h.dataset.sec = base + "." + (k + 1); });
+  return heads.length;
+}
+
+/* Підпис над заголовком обкладинки. Самостійні роботи — без підпису:
+   їхня шапка з'являється пізніше й номер «9» там — клас, а не тема. */
+function coverCaption(route, count){
+  if(/^check/.test(route.slug)) return "";
+  const tail = " · " + count + " " + plural(count, SECTIONS);
+  if(route.practice) return "практика" + tail;
+  if(/^\d/.test(route.num)) return "тема " + route.num + tail;
+  return "";
+}
+
+return { esc, visited:{ list, add }, isDone, trailPoints, trailPath,
+  secBase, plural, numberHeads, coverCaption };
 })();
