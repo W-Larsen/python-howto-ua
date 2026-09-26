@@ -298,15 +298,30 @@
   .vz-line{font-size:11.5px; fill:var(--muted); font-weight:700}
   .vz-line tspan.hi{fill:var(--i)}
 
-  /* ---------- перехід між темами ---------- */
-  .pager{display:flex; gap:14px; flex-wrap:wrap; margin:56px 0 0; padding-top:26px;
-    border-top:1px solid var(--rule)}
-  .pager a{flex:1 1 220px; display:block; text-decoration:none; border:1px solid var(--rule);
-    border-radius:12px; padding:13px 16px; background:var(--panel); transition:border-color .2s, background .2s}
-  .pager a:hover{border-color:var(--i); background:var(--i-soft)}
-  .pager .lbl{display:block; font-size:.74rem; color:var(--muted); font-family:var(--mono); margin-bottom:3px}
-  .pager .ttl{display:block; font-family:var(--display); font-weight:600; color:var(--ink); font-size:1.02rem}
-  .pager a.next{text-align:right}
+  /* ---------- «наступна сторінка книжки» ---------- */
+  .pager{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.6fr); gap:14px;
+    align-items:stretch; padding-top:26px; border-top:1px solid var(--rule)}
+  .pager a{display:flex; flex-direction:column; justify-content:center; text-decoration:none;
+    border-radius:14px; padding:14px 18px}
+  .pager .prev{border:1.5px dashed var(--rule); transition:border-color .2s}
+  .pager .prev:hover{border-color:var(--muted)}
+  .pager .next{position:relative; overflow:hidden; padding:18px 76px 18px 20px; background:var(--card);
+    border:1px solid var(--rule); box-shadow:var(--shadow-1), var(--shadow-2)}
+  .pager .lbl{display:block; margin-bottom:3px; font-family:var(--mono); font-size:.74rem; color:var(--muted)}
+  .pager .ttl{display:block; font-family:var(--display); font-weight:600; font-size:1.02rem; color:var(--ink)}
+  .pager .next .ttl{position:relative; z-index:1; font-weight:800; font-size:1.25rem; letter-spacing:-.02em}
+  .pager .wm{position:absolute; right:64px; bottom:-18px; font:800 4.5rem/1 var(--display);
+    letter-spacing:-.05em; color:var(--tc); opacity:.14; pointer-events:none}
+  .pager .go{position:absolute; right:18px; top:50%; width:40px; height:40px; margin-top:-20px;
+    display:grid; place-items:center; border-radius:50%; background:var(--ink); color:var(--card);
+    font-size:1.1rem; transition:transform var(--t-base) var(--ease)}
+  .pager .next:hover .go{transform:translateX(4px)}
+  .pager-dots{grid-column:1 / -1; display:flex; justify-content:center; gap:6px; margin-top:6px}
+  .pager-dots i{width:6px; height:6px; border-radius:999px; background:var(--rule);
+    transition:width var(--t-base) var(--ease)}
+  .pager-dots i.done{background:var(--muted)}
+  .pager-dots i.cur{width:20px; background:var(--accent)}
+  @media (max-width:620px){ .pager{grid-template-columns:minmax(0,1fr)} }
 
   .vz-kv{fill:var(--card); stroke:var(--rule); stroke-width:1.5; transition:fill .3s, stroke .3s, opacity .3s}
   .vz-k{font-size:12px; font-weight:700; fill:var(--i)}

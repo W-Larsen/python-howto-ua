@@ -152,4 +152,38 @@ T.test("book: шпаргалка загортається в картку з ш�
     T.eq(s.querySelectorAll(".cheat-card").length, 1);
   } finally { s.remove(); }
 });
+
+T.test("book: підпис «далі» — тема, практика, роботи", () => {
+  T.eq(Book.kindLabel({ slug:"func", num:"04" }), "тема 04");
+  T.eq(Book.kindLabel({ slug:"list", num:"5.1" }), "тема 5.1");
+  T.eq(Book.kindLabel({ slug:"shop", num:"✎", practice:true }), "практика");
+  T.eq(Book.kindLabel({ slug:"tests", num:"✓" }), "самостійні роботи");
+  T.eq(Book.kindLabel({ slug:"check-9", num:"9" }), "самостійна робота");
+});
+
+T.test("book: пагінація — тихе «назад», картка «далі», крапки прогресу", () => {
+  const d = document.createElement("div");
+  d.innerHTML = Book.pagerHtml({
+    prev:{ href:"#/cond", lbl:"← назад", ttl:"Умови" },
+    next:{ href:"#/func", lbl:"далі · тема 04", ttl:"Функції <def>", num:"04", topic:"func" },
+    dots:[{ cls:"done" }, { cls:"cur" }, { cls:"" }]
+  });
+  T.eq(d.querySelector(".prev").getAttribute("href"), "#/cond");
+  const next = d.querySelector(".next");
+  T.eq(next.getAttribute("href"), "#/func");
+  T.ok(/--tc:var\(--tc-func\)/.test(next.getAttribute("style")), next.getAttribute("style"));
+  T.eq(next.querySelector(".ttl").textContent, "Функції <def>");
+  T.eq(next.querySelector(".wm").textContent, "04");
+  T.ok(next.querySelector(".go"), "нема кнопки-стрілки");
+  T.eq([...d.querySelectorAll(".pager-dots i")].map(i => i.className), ["done", "cur", ""]);
+
+  d.innerHTML = Book.pagerHtml({
+    prev:{ href:"#/tests", lbl:"← назад", ttl:"Самостійні роботи" },
+    next:{ href:"#/", lbl:"на початок", ttl:"Усі теми", num:"", topic:"" },
+    dots:null
+  });
+  T.eq(d.querySelector(".pager-dots"), null);
+  T.eq(d.querySelector(".wm"), null);
+  T.eq(d.querySelector(".next").hasAttribute("style"), false);
+});
 })();

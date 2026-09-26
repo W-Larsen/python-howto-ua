@@ -164,6 +164,29 @@ function wrapCheats(root){
   return n;
 }
 
+/* ============================ пагінація ============================ */
+function kindLabel(route){
+  if(route.practice) return "практика";
+  if(route.slug === "tests") return "самостійні роботи";
+  if(/^check/.test(route.slug)) return "самостійна робота";
+  return "тема " + route.num;
+}
+/* prev / next: {href, lbl, ttl, num?, topic?}; dots — [{cls}] по FLAT або null.
+   «Далі» фарбується кольором наступної теми — інлайновим --tc. */
+function pagerHtml(o){
+  const p = o.prev, n = o.next;
+  const tc = n.topic ? ` style="--tc:var(--tc-${esc(n.topic)})"` : "";
+  return `<a class="prev" href="${esc(p.href)}"><span class="lbl">${esc(p.lbl)}</span>` +
+      `<span class="ttl">${esc(p.ttl)}</span></a>` +
+    `<a class="next" href="${esc(n.href)}"${tc}><span class="lbl">${esc(n.lbl)}</span>` +
+      `<span class="ttl">${esc(n.ttl)}</span>` +
+      (n.num ? `<span class="wm" aria-hidden="true">${esc(n.num)}</span>` : "") +
+      `<span class="go" aria-hidden="true">→</span></a>` +
+    (o.dots ? `<div class="pager-dots" aria-hidden="true">` +
+      o.dots.map(d=>`<i${d.cls ? ` class="${d.cls}"` : ""}></i>`).join("") + `</div>` : "");
+}
+
 return { esc, visited:{ list, add }, isDone, trailPoints, trailPath,
-  secBase, plural, numberHeads, coverCaption, markCallouts, wrapTasks, wrapCheats };
+  secBase, plural, numberHeads, coverCaption, markCallouts, wrapTasks, wrapCheats,
+  kindLabel, pagerHtml };
 })();

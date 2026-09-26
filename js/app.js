@@ -157,25 +157,29 @@ function buildToc(route){
 }
 
 /* ============================ навігація «далі / назад» ============================ */
+/* Перебудовується на кожному показі сторінки: крапки прогресу залежать від
+   того, що вже пройдено. */
 function buildPager(route){
   const wrap = $(".wrap", document.getElementById(route.id));
   if(!wrap) return;
+  const old = $(":scope > .pager", wrap);
+  if(old) old.remove();
+  const link = (r, lbl) => ({ href:"#/" + r.slug, lbl, ttl:r.nav, num:r.num, topic:topicOf(r) });
+  const home = (lbl) => ({ href:"#/", lbl, ttl:"Усі теми", num:"", topic:"" });
+  let prev, next, dots = null;
+  if(route.hidden){
+    prev = { href:"#/tests", lbl:"← назад", ttl:"Самостійні роботи" };
+    next = home("на початок");
+  }else{
+    const i = FLAT.indexOf(route);
+    prev = FLAT[i-1] ? link(FLAT[i-1], "← назад") : home("← на початок");
+    next = FLAT[i+1] ? link(FLAT[i+1], "далі · " + Book.kindLabel(FLAT[i+1])) : home("це остання тема");
+    const list = Book.visited.list();
+    dots = FLAT.map(r=>({ cls: r === route ? "cur" : Book.isDone(r.slug, list) ? "done" : "" }));
+  }
   const box = document.createElement("div");
   box.className = "pager";
-  if(route.hidden){
-    box.innerHTML =
-      `<a class="prev" href="#/tests"><span class="lbl">← назад</span><span class="ttl">Самостійні роботи</span></a>` +
-      `<a class="next" href="#/"><span class="lbl">на початок →</span><span class="ttl">Усі теми</span></a>`;
-    wrap.appendChild(box);
-    return;
-  }
-  const i = FLAT.indexOf(route);
-  const prev = FLAT[i-1], next = FLAT[i+1];
-  box.innerHTML =
-    (prev ? `<a class="prev" href="#/${prev.slug}"><span class="lbl">← попередня тема</span><span class="ttl">${prev.nav}</span></a>`
-          : `<a class="prev" href="#/"><span class="lbl">← на початок</span><span class="ttl">Усі теми</span></a>`) +
-    (next ? `<a class="next" href="#/${next.slug}"><span class="lbl">наступна тема →</span><span class="ttl">${next.nav}</span></a>`
-          : `<a class="next" href="#/"><span class="lbl">це остання тема →</span><span class="ttl">Усі теми</span></a>`);
+  box.innerHTML = Book.pagerHtml({ prev, next, dots });
   wrap.appendChild(box);
 }
 
@@ -228,10 +232,10 @@ function render(){
   if(route && !started[route.slug]){
     started[route.slug] = true;
     buildToc(route);
-    buildPager(route);
     try { if(window.PageInit[route.slug]) window.PageInit[route.slug](); }
     catch(err){ console.error("Помилка теми " + route.slug, err); }
   }
+  if(route) buildPager(route);
   paintVisited();
 
   closeMenu();
