@@ -423,27 +423,45 @@
   .controls{display:flex; align-items:center; flex-wrap:wrap; gap:8px; padding:10px 14px;
     border-top:1px solid var(--rule); background:var(--panel-2)}
   button.ctl{font-family:var(--sans); font-size:.9rem; padding:7px 14px; border:1px solid var(--rule);
-    background:var(--card); border-radius:8px; cursor:pointer; color:var(--ink);
+    background:var(--card); border-radius:9px; cursor:pointer; color:var(--ink);
+    box-shadow:0 2px 0 var(--rule);
     transition:background var(--t-fast) var(--ease), border-color var(--t-fast) var(--ease),
-      transform var(--t-fast) var(--ease)}
+      transform var(--t-fast) var(--ease), box-shadow var(--t-fast) var(--ease)}
   button.ctl:hover{background:var(--panel)}
-  button.ctl:active:not(:disabled){transform:translateY(1px)}
+  button.ctl:active:not(:disabled){transform:translateY(2px); box-shadow:0 0 0 var(--rule)}
   button.ctl:disabled{opacity:.4; cursor:default; transform:none}
   button.ctl.primary{background:var(--ink); color:var(--card); border-color:var(--ink); min-width:108px}
   button.ctl.primary:hover{background:color-mix(in srgb, var(--ink) 86%, var(--card))}
-  .ctl.ico{width:34px; height:34px; padding:0; display:grid; place-items:center; flex:none}
-  .ctl.play{width:38px; height:38px; padding:0; display:grid; place-items:center; flex:none;
-    background:var(--ink); color:var(--card); border-color:var(--ink)}
+  .ctl.ico{width:30px; height:30px; padding:0; display:grid; place-items:center; flex:none; border-radius:8px}
+  /* «пуск» — головна кнопка: коло кольору чорнила, без тіні-підставки */
+  .ctl.play{width:40px; height:40px; padding:0; display:grid; place-items:center; flex:none;
+    border-radius:50%; background:var(--ink); color:var(--card); border-color:var(--ink); box-shadow:none}
   .ctl.play:hover{background:color-mix(in srgb, var(--ink) 86%, var(--card))}
   .ctl svg{width:17px; height:17px; fill:currentColor; display:block}
-  .ctl.speed{font-family:var(--mono); font-size:.78rem; padding:7px 9px; min-width:46px; flex:none}
-  .timeline{flex:1 1 150px; min-width:130px; display:flex; flex-direction:column; gap:1px}
-  .timeline input[type=range]{width:100%; min-width:0; margin:0}
-  .ticks{display:flex; justify-content:space-between; height:4px; padding:0 7px}
-  .ticks i{display:block; width:1px; height:4px; background:var(--muted); opacity:.38}
+  .ctl.speed{font-family:var(--mono); font-size:.76rem; padding:5px 10px; min-width:44px; flex:none;
+    border-radius:999px}
+  .timeline{flex:1 1 150px; min-width:130px; display:flex; flex-direction:column; gap:3px}
+  /* доріжка: заповнення кольором --i до поточного кроку (--p ставить програвач) */
+  .controls input[type=range]{--p:0%; -webkit-appearance:none; appearance:none; width:100%; min-width:0;
+    height:18px; margin:0; background:transparent; cursor:pointer}
+  .controls input[type=range]::-webkit-slider-runnable-track{height:6px; border-radius:999px;
+    background:linear-gradient(to right, var(--i) var(--p), var(--rule) var(--p))}
+  .controls input[type=range]::-moz-range-track{height:6px; border-radius:999px;
+    background:linear-gradient(to right, var(--i) var(--p), var(--rule) var(--p))}
+  .controls input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; appearance:none;
+    width:16px; height:16px; margin-top:-5px; border-radius:50%; background:var(--card);
+    border:2px solid var(--i); box-shadow:var(--shadow-1)}
+  .controls input[type=range]::-moz-range-thumb{width:12px; height:12px; border-radius:50%;
+    background:var(--card); border:2px solid var(--i)}
+  .controls input[type=range]:disabled{opacity:.4; cursor:default}
+  /* засічки-крапки під доріжкою: пройдені кроки (клас p) зафарбовані */
+  .ticks{display:flex; justify-content:space-between; height:6px; padding:0 5px}
+  .ticks i{display:block; width:6px; height:6px; border-radius:50%; background:var(--rule)}
+  .ticks i.p{background:var(--i)}
   button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(--i); outline-offset:2px}
   input[type=range]{flex:1; accent-color:var(--i); min-width:120px}
   .counter{font-family:var(--mono); font-size:.76rem; color:var(--muted); white-space:nowrap}
+  .counter b{color:var(--ink); font-weight:700}
 
   /* ---------- blocks ---------- */
   .callout{position:relative; background:var(--i-soft); border-radius:12px;

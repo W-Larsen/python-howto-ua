@@ -387,7 +387,10 @@ function createPlayerWith(root, spec, cfg){
     noteEl.className = "note" + (f.kind?" "+f.kind:"");
     if(extraEl){ patchInto(extraEl, spec.extra(f)); markClickable(extraEl); }
     scrub.value = idx;
-    counter.textContent = `${idx+1} / ${frames.length}`;
+    /* заповнення доріжки й засічки пройдених кроків малює CSS */
+    scrub.style.setProperty("--p", (frames.length > 1 ? idx / (frames.length - 1) * 100 : 0) + "%");
+    ticksEl.querySelectorAll("i").forEach((t, k)=>t.classList.toggle("p", k <= idx));
+    counter.innerHTML = `крок <b>${idx+1}</b> / ${frames.length}`;
     backB.disabled = resetB.disabled = idx===0;
     stepB.disabled = idx===frames.length-1;
 

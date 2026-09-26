@@ -51,4 +51,25 @@ T.test("віджет: програвач малює смужку першою, �
     T.ok(root.querySelector(".w-head .w-config [data-cfg]"), "налаштування поза смужкою");
   } finally { s.remove(); }
 });
+
+T.test("віджет: шкала заповнена до кроку, засічки пройдених зафарбовані, «крок N / M»", () => {
+  const s = page(`<h2 data-sec="1.1">Коробка</h2><div class="widget" id="kt-s" tabindex="0"></div>`);
+  try {
+    const root = s.querySelector("#kt-s");
+    CollKit.createPlayer(root, { build: () => ({
+      code: ["a = 1", "print(a)"],
+      frames: [
+        { line:0, vars:[], out:[], note:"старт" },
+        { line:0, vars:[{ name:"a", val:"1", cls:"i" }], out:[], note:"a = 1" },
+        { line:1, vars:[{ name:"a", val:"1" }], out:["1"], note:"друк" }
+      ]}) });
+    const scrub = root.querySelector("[data-scrub]");
+    T.eq(scrub.style.getPropertyValue("--p"), "0%");
+    root.querySelector("[data-step]").click();       /* ручна дія — автостарт уже не заведеться */
+    T.eq(scrub.style.getPropertyValue("--p"), "50%");
+    T.eq(root.querySelectorAll(".ticks i.p").length, 2);
+    T.eq(root.querySelector("[data-counter]").textContent, "крок 2 / 3");
+    T.eq(root.querySelector("[data-counter] b").textContent, "2");
+  } finally { s.remove(); }
+});
 })();
