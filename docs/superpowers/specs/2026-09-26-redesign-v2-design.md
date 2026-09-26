@@ -2,7 +2,7 @@
 
 Дата: 2026-09-26
 Гілка: `feature/redesign-v2`
-Статус: на перевірці
+Статус: реалізовано (план: docs/superpowers/plans/2026-09-26-redesign-v2.md)
 
 ## 1. Мета
 
