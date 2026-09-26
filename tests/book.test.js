@@ -99,4 +99,17 @@ T.test("book: підпис обкладинки — тема, практика; 
   T.eq(Book.coverCaption({ slug:"tests", num:"✓" }, 0), "");
   T.eq(Book.coverCaption({ slug:"check-9", num:"9" }, 3), "");
 });
+
+T.test("book: заголовок виноски — лише <b> на самому початку першого абзацу", () => {
+  const s = page(
+    `<div class="callout warn"><p><b>Обережно:</b> текст</p></div>` +
+    `<div class="callout"><p>Текст з <b>жирним</b> словом</p></div>` +
+    `<div class="callout"><p>
+       <b>Після пробілу.</b> текст</p></div>`);
+  try {
+    T.eq(Book.markCallouts(s), 2);
+    T.eq([...s.querySelectorAll("b")].map(b => b.classList.contains("co-h")), [true, false, true]);
+    T.eq(Book.markCallouts(s), 2);                          /* повторно — те саме */
+  } finally { s.remove(); }
+});
 })();

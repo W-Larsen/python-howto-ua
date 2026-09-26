@@ -86,6 +86,22 @@ function coverCaption(route, count){
   return "";
 }
 
+/* ============================ виноски ============================ */
+/* Заголовок виноски — <b>, з якого починається перший абзац («Обережно:»).
+   Не в кожної виноски він є, а жирне слово посеред тексту заголовком не
+   стає — тому позначаємо класом, а не селектором b:first-child. */
+function markCallouts(root){
+  let n = 0;
+  root.querySelectorAll(".callout").forEach(c=>{
+    const p = c.firstElementChild;
+    if(!p || p.tagName !== "P") return;
+    let first = p.firstChild;
+    while(first && first.nodeType === 3 && !first.data.trim()) first = first.nextSibling;
+    if(first && first.nodeType === 1 && first.tagName === "B"){ first.classList.add("co-h"); n++; }
+  });
+  return n;
+}
+
 return { esc, visited:{ list, add }, isDone, trailPoints, trailPath,
-  secBase, plural, numberHeads, coverCaption };
+  secBase, plural, numberHeads, coverCaption, markCallouts };
 })();

@@ -127,6 +127,7 @@ ALL.forEach(route=>{
     if(cap) h1.dataset.cap = cap;
     if(route.num) h1.dataset.num = route.num;
   }
+  Book.markCallouts(page);
 });
 
 /* ============================ зміст теми ============================ */

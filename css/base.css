@@ -440,9 +440,20 @@
   .counter{font-family:var(--mono); font-size:.76rem; color:var(--muted); white-space:nowrap}
 
   /* ---------- blocks ---------- */
-  .callout{border-left:3px solid var(--i); background:var(--i-soft);
-    padding:14px 18px; border-radius:0 10px 10px 0; margin:1.6em 0 0; font-size:.97rem}
-  .callout.warn{border-left-color:var(--stop); background:var(--stop-soft)}
+  .callout{position:relative; background:var(--i-soft); border-radius:12px;
+    padding:14px 18px 14px 56px; margin:1.6em 0 0; font-size:.97rem}
+  /* значок у лівому полі: «i» — порада, «!» — застереження */
+  .callout::before{content:"i"; position:absolute; left:16px; top:15px; width:26px; height:26px;
+    border-radius:50%; display:grid; place-items:center; background:var(--i); color:var(--card);
+    font:italic 700 .95rem/1 var(--display)}
+  .callout.warn{background:var(--stop-soft)}
+  .callout.warn::before{content:"!"; background:var(--stop); font-style:normal}
+  .callout .co-h{display:block; margin-bottom:.15em; font-family:var(--display); font-weight:800;
+    color:var(--ink)}
+  @media (max-width:520px){
+    .callout{padding:48px 16px 14px}
+    .callout::before{left:16px; top:14px}
+  }
   .callout p:last-child{margin-bottom:0}
   .task{border:1px solid var(--rule); border-radius:11px; padding:16px 18px; margin:1em 0 0;
     background:var(--panel)}
