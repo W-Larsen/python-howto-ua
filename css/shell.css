@@ -133,18 +133,18 @@
   .home-cta:focus-visible{outline:2px solid var(--i); outline-offset:3px}
 
   /* ---------- таби (головна, «Самостійні роботи») ---------- */
-  /* Перемикач по центру; панелі — .tab-panel з hidden, логіка в js/app.js.
-     На вузькому екрані список табів прокручується вбік, а не переноситься. */
-  .tabs{display:flex; justify-content:center; margin:44px 0 0}
-  .tabs-list{display:inline-flex; gap:4px; padding:4px; max-width:100%; overflow-x:auto;
-    background:var(--panel-2); border:1px solid var(--rule); border-radius:999px; scrollbar-width:none}
-  .tabs-list [role=tab]{appearance:none; border:0; background:none; font:inherit; font-size:.95rem;
-    font-weight:500; color:var(--muted); padding:9px 20px; border-radius:999px; cursor:pointer;
-    white-space:nowrap; transition:background .2s, color .2s, box-shadow .2s}
+  .tabs{display:flex; justify-content:center; margin:44px 0 0; border-bottom:1px solid var(--rule)}
+  .tabs-list{display:inline-flex; gap:28px; max-width:100%; overflow-x:auto; scrollbar-width:none}
+  .tabs-list [role=tab]{appearance:none; border:0; background:none; font:inherit; font-size:1rem;
+    font-weight:500; color:var(--muted); padding:10px 2px 12px; position:relative; cursor:pointer;
+    white-space:nowrap; transition:color .2s}
   .tabs-list [role=tab]:hover{color:var(--ink)}
-  .tabs-list [role=tab][aria-selected=true]{background:var(--card); color:var(--ink); font-weight:600;
-    box-shadow:var(--shadow-1), var(--shadow-2)}
+  .tabs-list [role=tab][aria-selected=true]{color:var(--ink); font-weight:700}
+  /* підкреслення активного табу лежить на спільній лінії-рулі */
+  .tabs-list [role=tab][aria-selected=true]::after{content:""; position:absolute; left:0; right:0;
+    bottom:0; height:2.5px; border-radius:2px 2px 0 0; background:var(--accent)}
   .tabs-list [role=tab]:focus-visible{outline:2px solid var(--i); outline-offset:2px}
+  .tab-n{margin-left:4px; font-family:var(--mono); font-size:.74rem; font-weight:400; color:var(--muted)}
   .tab-note{text-align:center; font-size:.88rem; color:var(--muted); margin:14px 0 0}
   /* одна картка на вкладці — по центру, під табами, а не під лівим краєм */
   .tab-panel .cards:has(> .card:only-child){grid-template-columns:minmax(0,360px); justify-content:center}
@@ -180,7 +180,8 @@
   @media (max-width:720px){
     .home{padding:40px 18px 64px}      /* 78px згори на телефоні — задарма */
     .tabs{margin-top:30px}
-    .tabs-list [role=tab]{padding:8px 14px; font-size:.9rem}
+    .tabs-list{gap:18px}
+    .tabs-list [role=tab]{padding:8px 2px 10px; font-size:.95rem}
     .cards{gap:16px}
   }
 

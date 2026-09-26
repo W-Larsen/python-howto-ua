@@ -516,6 +516,11 @@ document.addEventListener("visibilitychange", ()=>homeAnim(!activeRoute));
 $$("[data-tabs]").forEach(box=>{
   const key = "pyguide_tab_" + box.dataset.tabs;
   const tabs = $$("[role=tab]", box);
+  /* лічильник біля назви табу — скільки карток у його панелі */
+  tabs.forEach(t=>{
+    const n = $$(".card", document.getElementById(t.getAttribute("aria-controls"))).length;
+    if(n) t.insertAdjacentHTML("beforeend", ` <span class="tab-n">${n}</span>`);
+  });
   function select(tab, focus){
     tabs.forEach(t=>{
       const on = t === tab;
