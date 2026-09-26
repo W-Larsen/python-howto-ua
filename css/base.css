@@ -55,6 +55,8 @@
     --faint:#bcb0a0;
     --hl-ink:#5a4406;
     --scrim:rgba(40,32,22,.42);
+    /* текст на var(--hl-bar): --ink дає лише 1.63:1 у темній темі */
+    --on-hl-bar:#1b1814;
     /* рамки-відтінки семантичних кольорів (раніше зашиті #bda8f7, #8ed3bb…) */
     --i-line:color-mix(in srgb, var(--i) 45%, var(--card));
     --j-line:color-mix(in srgb, var(--j) 45%, var(--card));
@@ -97,6 +99,7 @@
       --paper-dot:rgba(255,240,210,.035); --on-tc:#1d1a16;
       --tc-vars:#a78bfa; --tc-cond:#2dd4bf; --tc-loops:#f59e6b; --tc-func:#fbbf24; --tc-coll:#60a5fa;
       --faint:#5f574b; --hl-ink:#f5d58a; --scrim:rgba(0,0,0,.6);
+      --on-hl-bar:#1d1a16;
     }
   }
   :root[data-theme="dark"]{
@@ -112,15 +115,18 @@
       --paper-dot:rgba(255,240,210,.035); --on-tc:#1d1a16;
       --tc-vars:#a78bfa; --tc-cond:#2dd4bf; --tc-loops:#f59e6b; --tc-func:#fbbf24; --tc-coll:#60a5fa;
       --faint:#5f574b; --hl-ink:#f5d58a; --scrim:rgba(0,0,0,.6);
+      --on-hl-bar:#1d1a16;
   }
   /* явно світла в темній системі: нативні контроли й смуги теж світлі */
   :root[data-theme="light"]{color-scheme:light}
 
   /* Плавна зміна кольорів лише на час перемикання (клас ставить js/theme.js
      на 300 мс). Постійний transition на всьому гальмував би кожен hover. */
-  html.theme-anim, html.theme-anim *, html.theme-anim *::before, html.theme-anim *::after{
-    transition:background-color .3s ease, color .3s ease, border-color .3s ease,
-      fill .3s ease, stroke .3s ease, box-shadow .3s ease !important}
+  @media (prefers-reduced-motion:no-preference){
+    html.theme-anim, html.theme-anim *, html.theme-anim *::before, html.theme-anim *::after{
+      transition:background-color .3s ease, color .3s ease, border-color .3s ease,
+        fill .3s ease, stroke .3s ease, box-shadow .3s ease !important}
+  }
   *{box-sizing:border-box}
   /* смуга прокрутки завжди займає своє місце — інакше при переході між
      темами різної висоти вся сторінка стрибає на ширину смуги */
@@ -206,7 +212,7 @@
     background-size:5px 5px; color:var(--on-tc)}
   .page .wrap header.top > h1 em{color:inherit}
   .page .wrap header.top > h1[data-cap]::before{content:attr(data-cap); display:block; margin-bottom:14px;
-    font:600 .74rem/1.2 var(--mono); letter-spacing:.08em; text-transform:uppercase; opacity:.86}
+    font:600 .74rem/1.2 var(--mono); letter-spacing:.08em; text-transform:uppercase}
   .page .wrap header.top > h1[data-num]::after{content:attr(data-num); position:absolute;
     right:calc(var(--wrap-px) - 6px); bottom:-.22em; font-size:2.6em; font-weight:800;
     letter-spacing:-.05em; line-height:1; opacity:.18; pointer-events:none}
@@ -515,6 +521,7 @@
     box-shadow:0 2px 0 var(--rule); min-width:0;
     transition:border-color var(--t-base) var(--ease), box-shadow var(--t-base) var(--ease)}
   .task>p:first-child{font-weight:600; color:var(--ink)}
+  .task code{white-space:normal}
   .task-n{display:inline-grid; place-items:center; width:22px; height:22px; margin-right:8px;
     vertical-align:.1em; border-radius:50%; border:1.5px solid var(--tc); color:var(--tc-ink);
     font:700 .72rem/1 var(--mono); transition:background var(--t-base) var(--ease), color var(--t-base) var(--ease)}
@@ -559,4 +566,4 @@
     table.cmp{display:block; overflow-x:auto; scrollbar-gutter:stable}
     .cheat-card{overflow-x:auto; scrollbar-gutter:stable}
   }
-  @media (prefers-reduced-motion:reduce){*{animation:none!important; transition:none!important}}
+  @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important; transition:none!important}}

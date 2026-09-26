@@ -144,6 +144,10 @@ function wrapTasks(root){
   });
   root.querySelectorAll(".task").forEach(numberTask);
   root.querySelectorAll(".answer").forEach(wrapAnswer);
+  root.querySelectorAll(".task [data-answer]").forEach(btn=>{
+    if(!btn.hasAttribute("aria-controls")) btn.setAttribute("aria-controls", btn.dataset.answer);
+    if(!btn.hasAttribute("aria-expanded")) btn.setAttribute("aria-expanded", "false");
+  });
   return groups;
 }
 

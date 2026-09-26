@@ -115,22 +115,24 @@ document.addEventListener("keydown", e=>{ if(e.key==="Escape") closeMenu(); });
    (їхні PageInit запускаються лише з render()): смужка віджета читає номер
    розділу з h2[data-sec]. Шапку самостійних робіт рушій малює пізніше —
    їхня обкладинка виходить самим CSS, без підпису. */
-ALL.forEach(route=>{
-  const page = document.getElementById(route.id);
-  if(!page) return;
-  const count = TOPIC_SLUGS.includes(route.slug)
-    ? Book.numberHeads(page, route.num)
-    : $$("h2", page).length;
-  const h1 = $("header.top > h1", page);
-  if(h1){
-    const cap = Book.coverCaption(route, count);
-    if(cap) h1.dataset.cap = cap;
-    if(route.num) h1.dataset.num = route.num;
-  }
-  Book.markCallouts(page);
-  Book.wrapTasks(page);
-  Book.wrapCheats(page);
-});
+if(window.Book){
+  ALL.forEach(route=>{
+    const page = document.getElementById(route.id);
+    if(!page) return;
+    const count = TOPIC_SLUGS.includes(route.slug)
+      ? Book.numberHeads(page, route.num)
+      : $$("h2", page).length;
+    const h1 = $("header.top > h1", page);
+    if(h1){
+      const cap = Book.coverCaption(route, count);
+      if(cap) h1.dataset.cap = cap;
+      if(route.num) h1.dataset.num = route.num;
+    }
+    Book.markCallouts(page);
+    Book.wrapTasks(page);
+    Book.wrapCheats(page);
+  });
+}
 
 /* ============================ зміст теми ============================ */
 function buildToc(route){
@@ -160,6 +162,7 @@ function buildToc(route){
 /* Перебудовується на кожному показі сторінки: крапки прогресу залежать від
    того, що вже пройдено. */
 function buildPager(route){
+  if(!window.Book) return;      /* без Book нема ні pagerHtml, ні kindLabel — краще без пагінації, ніж крах */
   const wrap = $(".wrap", document.getElementById(route.id));
   if(!wrap) return;
   const old = $(":scope > .pager", wrap);
@@ -211,7 +214,7 @@ function render(){
   document.title = route ? route.title : HOME_TITLE;
   if(route) topbarTitle.textContent = route.nav;
   /* тему відкрили — вона пройдена */
-  if(route && TOPIC_SLUGS.includes(route.slug)) Book.visited.add(route.slug);
+  if(route && TOPIC_SLUGS.includes(route.slug)) window.Book && Book.visited.add(route.slug);
 
   $$(".nav-item, .nav-sub").forEach(a=>
     a.classList.toggle("active", !!route && a.dataset.slug===route.slug));
@@ -567,6 +570,7 @@ if(routeBox) $$(".card", routeBox).forEach((card, k)=>{
 
 /* Мітки «пройдено» на головній (далі тут же — меню й стежка) */
 function paintVisited(){
+  if(!window.Book) return;      /* без Book нема списку пройденого — нема що малювати */
   const list = Book.visited.list();
   $$(".nav-item").forEach(a=>a.classList.toggle("done", Book.isDone(a.dataset.slug, list)));
   homeCards.forEach(card=>{

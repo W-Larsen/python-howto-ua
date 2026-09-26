@@ -134,9 +134,13 @@ T.test("book: сусідні задачі — у сітці .tasks; «1.» ст�
     T.eq(ans.children.length, 1);
     T.eq(ans.firstElementChild.className, "answer-in");
     T.eq(ans.firstElementChild.innerHTML, "<p>8.</p>");
+    const btn = s.querySelector('[data-answer="bt-a1"]');
+    T.eq(btn.getAttribute("aria-controls"), "bt-a1");
+    T.eq(btn.getAttribute("aria-expanded"), "false");
     T.eq(Book.wrapTasks(s), 0);                             /* повторно — нічого нового */
     T.eq(s.querySelectorAll(".task-n").length, 2);
     T.eq(s.querySelectorAll(".answer-in").length, 1);
+    T.eq(btn.getAttribute("aria-expanded"), "false");       /* повторно не чіпає вже виставлене */
   } finally { s.remove(); }
 });
 

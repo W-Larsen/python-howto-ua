@@ -33,6 +33,7 @@ PAIRS = [
     ("--syn-num", "--card", 4.5), ("--syn-kw", "--panel", 4.5), ("--syn-fn", "--panel", 4.5),
     ("--syn-str", "--panel", 4.5), ("--syn-num", "--panel", 4.5),
     ("--hl-ink", "--hl", 4.5), ("--card", "--i", 4.5), ("--card", "--ink", 4.5),
+    ("--on-hl-bar", "--hl-bar", 4.5),
 ]
 
 
@@ -117,7 +118,8 @@ class Tokens(unittest.TestCase):
         need = ["--accent", "--syn-kw", "--syn-fn", "--syn-num", "--syn-str", "--syn-cmt",
                 "--shadow-1", "--shadow-2", "--shadow-3", "--paper-dot", "--on-tc", "--tc",
                 "--tc-vars", "--tc-cond", "--tc-loops", "--tc-func", "--tc-coll", "--tc-tests",
-                "--faint", "--hl-ink", "--scrim", "--i-line", "--j-line", "--n-line", "--stop-line"]
+                "--faint", "--hl-ink", "--scrim", "--i-line", "--j-line", "--n-line", "--stop-line",
+                "--on-hl-bar"]
         self.assertEqual([t for t in need if t not in light], [])
 
     def test_every_var_is_defined(self):
@@ -150,7 +152,8 @@ class Tokens(unittest.TestCase):
                 "--hl-bar", "--stop", "--stop-soft", "--term", "--term-ink", "--term-hi",
                 "--accent", "--syn-kw", "--syn-fn", "--syn-str", "--syn-cmt", "--shadow-1",
                 "--shadow-2", "--shadow-3", "--paper-dot", "--on-tc", "--tc-vars", "--tc-cond",
-                "--tc-loops", "--tc-func", "--tc-coll", "--faint", "--hl-ink", "--scrim"]
+                "--tc-loops", "--tc-func", "--tc-coll", "--faint", "--hl-ink", "--scrim",
+                "--on-hl-bar"]
         self.assertEqual([t for t in need if t not in dark], [])
 
     def test_contrast_aa(self):

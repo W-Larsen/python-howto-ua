@@ -76,14 +76,14 @@
   .store-logo{display:flex; align-items:center; font-family:var(--display); font-weight:700;
     font-size:1.3rem; letter-spacing:-.02em}
   .store-mark{display:grid; place-items:center; width:32px; height:32px; margin-right:6px; border-radius:9px;
-    background:var(--hl-bar); color:var(--ink); font-size:.95rem}
+    background:var(--hl-bar); color:var(--on-hl-bar); font-size:.95rem}
   .store-nav{display:flex; gap:22px; font-size:.9rem; color:color-mix(in srgb, var(--card) 72%, var(--ink)); flex:1}
   .store-nav .on{color:var(--card); font-weight:600; box-shadow:inset 0 -2px 0 var(--hl-bar)}
   .store-cart{display:flex; align-items:center; gap:8px; padding:7px 14px; border-radius:999px;
     background:color-mix(in srgb, var(--card) 12%, transparent); font-size:.88rem; margin-left:auto}
   .store-cart svg{width:20px; height:20px; fill:currentColor}
   .store-cart b{display:grid; place-items:center; min-width:22px; height:22px; padding:0 6px; border-radius:999px;
-    background:var(--hl-bar); color:var(--ink); font-family:var(--mono); font-size:.78rem}
+    background:var(--hl-bar); color:var(--on-hl-bar); font-family:var(--mono); font-size:.78rem}
   .store-cart.bump b{animation:shopbump .45s var(--ease-out-back)}
   @keyframes shopbump{0%{transform:scale(1)}40%{transform:scale(1.45)}100%{transform:scale(1)}}
 
