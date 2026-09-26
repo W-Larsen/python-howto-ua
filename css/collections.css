@@ -42,7 +42,7 @@
     background:var(--card); display:grid; place-items:center; font-family:var(--mono); font-size:.82rem;
     color:var(--body); transition:background .2s, border-color .2s, color .2s, transform .2s, opacity .2s}
   .cell.now{border-color:var(--i); background:var(--i-soft); color:var(--i); font-weight:700;
-    transform:translateY(-4px)}
+    transform:translateY(-6px); box-shadow:0 10px 18px -10px var(--i)}
   .cell.hit{border-color:var(--j); background:var(--j-soft); color:var(--j); font-weight:700}
   .cell.pick{border-color:var(--j-line); background:var(--j-soft); color:var(--j)}
   .cell.drop{border-color:var(--stop-line); background:var(--stop-soft); color:var(--stop); text-decoration:line-through}
