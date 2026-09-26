@@ -2,6 +2,7 @@
    1. Спільна база — стилі статей (з вихідних сторінок)
    ========================================================================== */
   :root{
+    color-scheme:light dark;
     /* теплий папір замість холодної сіро-блакитної основи */
     --page:#f5efe4;
     --card:#fffdf8;
@@ -77,12 +78,59 @@
     --tc-soft:color-mix(in srgb, var(--tc) 14%, var(--card));
     --tc-ink:color-mix(in srgb, var(--tc) 80%, var(--ink));
   }
+  /* ---------- темна тема «нічний папір» ----------
+     Ті самі значення двічі: для «авто» (система темна, а світлу явно не
+     вибрали) і для явного вибору. Блоки мають бути однакові — це стереже
+     tests/test_css_tokens.py. Ранній скрипт у <head> ставить data-theme
+     ще до стилів, тож світла тема не блимає. */
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      color-scheme:dark;
+      --page:#171512; --card:#231f1a; --panel:#1f1b17; --panel-2:#2a251f;
+      --ink:#f3ead9; --body:#d9cfbf; --muted:#9a8f7f; --rule:#3a332a; --rule-soft:#302a22;
+      --i:#a78bfa; --i-soft:#2d2447; --j:#34d399; --j-soft:#12332a; --n:#f0b35a; --n-soft:#3a2c12;
+      --hl:#3a2f12; --hl-bar:#e0b43a; --stop:#f87171; --stop-soft:#3a1d1a;
+      --term:#12100d; --term-ink:#e8dfcf; --term-hi:#ffd479;
+      --accent:#f59e6b; --syn-kw:#d99bf0; --syn-fn:#7fb0ff; --syn-str:#7fd6a4; --syn-cmt:#7d7365;
+      --shadow-1:0 1px 2px rgba(0,0,0,.4); --shadow-2:0 18px 40px -24px rgba(0,0,0,.7);
+      --shadow-3:0 26px 48px -22px rgba(0,0,0,.8);
+      --paper-dot:rgba(255,240,210,.035); --on-tc:#1d1a16;
+      --tc-vars:#a78bfa; --tc-cond:#2dd4bf; --tc-loops:#f59e6b; --tc-func:#fbbf24; --tc-coll:#60a5fa;
+      --faint:#5f574b; --hl-ink:#f5d58a; --scrim:rgba(0,0,0,.6);
+    }
+  }
+  :root[data-theme="dark"]{
+      color-scheme:dark;
+      --page:#171512; --card:#231f1a; --panel:#1f1b17; --panel-2:#2a251f;
+      --ink:#f3ead9; --body:#d9cfbf; --muted:#9a8f7f; --rule:#3a332a; --rule-soft:#302a22;
+      --i:#a78bfa; --i-soft:#2d2447; --j:#34d399; --j-soft:#12332a; --n:#f0b35a; --n-soft:#3a2c12;
+      --hl:#3a2f12; --hl-bar:#e0b43a; --stop:#f87171; --stop-soft:#3a1d1a;
+      --term:#12100d; --term-ink:#e8dfcf; --term-hi:#ffd479;
+      --accent:#f59e6b; --syn-kw:#d99bf0; --syn-fn:#7fb0ff; --syn-str:#7fd6a4; --syn-cmt:#7d7365;
+      --shadow-1:0 1px 2px rgba(0,0,0,.4); --shadow-2:0 18px 40px -24px rgba(0,0,0,.7);
+      --shadow-3:0 26px 48px -22px rgba(0,0,0,.8);
+      --paper-dot:rgba(255,240,210,.035); --on-tc:#1d1a16;
+      --tc-vars:#a78bfa; --tc-cond:#2dd4bf; --tc-loops:#f59e6b; --tc-func:#fbbf24; --tc-coll:#60a5fa;
+      --faint:#5f574b; --hl-ink:#f5d58a; --scrim:rgba(0,0,0,.6);
+  }
+  /* явно світла в темній системі: нативні контроли й смуги теж світлі */
+  :root[data-theme="light"]{color-scheme:light}
+
+  /* Плавна зміна кольорів лише на час перемикання (клас ставить js/theme.js
+     на 300 мс). Постійний transition на всьому гальмував би кожен hover. */
+  html.theme-anim, html.theme-anim *, html.theme-anim *::before, html.theme-anim *::after{
+    transition:background-color .3s ease, color .3s ease, border-color .3s ease,
+      fill .3s ease, stroke .3s ease, box-shadow .3s ease !important}
   *{box-sizing:border-box}
   /* смуга прокрутки завжди займає своє місце — інакше при переході між
      темами різної висоти вся сторінка стрибає на ширину смуги */
   html{-webkit-text-size-adjust:100%; scrollbar-gutter:stable}
   body{
-    margin:0; background:var(--page); color:var(--body);
+    margin:0; color:var(--body);
+    background-color:var(--page);
+    /* фактура паперу: дрібна крапка з кроком 4px */
+    background-image:radial-gradient(var(--paper-dot) 1px, transparent 1px);
+    background-size:4px 4px;
     font-family:var(--sans); font-size:18px; line-height:1.7;
     -webkit-font-smoothing:antialiased;
   }
