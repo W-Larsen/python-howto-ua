@@ -10,12 +10,12 @@
 <script>try{var t=localStorage.getItem("pgsb.theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,600;7..72,700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400..800;1,7..72,600..700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 
 <!-- ?v=… — версія для кешу браузера: після змін у css/js підніми її тут і для скриптів унизу -->
-<link rel="stylesheet" href="css/base.css?v=20260926t8">
+<link rel="stylesheet" href="css/base.css?v=20260926t10">
 <link rel="stylesheet" href="css/topics.css?v=20260926t3">
-<link rel="stylesheet" href="css/shell.css?v=20260926t7">
+<link rel="stylesheet" href="css/shell.css?v=20260926t10">
 <link rel="stylesheet" href="css/collections.css?v=20260926t4">
 <link rel="stylesheet" href="css/functions.css?v=20260926t4">
 <link rel="stylesheet" href="css/pyeditor.css?v=20260926t5">
@@ -61,8 +61,10 @@
     <div class="home">
       <div class="home-bar"><button type="button" class="theme-cycle" data-theme-cycle aria-label="Тема оформлення">&#x25D0;</button></div>
       <div class="home-hero">
-        <h1>Python крок за кроком</h1>
-        <p class="lede">Основи мови, які видно. Кожна тема — це не стіна тексту, а <b>віджети, які можна прокрутити кроками</b>: змінити числа, натиснути «Крок» і подивитись, що саме відбувається в пам'яті, у коді й у виводі.</p>
+        <p class="home-type syn" aria-hidden="true"><span class="prompt">&gt;&gt;&gt;</span> <span data-type>print("привіт, Python")</span></p>
+        <h1>Python <em>крок</em> за кроком</h1>
+        <p class="lede">Основи мови, які видно: кожна тема — це <b>віджети, які можна прокрутити кроками</b> й подивитись, що відбувається в пам'яті, у коді й у виводі.</p>
+        <a class="home-cta" href="#/vars">Почати з теми 01 <span aria-hidden="true">→</span></a>
       </div>
 
       <div class="tabs" data-tabs="home">
@@ -1816,7 +1818,7 @@ b = list(dict.fromkeys(names))</pre>
 <!-- чисті помічники оболонки: «пройдено», номери розділів, стежка, пагінація -->
 <script src="js/book.js?v=20260926t9"></script>
 <!-- оболонка: роутер, меню, анімації головної -->
-<script src="js/app.js?v=20260926t9"></script>
+<script src="js/app.js?v=20260926t10"></script>
 <!-- перемикач теми оформлення -->
 <script src="js/theme.js?v=20260926t7"></script>
 <!-- рушій руху: FLIP-переїзди й твіни; має бути до collkit.js -->

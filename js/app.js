@@ -554,11 +554,35 @@ document.addEventListener("click", e=>{
   b.textContent = open ? "Сховати відповідь" : "Показати відповідь";
 });
 
+/* ============================ друк рядка на головній ============================ */
+/* >>> print("привіт, Python") друкується посимвольно один раз, а наприкінці
+   фарбується тим самим PyEditor.highlight. Під prefers-reduced-motion рядок
+   одразу повний. PyEditor підключається пізніше за app.js, тому запускаємо
+   на старті, а не під час завантаження скрипта. */
+function typeLine(){
+  const el = $("[data-type]");
+  if(!el) return;
+  const text = el.textContent;
+  const done = () => {
+    if(window.PyEditor) el.innerHTML = window.PyEditor.highlight(text);
+    else el.textContent = text;
+  };
+  if(reduced){ done(); return; }
+  let k = 0;
+  el.textContent = "";
+  (function tick(){
+    el.textContent = text.slice(0, ++k);
+    if(k < text.length) setTimeout(tick, 55);
+    else done();
+  })();
+}
+
 /* ============================ старт ============================ */
 /* скрипти окремих тем стоять нижче в документі — чекаємо, поки вони зареєструються */
+function start(){ typeLine(); render(); }
 if(document.readyState === "loading")
-  document.addEventListener("DOMContentLoaded", render, {once:true});
+  document.addEventListener("DOMContentLoaded", start, {once:true});
 else
-  render();
+  start();
 
 })();

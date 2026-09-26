@@ -173,7 +173,7 @@
      самотнє слово на останньому рядку */
   h1{
     font-family:var(--display); font-size:clamp(2.2rem,6vw,3rem); line-height:1.08;
-    letter-spacing:-.02em; font-weight:700; color:var(--ink); margin:0 0 .3em;
+    letter-spacing:-.03em; font-weight:800; color:var(--ink); margin:0 0 .3em;
     text-wrap:balance;
   }
   h2{
@@ -185,6 +185,10 @@
     background:var(--i); border-radius:2px}
   h3{font-family:var(--display); font-size:1.18rem; font-weight:600; color:var(--ink);
     letter-spacing:0; margin:2.3em 0 .4em; text-wrap:balance}
+  /* курсив у заголовках — теракотовий акцент «книжки з характером» */
+  :is(h1,h2,h3) em{font-style:italic; font-weight:700; color:var(--accent)}
+  /* курсор, що блимає: рядок на головній і консоль віджета */
+  @keyframes caret{50%{opacity:0}}
   header.top{padding:52px 0 4px}
   p{margin:0 0 1.1em; text-wrap:pretty}
   .lede{font-size:1.13rem; line-height:1.62; color:var(--body); text-wrap:pretty}
