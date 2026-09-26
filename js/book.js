@@ -147,6 +147,23 @@ function wrapTasks(root){
   return groups;
 }
 
+/* ============================ шпаргалки ============================ */
+/* table.cheat без змін у розмітці: картка з шапкою навколо. Рамка, радіус
+   і прокрутка на вузькому екрані — на картці, а не на таблиці. */
+function wrapCheats(root){
+  let n = 0;
+  root.querySelectorAll("table.cheat").forEach(t=>{
+    if(t.parentElement.classList.contains("cheat-card")) return;
+    const card = document.createElement("div");
+    card.className = "cheat-card";
+    card.innerHTML = `<div class="cheat-head"><b>Шпаргалка</b><span>код · що робить</span></div>`;
+    t.before(card);
+    card.appendChild(t);
+    n++;
+  });
+  return n;
+}
+
 return { esc, visited:{ list, add }, isDone, trailPoints, trailPath,
-  secBase, plural, numberHeads, coverCaption, markCallouts, wrapTasks };
+  secBase, plural, numberHeads, coverCaption, markCallouts, wrapTasks, wrapCheats };
 })();

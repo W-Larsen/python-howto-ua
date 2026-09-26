@@ -478,17 +478,31 @@
   .answer-in{min-height:0; overflow:hidden}
   .answer-in > :first-child{margin-top:13px; padding-top:12px; border-top:1px dashed var(--rule)}
   .answer p{margin:0}
-  table.cheat{width:100%; border-collapse:collapse; font-size:.95rem; margin:1.2em 0 0}
-  table.cheat td{border-top:1px solid var(--rule-soft); padding:11px 8px; vertical-align:top}
+  .cheat-card{border:1px solid var(--rule); border-radius:12px; overflow:hidden; background:var(--card);
+    box-shadow:var(--shadow-1)}
+  .cheat-head{display:flex; align-items:baseline; justify-content:space-between; gap:12px;
+    padding:10px 16px; background:var(--panel-2); border-bottom:1px solid var(--rule)}
+  .cheat-head b{font-family:var(--display); font-weight:800}
+  .cheat-head span{font-family:var(--mono); font-size:.72rem; color:var(--muted)}
+  table.cheat{width:100%; border-collapse:collapse; font-size:.95rem; margin:0; counter-reset:cheat}
+  table.cheat tr{counter-increment:cheat}
+  table.cheat td{border-top:1px solid var(--rule-soft); padding:10px 14px; vertical-align:top;
+    transition:background var(--t-fast) var(--ease)}
   table.cheat tr:first-child td{border-top:0}
-  table.cheat td:first-child{width:46%; font-family:var(--mono); font-size:.8rem; color:var(--i);
-    white-space:nowrap; overflow-x:auto}
+  table.cheat tr:hover td{background:var(--tc-soft)}
+  /* ліва колонка — «редактор»: моно, номер рядка в лівому полі, права межа */
+  table.cheat td:first-child{position:relative; width:46%; padding-left:44px; background:var(--panel);
+    border-right:1px solid var(--rule); font-family:var(--mono); font-size:.8rem; color:var(--ink);
+    white-space:nowrap}
+  table.cheat td:first-child::before{content:counter(cheat); position:absolute; left:10px; width:22px;
+    text-align:right; color:var(--muted); opacity:.6; font-size:.9em}
   /* На телефоні широкий вміст мусить прокручуватись усередині себе, а не тягти
      за собою всю сторінку: інакше в шпаргалок і перемикачів з'являється
      горизонтальна прокрутка документа. */
   @media (max-width:520px){
     .seg{flex-wrap:wrap; max-width:100%}
     .seg button{flex:1 1 auto; padding:6px 10px; font-size:.8rem}
-    table.cheat,table.cmp{display:block; overflow-x:auto; scrollbar-gutter:stable}
+    table.cmp{display:block; overflow-x:auto; scrollbar-gutter:stable}
+    .cheat-card{overflow-x:auto; scrollbar-gutter:stable}
   }
   @media (prefers-reduced-motion:reduce){*{animation:none!important; transition:none!important}}

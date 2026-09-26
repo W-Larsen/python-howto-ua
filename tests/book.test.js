@@ -139,4 +139,17 @@ T.test("book: сусідні задачі — у сітці .tasks; «1.» ст�
     T.eq(s.querySelectorAll(".answer-in").length, 1);
   } finally { s.remove(); }
 });
+
+T.test("book: шпаргалка загортається в картку з шапкою, один раз", () => {
+  const s = page(`<h2>Шпаргалка</h2><table class="cheat"><tr><td>a</td><td>b</td></tr></table>`);
+  try {
+    T.eq(Book.wrapCheats(s), 1);
+    const card = s.querySelector(".cheat-card");
+    T.eq(card.firstElementChild.className, "cheat-head");
+    T.eq(card.querySelector(".cheat-head b").textContent, "Шпаргалка");
+    T.eq(card.lastElementChild.tagName, "TABLE");
+    T.eq(Book.wrapCheats(s), 0);
+    T.eq(s.querySelectorAll(".cheat-card").length, 1);
+  } finally { s.remove(); }
+});
 })();

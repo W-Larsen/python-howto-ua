@@ -129,6 +129,7 @@ ALL.forEach(route=>{
   }
   Book.markCallouts(page);
   Book.wrapTasks(page);
+  Book.wrapCheats(page);
 });
 
 /* ============================ зміст теми ============================ */
