@@ -35,5 +35,25 @@ function isDone(slug, seen){
   return slug === "coll" ? COLL.some(s => a.includes(s)) : a.includes(slug);
 }
 
-return { esc, visited:{ list, add }, isDone };
+/* ============================ стежка на головній ============================ */
+/* Станція — середина того краю картки, що дивиться в прохід між колонками:
+   у лівої (парний індекс) — правий край, у правої — лівий. */
+function trailPoints(rects){
+  return rects.map((r, k)=>({ x: k % 2 ? r.left : r.right, y: r.top + r.height / 2 }));
+}
+const r1 = (v) => Math.round(v * 10) / 10;
+/* Кубічна крива між сусідніми станціями: обидві контрольні точки посередині
+   проходу — лінія виходить і входить горизонтально. pick(i) відбирає ділянку
+   i → i+1 (для акцентної стежки до пройдених станцій). */
+function trailPath(pts, pick){
+  let d = "";
+  for(let i = 0; i + 1 < pts.length; i++){
+    if(pick && !pick(i)) continue;
+    const a = pts[i], b = pts[i + 1], mx = r1((a.x + b.x) / 2);
+    d += `M${r1(a.x)} ${r1(a.y)}C${mx} ${r1(a.y)} ${mx} ${r1(b.y)} ${r1(b.x)} ${r1(b.y)}`;
+  }
+  return d;
+}
+
+return { esc, visited:{ list, add }, isDone, trailPoints, trailPath };
 })();

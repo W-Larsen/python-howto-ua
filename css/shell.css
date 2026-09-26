@@ -161,9 +161,18 @@
     column-gap:0; row-gap:22px; margin-top:26px}
   .cards.route > .card{--row:auto; grid-row:var(--row) / span 2; grid-column:1; position:relative; z-index:1}
   .cards.route > .card.alt{grid-column:3}
+  .route-trail{position:absolute; inset:0; width:100%; height:100%; z-index:0; overflow:visible;
+    pointer-events:none; clip-path:inset(0 0 100% 0); transition:clip-path 1.2s var(--ease)}
+  .route-trail.drawn{clip-path:inset(0)}
+  .route-trail .trail-base{fill:none; stroke:var(--rule); stroke-width:2; stroke-dasharray:2 7;
+    stroke-linecap:round}
+  .route-trail .trail-done{fill:none; stroke:var(--accent); stroke-width:2.5; stroke-linecap:round}
+  .route-trail .trail-st{fill:var(--card); stroke:var(--rule); stroke-width:2}
+  .route-trail .trail-st.done{fill:var(--accent); stroke:var(--accent)}
   @media (max-width:720px){
     .cards.route{grid-template-columns:minmax(0,1fr); row-gap:16px}
     .cards.route > .card, .cards.route > .card.alt{grid-row:auto; grid-column:1}
+    .route-trail{display:none}
   }
   .card{display:flex; flex-direction:column; text-decoration:none; color:inherit; background:var(--card);
     border:1px solid var(--rule); border-radius:16px; overflow:hidden;

@@ -541,6 +541,47 @@ function paintVisited(){
       $(".card-body", card).prepend(tag);
     } else if(!on && tag) tag.remove();
   });
+  drawTrail();
+}
+
+/* Стежка: один SVG під картками. Координати — offsetLeft/Top відносно
+   .cards.route (position:relative): вони не залежать від transform, тож
+   поява карток (.reveal) і підйом при наведенні стежку не зсувають. */
+const trail = routeBox ? (()=>{
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("class", "route-trail");
+  svg.setAttribute("aria-hidden", "true");
+  routeBox.prepend(svg);
+  return svg;
+})() : null;
+
+function drawTrail(){
+  if(!trail || !routeBox.offsetWidth) return;               /* панель схована */
+  if(getComputedStyle(trail).display === "none"){ trail.innerHTML = ""; return; }   /* ≤ 720px */
+  const cards = $$(".card", routeBox);
+  const pts = Book.trailPoints(cards.map(c=>({
+    left:c.offsetLeft, right:c.offsetLeft + c.offsetWidth, top:c.offsetTop, height:c.offsetHeight })));
+  const list = Book.visited.list();
+  const done = cards.map(c=>Book.isDone(c.dataset.slug, list));
+  trail.setAttribute("viewBox", `0 0 ${routeBox.offsetWidth} ${routeBox.offsetHeight}`);
+  trail.innerHTML =
+    `<path class="trail-base" d="${Book.trailPath(pts)}"/>` +
+    `<path class="trail-done" d="${Book.trailPath(pts, i=>done[i + 1])}"/>` +
+    pts.map((p, k)=>`<circle class="trail-st${done[k] ? " done" : ""}" cx="${Math.round(p.x)}" cy="${Math.round(p.y)}" r="6"/>`).join("");
+}
+if(trail){
+  /* зміна ширини, догружений шрифт, перемикання табу (0 → розмір) — перебудова */
+  if("ResizeObserver" in window) new ResizeObserver(drawTrail).observe(routeBox);
+  /* перший показ: стежка «малюється» згори донизу (clip-path у CSS) */
+  if(reduced || !("IntersectionObserver" in window)) trail.classList.add("drawn");
+  else{
+    const io = new IntersectionObserver(es=>{
+      if(!es.some(e=>e.isIntersecting)) return;
+      trail.classList.add("drawn");
+      io.disconnect();
+    }, { threshold:.15 });
+    io.observe(routeBox);
+  }
 }
 
 /* ============================ таби ============================ */
