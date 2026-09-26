@@ -13,12 +13,12 @@
     position:fixed; top:0; left:0; bottom:0; width:var(--sbw); z-index:40;
     background:var(--card); border-right:1px solid var(--rule); display:flex; flex-direction:column;
     overflow-y:auto; overscroll-behavior:contain;
-    scrollbar-width:thin; scrollbar-color:#d8cbb6 transparent;
+    scrollbar-width:thin; scrollbar-color:var(--rule) transparent;
   }
   .sidebar::-webkit-scrollbar{width:9px}
-  .sidebar::-webkit-scrollbar-thumb{background:#ddd0bb; border-radius:5px;
+  .sidebar::-webkit-scrollbar-thumb{background:var(--rule); border-radius:5px;
     border:2px solid var(--card)}
-  .sidebar:hover::-webkit-scrollbar-thumb{background:#cdbfa8}
+  .sidebar:hover::-webkit-scrollbar-thumb{background:color-mix(in srgb, var(--rule) 70%, var(--muted))}
   body[data-route=home] .sidebar,
   body[data-route=home] .topbar,
   body[data-route=home] .progress{display:none}
@@ -33,12 +33,12 @@
   .brand-t i{font-style:normal; font-size:.76rem; color:var(--muted)}
 
   .nav{padding:18px 12px 10px; flex:1}
-  .nav-label{font-size:.7rem; letter-spacing:.09em; text-transform:uppercase; color:#7c7266;
+  .nav-label{font-size:.7rem; letter-spacing:.09em; text-transform:uppercase; color:var(--muted);
     font-weight:600; padding:0 10px 9px}
   .nav-item{display:flex; gap:10px; align-items:baseline; padding:9px 10px; border-radius:9px;
     text-decoration:none; color:var(--body); transition:background .15s, color .15s}
   .nav-item:hover{background:var(--panel-2)}
-  .nav-item .num{font-family:var(--mono); font-size:.72rem; color:#7c7266; flex:none}
+  .nav-item .num{font-family:var(--mono); font-size:.72rem; color:var(--muted); flex:none}
   .nav-item .t{font-size:.95rem; line-height:1.32}
   .nav-item.active{background:var(--i-soft); color:var(--i)}
   .nav-item.active .num{color:var(--i)}
@@ -52,7 +52,7 @@
   .toc a.on{color:var(--i); border-left-color:var(--i); font-weight:500}
 
   .sidebar-foot{padding:14px 20px 20px; border-top:1px solid var(--rule-soft);
-    font-size:.76rem; color:#7c7266; line-height:1.5}
+    font-size:.76rem; color:var(--muted); line-height:1.5}
 
   /* ---------- смуга прогресу ---------- */
   .progress{position:fixed; top:0; left:var(--sbw); right:0; height:3px; z-index:45; pointer-events:none}
@@ -61,7 +61,7 @@
 
   /* ---------- верхня панель (мобільна) ---------- */
   .topbar{display:none; position:sticky; top:0; z-index:35; height:var(--topbar);
-    align-items:center; gap:12px; padding:0 14px; background:rgba(255,253,248,.92);
+    align-items:center; gap:12px; padding:0 14px; background:color-mix(in srgb, var(--card) 92%, transparent);
     backdrop-filter:blur(8px); border-bottom:1px solid var(--rule)}
   .burger{width:38px; height:38px; flex:none; display:flex; flex-direction:column; align-items:center;
     justify-content:center; gap:4px; border:1px solid var(--rule); background:var(--card); border-radius:9px;
@@ -69,14 +69,14 @@
   .burger span{display:block; width:16px; height:1.7px; background:var(--ink); border-radius:2px}
   .topbar-t{font-family:var(--display); font-weight:700; color:var(--ink); font-size:1rem;
     text-decoration:none; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
-  .scrim{display:none; position:fixed; inset:0; background:rgba(40,32,22,.42); z-index:38}
+  .scrim{display:none; position:fixed; inset:0; background:var(--scrim); z-index:38}
   .scrim.on{display:block}
 
   @media (max-width:1080px){
     body[data-route=article] main{margin-left:0}
     body[data-route=article] .topbar{display:flex}
     .sidebar{transform:translateX(-100%); transition:transform .26s cubic-bezier(.3,.8,.35,1);
-      box-shadow:0 0 44px rgba(60,45,25,.2)}
+      box-shadow:var(--shadow-3)}
     .sidebar.open{transform:none}
     .progress{left:0}
     body[data-route=article] .wrap{margin-top:0}
@@ -94,7 +94,7 @@
   .home-hero h1{font-family:var(--display); font-weight:700; letter-spacing:-.03em;
     font-size:clamp(2.5rem,7vw,3.7rem); line-height:1.02; color:var(--ink); margin:0 0 .32em;
     text-wrap:balance}
-  .home-hero .lede{font-size:1.16rem; line-height:1.6; color:#4a4238;
+  .home-hero .lede{font-size:1.16rem; line-height:1.6; color:var(--body);
     max-width:60ch; margin-left:auto; margin-right:auto; text-wrap:pretty}
   .home-hero .lede b{color:var(--ink)}
 
@@ -109,7 +109,7 @@
     white-space:nowrap; transition:background .2s, color .2s, box-shadow .2s}
   .tabs-list [role=tab]:hover{color:var(--ink)}
   .tabs-list [role=tab][aria-selected=true]{background:var(--card); color:var(--ink); font-weight:600;
-    box-shadow:0 1px 2px rgba(60,45,25,.08), 0 4px 12px -6px rgba(60,45,25,.3)}
+    box-shadow:var(--shadow-1), var(--shadow-2)}
   .tabs-list [role=tab]:focus-visible{outline:2px solid var(--i); outline-offset:2px}
   .tab-note{text-align:center; font-size:.88rem; color:var(--muted); margin:14px 0 0}
   /* одна картка на вкладці — по центру, під табами, а не під лівим краєм */
@@ -121,10 +121,10 @@
     gap:22px; margin-top:22px}
   .card{display:flex; flex-direction:column; text-decoration:none; color:inherit; background:var(--card);
     border:1px solid var(--rule); border-radius:16px; overflow:hidden;
-    box-shadow:0 1px 2px rgba(60,45,25,.05), 0 12px 30px -22px rgba(60,45,25,.35);
+    box-shadow:var(--shadow-1), var(--shadow-2);
     transition:transform .28s cubic-bezier(.2,.8,.3,1), box-shadow .28s, border-color .2s}
-  .card:hover{transform:translateY(-5px); border-color:#d6c8b2;
-    box-shadow:0 2px 4px rgba(60,45,25,.06), 0 26px 48px -26px rgba(60,45,25,.5)}
+  .card:hover{transform:translateY(-5px); border-color:color-mix(in srgb, var(--rule) 60%, var(--muted));
+    box-shadow:var(--shadow-1), var(--shadow-3)}
   .card:active{transform:translateY(-1px); transition-duration:.08s}
   .card:focus-visible{outline:2px solid var(--i); outline-offset:3px}
   /* panel-2, а не panel: на теплому папері --panel майже збігається з --page,
@@ -134,7 +134,7 @@
   .card-body{padding:18px 20px 20px; display:flex; flex-direction:column; flex:1}
   .card h3{font-family:var(--display); font-size:1.24rem; font-weight:700; color:var(--ink);
     letter-spacing:-.015em; margin:0 0 .38em; line-height:1.18}
-  .card p{font-size:.93rem; line-height:1.55; color:#4f473c; margin:0 0 15px}
+  .card p{font-size:.93rem; line-height:1.55; color:var(--body); margin:0 0 15px}
   .card-meta{display:flex; flex-wrap:wrap; gap:7px; margin-top:auto}
   .card-meta span{font-family:var(--mono); font-size:.71rem; color:var(--muted); background:var(--panel);
     border:1px solid var(--rule-soft); border-radius:999px; padding:3px 10px}
@@ -164,7 +164,7 @@
   .vz-box.cool{stroke:var(--j); stroke-width:2}
   .vz-lid{fill:var(--panel-2); stroke:none; opacity:.9}
   .vz-val{font-size:15px; font-weight:700; fill:var(--ink); text-anchor:middle}
-  .vz-val.none{font-size:10px; font-weight:400; fill:#bcb0a0}
+  .vz-val.none{font-size:10px; font-weight:400; fill:var(--faint)}
   .vz-val.pop{animation:vzdrop .45s cubic-bezier(.2,1.3,.5,1)}
   @keyframes vzdrop{0%{transform:translateY(-16px); opacity:0}60%{opacity:1}100%{transform:none}}
   .vz-name{font-size:12px; font-weight:700; fill:var(--i); text-anchor:middle}
@@ -184,9 +184,9 @@
   .vz-dia{fill:var(--card); stroke:var(--rule); stroke-width:1.8; transition:fill .3s, stroke .3s}
   .viz-cond.checking .vz-dia{fill:var(--hl); stroke:var(--hl-bar)}
   .vz-dia-t{font-size:11px; fill:var(--body); text-anchor:middle; font-weight:700}
-  .vz-lab{font-size:10px; fill:#bcb0a0; transition:fill .3s}
+  .vz-lab{font-size:10px; fill:var(--faint); transition:fill .3s}
   .vz-pill{fill:var(--panel); stroke:var(--rule); stroke-width:1.5; transition:fill .3s, stroke .3s}
-  .vz-pill-t{font-size:10.5px; fill:#bcb0a0; text-anchor:middle; transition:fill .3s; font-weight:700}
+  .vz-pill-t{font-size:10.5px; fill:var(--faint); text-anchor:middle; transition:fill .3s; font-weight:700}
   .viz-cond.t .vz-wire.l,.viz-cond.f .vz-wire.r{stroke:var(--i)}
   .viz-cond.t .vz-lab.l{fill:var(--j)}
   .viz-cond.f .vz-lab.r{fill:var(--stop)}
@@ -194,13 +194,13 @@
   .viz-cond.t .vz-pill-t.l{fill:var(--j)}
   .viz-cond.f .vz-pill.r{fill:var(--stop-soft); stroke:var(--stop)}
   .viz-cond.f .vz-pill-t.r{fill:var(--stop)}
-  .vz-chip{fill:var(--i-soft); stroke:#bda8f7; stroke-width:1.2}
+  .vz-chip{fill:var(--i-soft); stroke:var(--i-line); stroke-width:1.2}
   .vz-chip-t{font-size:11px; fill:var(--i); text-anchor:middle; font-weight:700}
 
   .vz-cell{fill:var(--card); stroke:var(--rule); stroke-width:1.5; transition:fill .2s, stroke .2s}
-  .vz-cell.done{fill:var(--j-soft); stroke:#8ed3bb}
+  .vz-cell.done{fill:var(--j-soft); stroke:var(--j-line)}
   .vz-cell.now{fill:var(--i); stroke:var(--i)}
-  .vz-cn{font-size:11px; fill:#bcb0a0; text-anchor:middle; transition:fill .2s; font-weight:700}
+  .vz-cn{font-size:11px; fill:var(--faint); text-anchor:middle; transition:fill .2s; font-weight:700}
   .vz-cn.done{fill:var(--j)}
   .vz-cn.now{fill:var(--card)}
   .vz-mark{fill:var(--i); transition:transform .24s cubic-bezier(.3,1.4,.5,1); opacity:0}

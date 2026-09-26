@@ -15,14 +15,14 @@
   .box.reading{border-color:var(--j); box-shadow:0 0 0 4px var(--j-soft)}
   .val{position:relative; z-index:1; font-family:var(--mono); font-size:.92rem; font-weight:700;
     color:var(--ink); padding:0 6px; word-break:break-all}
-  .val.none{font-weight:400; font-size:.76rem; color:#bcb0a0}
+  .val.none{font-weight:400; font-size:.76rem; color:var(--faint)}
   .box.changed .val{animation:dropin .42s cubic-bezier(.2,1.3,.5,1)}
   @keyframes dropin{0%{transform:translateY(-34px); opacity:0}60%{opacity:1}100%{transform:translateY(0)}}
   .ghost{position:absolute; z-index:0; font-family:var(--mono); font-size:.85rem; color:var(--stop);
     text-decoration:line-through; animation:fallout .7s ease forwards}
   @keyframes fallout{0%{transform:translateY(0); opacity:.9}100%{transform:translateY(46px); opacity:0}}
   .copy{position:absolute; top:-6px; left:50%; z-index:3; font-family:var(--mono); font-size:.78rem;
-    color:var(--j); background:var(--j-soft); border:1px solid #8ed3bb; border-radius:7px;
+    color:var(--j); background:var(--j-soft); border:1px solid var(--j-line); border-radius:7px;
     padding:2px 9px; white-space:nowrap; animation:flyup .9s ease forwards}
   @keyframes flyup{0%{opacity:0; transform:translate(-50%,16px)}35%{opacity:1}
     100%{opacity:1; transform:translate(-50%,-24px)}}
@@ -48,7 +48,7 @@
   /* перевіряємо зараз */
   .fn.is-check .fn-shape{fill:var(--hl); stroke:var(--hl-bar); stroke-width:2.2;
     animation:fnpulse 1.3s var(--ease) infinite}
-  .fn.is-check .fn-t{fill:#5a4406; font-weight:700}
+  .fn.is-check .fn-t{fill:var(--hl-ink); font-weight:700}
   @keyframes fnpulse{0%,100%{stroke-width:2.2} 50%{stroke-width:3.6}}
   /* дорога, якою програма справді пішла */
   .fn.is-taken .fn-shape{fill:var(--j-soft); stroke:var(--j); stroke-width:2.2}
@@ -111,8 +111,8 @@
   #page-cond .arrow{font-size:1.1rem}
   .bool{font-family:var(--mono); font-weight:700; font-size:1rem; padding:7px 16px; border-radius:8px;
     border:1.5px solid}
-  .bool.t{color:var(--j); background:var(--j-soft); border-color:#8ed3bb}
-  .bool.f{color:var(--stop); background:var(--stop-soft); border-color:#e8b7ae}
+  .bool.t{color:var(--j); background:var(--j-soft); border-color:var(--j-line)}
+  .bool.f{color:var(--stop); background:var(--stop-soft); border-color:var(--stop-line)}
   .switchrow{display:flex; gap:14px; align-items:center; flex-wrap:wrap}
   .switch{display:flex; align-items:center; gap:7px; font-size:.85rem; color:var(--muted); cursor:pointer}
   .switch input{width:16px; height:16px; accent-color:var(--i)}
@@ -122,7 +122,7 @@
   table.tt{border-collapse:collapse; font-family:var(--mono); font-size:.76rem; background:var(--card)}
   table.tt th{font-weight:700; color:var(--muted); padding:6px 12px; border-bottom:1px solid var(--rule)}
   table.tt td{padding:6px 12px; border-top:1px solid var(--rule-soft); text-align:center; color:var(--muted)}
-  table.tt tr.now td{background:var(--hl); color:#4d3a05; font-weight:700}
+  table.tt tr.now td{background:var(--hl); color:var(--hl-ink); font-weight:700}
 
   /* --- словники й множини --- */
   .kv{display:flex; flex-direction:column; gap:7px; max-width:460px}
@@ -131,12 +131,12 @@
     padding:7px 12px; border:1.5px solid var(--rule); border-radius:9px; background:var(--card);
     color:var(--muted); transition:border-color .18s, background .18s}
   .kvrow .k{font-weight:700; color:var(--i)}
-  .kvrow .sep{color:#bcb0a0}
+  .kvrow .sep{color:var(--faint)}
   .kvrow .v{margin-left:auto; font-weight:700; color:var(--ink)}
   .kvrow.now{border-color:var(--i); background:var(--i-soft)}
   .kvrow.hit{border-color:var(--j); background:var(--j-soft)}
   .kvrow.hit .v{color:var(--j)}
-  .kv-empty{font-family:var(--mono); font-size:.8rem; color:#bcb0a0}
+  .kv-empty{font-family:var(--mono); font-size:.8rem; color:var(--faint)}
 
   .setrow{display:flex; align-items:center; gap:7px; flex-wrap:wrap; margin-bottom:8px}
   .setrow:last-child{margin-bottom:0}
@@ -145,9 +145,9 @@
     border-radius:999px; background:var(--card); color:var(--muted);
     transition:background .15s, border-color .15s, opacity .15s}
   .selem.done{opacity:.45}
-  .selem.in{border-color:#8ed3bb; background:var(--j-soft); color:var(--j); font-weight:700}
+  .selem.in{border-color:var(--j-line); background:var(--j-soft); color:var(--j); font-weight:700}
   .selem.now{border-color:var(--i); background:var(--i-soft); color:var(--i); font-weight:700}
-  .selem.dup{border-color:#e8b7ae; background:var(--stop-soft); color:var(--stop); text-decoration:line-through}
+  .selem.dup{border-color:var(--stop-line); background:var(--stop-soft); color:var(--stop); text-decoration:line-through}
 
   .hashgrid{display:flex; flex-wrap:wrap; gap:8px; padding:16px 16px 12px; background:var(--card)}
   .hashgrid button{font-family:var(--mono); font-size:.82rem; padding:6px 12px; cursor:pointer;
