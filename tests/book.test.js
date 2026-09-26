@@ -112,4 +112,31 @@ T.test("book: заголовок виноски — лише <b> на самом
     T.eq(Book.markCallouts(s), 2);                          /* повторно — те саме */
   } finally { s.remove(); }
 });
+
+T.test("book: сусідні задачі — у сітці .tasks; «1.» стає кружком; відповідь загорнута", () => {
+  const s = page(
+    `<h2>Перевір себе</h2>` +
+    `<div class="task"><p>1. Що <code>x</code>?</p><button data-answer="bt-a1">?</button>` +
+    `<div class="answer" id="bt-a1"><p>8.</p></div></div>` +
+    `<div class="task"><p>2. А тут?</p></div>` +
+    `<p>між групами</p>` +
+    `<div class="task"><p>Без номера</p></div>` +
+    `<div class="task"><p>3.14 — не номер</p></div>`);
+  try {
+    T.eq(Book.wrapTasks(s), 2);
+    const groups = s.querySelectorAll(".tasks");
+    T.eq([...groups].map(g => g.children.length), [2, 2]);
+    const p1 = groups[0].querySelector(".task > p");
+    T.eq(p1.querySelector(".task-n").textContent, "1");
+    T.eq(p1.textContent, "1Що x?");
+    T.eq(groups[1].querySelectorAll(".task-n").length, 0);
+    const ans = s.querySelector("#bt-a1");
+    T.eq(ans.children.length, 1);
+    T.eq(ans.firstElementChild.className, "answer-in");
+    T.eq(ans.firstElementChild.innerHTML, "<p>8.</p>");
+    T.eq(Book.wrapTasks(s), 0);                             /* повторно — нічого нового */
+    T.eq(s.querySelectorAll(".task-n").length, 2);
+    T.eq(s.querySelectorAll(".answer-in").length, 1);
+  } finally { s.remove(); }
+});
 })();

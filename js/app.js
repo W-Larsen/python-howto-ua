@@ -128,6 +128,7 @@ ALL.forEach(route=>{
     if(route.num) h1.dataset.num = route.num;
   }
   Book.markCallouts(page);
+  Book.wrapTasks(page);
 });
 
 /* ============================ зміст теми ============================ */
@@ -664,6 +665,10 @@ document.addEventListener("click", e=>{
   if(!box) return;
   const open = box.classList.toggle("show");
   b.textContent = open ? "Сховати відповідь" : "Показати відповідь";
+  b.setAttribute("aria-expanded", open ? "true" : "false");
+  /* відкрита картка — зелена рамка й кружок */
+  const task = b.closest(".task");
+  if(task) task.classList.toggle("open", open);
 });
 
 /* ============================ друк рядка на головній ============================ */

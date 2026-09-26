@@ -455,14 +455,28 @@
     .callout::before{left:16px; top:14px}
   }
   .callout p:last-child{margin-bottom:0}
-  .task{border:1px solid var(--rule); border-radius:11px; padding:16px 18px; margin:1em 0 0;
-    background:var(--panel)}
+  .tasks{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; align-items:start}
+  @media (max-width:720px){ .tasks{grid-template-columns:minmax(0,1fr)} }
+  .task{border:1px solid var(--rule); border-radius:12px; padding:16px 18px; background:var(--card);
+    box-shadow:0 2px 0 var(--rule); min-width:0;
+    transition:border-color var(--t-base) var(--ease), box-shadow var(--t-base) var(--ease)}
   .task>p:first-child{font-weight:600; color:var(--ink)}
+  .task-n{display:inline-grid; place-items:center; width:22px; height:22px; margin-right:8px;
+    vertical-align:.1em; border-radius:50%; border:1.5px solid var(--tc); color:var(--tc-ink);
+    font:700 .72rem/1 var(--mono); transition:background var(--t-base) var(--ease), color var(--t-base) var(--ease)}
+  .task.open{border-color:var(--j); box-shadow:0 2px 0 var(--j)}
+  .task.open .task-n{border-color:var(--j); background:var(--j); color:var(--card)}
   .task pre{margin:.5em 0 .9em; font-family:var(--mono); font-size:.83rem; line-height:1.6;
     background:var(--card); border:1px solid var(--rule-soft); padding:11px 13px; border-radius:8px;
     overflow-x:auto}
-  .answer{display:none; border-top:1px dashed var(--rule); margin-top:13px; padding-top:12px; font-size:.95rem}
-  .answer.show{display:block}
+  /* відповідь розгортається твіном висоти: 0fr → 1fr. visibility ховає
+     згорнуту від читача екрана й табуляції, а затримка дає доїхати твіну. */
+  .answer{display:grid; grid-template-rows:0fr; visibility:hidden; font-size:.95rem;
+    transition:grid-template-rows var(--t-base) var(--ease), visibility 0s var(--t-base)}
+  .answer.show{grid-template-rows:1fr; visibility:visible;
+    transition:grid-template-rows var(--t-base) var(--ease), visibility 0s}
+  .answer-in{min-height:0; overflow:hidden}
+  .answer-in > :first-child{margin-top:13px; padding-top:12px; border-top:1px dashed var(--rule)}
   .answer p{margin:0}
   table.cheat{width:100%; border-collapse:collapse; font-size:.95rem; margin:1.2em 0 0}
   table.cheat td{border-top:1px solid var(--rule-soft); padding:11px 8px; vertical-align:top}

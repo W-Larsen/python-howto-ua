@@ -102,6 +102,51 @@ function markCallouts(root){
   return n;
 }
 
+/* ============================ «Перевір себе» ============================ */
+/* Сусідні .task збираються в сітку .tasks; «1.» на початку умови стає
+   кружком .task-n; вміст .answer загортається в .answer-in, щоб відповідь
+   розгорталась твіном grid-template-rows. Повторний виклик нічого не ламає. */
+function numberTask(task){
+  const p = task.querySelector(":scope > p");
+  if(!p || p.querySelector(".task-n")) return;
+  const t = p.firstChild;
+  if(!t || t.nodeType !== 3) return;
+  /* пробіл після крапки обов'язковий: «3.14 — …» — це не номер */
+  const m = /^\s*(\d+)\.\s+/.exec(t.data);
+  if(!m) return;
+  t.data = t.data.slice(m[0].length);
+  const n = document.createElement("span");
+  n.className = "task-n";
+  n.textContent = m[1];
+  p.insertBefore(n, t);
+}
+function wrapAnswer(box){
+  const f = box.firstElementChild;
+  if(f && f.classList.contains("answer-in")) return;
+  const inner = document.createElement("div");
+  inner.className = "answer-in";
+  inner.append(...box.childNodes);
+  box.appendChild(inner);
+}
+function wrapTasks(root){
+  let groups = 0;
+  root.querySelectorAll(".task").forEach(task=>{
+    if(task.parentElement.classList.contains("tasks")) return;
+    const box = document.createElement("div");
+    box.className = "tasks";
+    task.before(box);
+    for(let el = task; el && el.classList.contains("task"); ){
+      const next = el.nextElementSibling;
+      box.appendChild(el);
+      el = next;
+    }
+    groups++;
+  });
+  root.querySelectorAll(".task").forEach(numberTask);
+  root.querySelectorAll(".answer").forEach(wrapAnswer);
+  return groups;
+}
+
 return { esc, visited:{ list, add }, isDone, trailPoints, trailPath,
-  secBase, plural, numberHeads, coverCaption, markCallouts };
+  secBase, plural, numberHeads, coverCaption, markCallouts, wrapTasks };
 })();
