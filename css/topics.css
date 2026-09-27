@@ -32,8 +32,9 @@
   .boxhint{font-size:.86rem; color:var(--muted); padding:0 4px 8px}
 
   /* --- блок-схеми умов (тема «Умови») ---
-     Схема живе в системі координат viewBox і тягнеться на всю ширину блоку,
-     тому розміри нижче задані в одиницях SVG, а не в пікселях. */
+     Схема живе в системі координат viewBox і стискається під вузький блок, але
+     не розтягується ширше за 1 одиницю на піксель (max-width ставить
+     js/flow.js). Розміри нижче — в одиницях SVG, а не в пікселях. */
   .flowbox{display:flex; justify-content:center}
   svg.flow{display:block; width:100%; height:auto; font-family:var(--mono)}
 
