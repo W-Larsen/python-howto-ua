@@ -50,23 +50,6 @@ T.test("book: без сховища позначок нема, але й пом�
   } finally { P.getItem = get; P.setItem = set; }
 });
 
-T.test("book: станція стежки — на краю картки, що дивиться в прохід", () => {
-  const rects = [
-    { left:0,   right:100, top:0,   height:200 },
-    { left:170, right:270, top:100, height:200 },
-    { left:0,   right:100, top:220, height:100 }
-  ];
-  T.eq(Book.trailPoints(rects), [{ x:100, y:100 }, { x:170, y:200 }, { x:100, y:270 }]);
-});
-
-T.test("book: стежка — кубічні криві між станціями; pick відбирає ділянки", () => {
-  const pts = [{ x:100, y:100 }, { x:170, y:200 }, { x:100, y:270 }];
-  T.eq(Book.trailPath(pts.slice(0, 2)), "M100 100C135 100 135 200 170 200");
-  T.eq(Book.trailPath(pts, i => i === 1), "M170 200C135 200 135 270 100 270");
-  T.eq(Book.trailPath(pts, () => false), "");
-  T.eq(Book.trailPath([]), "");
-});
-
 T.test("book: номер теми для плашок — без провідного нуля", () => {
   T.eq(Book.secBase("03"), "3");
   T.eq(Book.secBase("01"), "1");
@@ -98,6 +81,7 @@ T.test("book: підпис обкладинки — тема, практика; 
   T.eq(Book.coverCaption({ slug:"shop", num:"✎", practice:true }, 4), "практика · 4 розділи");
   T.eq(Book.coverCaption({ slug:"tests", num:"✓" }, 0), "");
   T.eq(Book.coverCaption({ slug:"check-9", num:"9" }, 3), "");
+  T.eq(Book.coverCaption({ slug:"tests-9", num:"9", grade:true }, 0), "");
 });
 
 T.test("book: заголовок виноски — лише <b> на самому початку першого абзацу", () => {
@@ -163,6 +147,7 @@ T.test("book: підпис «далі» — тема, практика, робо
   T.eq(Book.kindLabel({ slug:"shop", num:"✎", practice:true }), "практика");
   T.eq(Book.kindLabel({ slug:"tests", num:"✓" }), "самостійні роботи");
   T.eq(Book.kindLabel({ slug:"check-9", num:"9" }), "самостійна робота");
+  T.eq(Book.kindLabel({ slug:"tests-9", num:"9", grade:true }), "самостійні роботи");
 });
 
 T.test("book: пагінація — тихе «назад», картка «далі», крапки прогресу", () => {

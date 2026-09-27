@@ -13,14 +13,14 @@
 <link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400..800;1,7..72,600..700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 
 <!-- ?v=… — версія для кешу браузера: після змін у css/js підніми її тут і для скриптів унизу -->
-<link rel="stylesheet" href="css/base.css?v=20260926f1">
+<link rel="stylesheet" href="css/base.css?v=20260927a">
 <link rel="stylesheet" href="css/topics.css?v=20260926t3">
-<link rel="stylesheet" href="css/shell.css?v=20260926f1">
+<link rel="stylesheet" href="css/shell.css?v=20260927a">
 <link rel="stylesheet" href="css/collections.css?v=20260926t24">
 <link rel="stylesheet" href="css/functions.css?v=20260926t4">
 <link rel="stylesheet" href="css/pyeditor.css?v=20260926t25">
-<link rel="stylesheet" href="css/shop.css?v=20260926f1">
-<link rel="stylesheet" href="css/check.css?v=20260926t25">
+<link rel="stylesheet" href="css/shop.css?v=20260927a">
+<link rel="stylesheet" href="css/check.css?v=20260927a">
 </head>
 <body data-route="home">
 
@@ -77,7 +77,7 @@
 
       <div class="tab-panel" role="tabpanel" id="home-p-topics" aria-labelledby="home-t-topics">
       <p class="tab-note">обери, з чого почати</p>
-      <div class="cards route">
+      <div class="cards topic-cards">
 
         <a class="card reveal" href="#/vars" data-viz="vars">
           <div class="card-viz">
@@ -240,24 +240,33 @@
       </div>
 
       <div class="tab-panel" role="tabpanel" id="home-p-tests" aria-labelledby="home-t-tests" hidden>
-      <p class="tab-note">підсумкові роботи — одна спроба, у кожного свій набір завдань</p>
-      <div class="cards check-cards">
+      <p class="tab-note">обери свій клас — там список робіт; одна спроба, у кожного свій набір завдань</p>
+      <!-- ці ж картки показує сторінка #/tests: app.js копіює їх туди -->
+      <div class="cards check-cards" data-class-cards>
 
-        <a class="card check reveal" href="#/tests">
-          <div class="card-viz check-viz" aria-hidden="true">
-            <div class="checkviz-row"><span class="checkviz-q">1</span><span class="checkviz-bar"></span><span class="checkviz-pt">1 бал</span></div>
-            <div class="checkviz-row"><span class="checkviz-q">2</span><span class="checkviz-bar"></span><span class="checkviz-pt">1 бал</span></div>
-            <div class="checkviz-row"><span class="checkviz-q">5</span><span class="checkviz-bar"></span><span class="checkviz-pt">1 бал</span></div>
-            <div class="checkviz-row code"><span class="checkviz-q">6</span><span class="checkviz-bar"></span><span class="checkviz-pt">2 бали</span></div>
-            <div class="checkviz-row code"><span class="checkviz-q">9</span><span class="checkviz-bar"></span><span class="checkviz-pt">1 бал</span></div>
-            <div class="checkviz-total">Разом — <b>12</b> балів</div>
+        <a class="card check reveal" href="#/tests-eng">
+          <div class="card-viz class-viz" aria-hidden="true">
+            <div class="classviz-sheet"><span class="classviz-name">Самостійна робота 1</span><span class="classviz-pt">9 завдань · 12 балів</span></div>
           </div>
           <div class="card-body">
-            <span class="card-tag check-tag">обери свій клас</span>
-            <h3>Самостійні роботи</h3>
-            <p>Підсумкові самостійні роботи на 12 балів — окремо для Старшої інженерної школи й для 9 класу. Питання з варіантами відповіді й практичні завдання з кодом, у кожного свій набір.</p>
-            <div class="card-meta"><span>2 класи</span><span>12 балів</span><span>результат одразу</span></div>
-            <div class="card-go">До самостійних робіт <em>→</em></div>
+            <span class="card-tag check-tag">клас</span>
+            <h3>Старша інженерна школа</h3>
+            <p>Самостійні роботи для Старшої інженерної школи: питання з варіантами відповіді й практичні завдання, де треба написати функцію.</p>
+            <div class="card-meta"><span>1 робота</span><span>12 балів</span><span>змінні → словники</span></div>
+            <div class="card-go">Обрати клас <em>→</em></div>
+          </div>
+        </a>
+
+        <a class="card check reveal" href="#/tests-9">
+          <div class="card-viz class-viz" aria-hidden="true">
+            <div class="classviz-sheet"><span class="classviz-name">Самостійна робота 1</span><span class="classviz-pt">11 завдань · 12 балів</span></div>
+          </div>
+          <div class="card-body">
+            <span class="card-tag check-tag">клас</span>
+            <h3>9 клас</h3>
+            <p>Самостійні роботи за першими уроками Python: питання з варіантами відповіді й завдання, де треба написати невелику програму.</p>
+            <div class="card-meta"><span>1 робота</span><span>12 балів</span><span>змінні → цикли</span></div>
+            <div class="card-go">Обрати клас <em>→</em></div>
           </div>
         </a>
 
@@ -1765,34 +1774,77 @@ b = list(dict.fromkeys(names))</pre>
 
   <header class="top">
     <h1>Самостійні роботи</h1>
-    <p class="lede"><b>Обери свій клас</b> на вкладках нижче, а потім роботу, яку задав учитель. Одна спроба, у кожного учня свій набір завдань, результат — одразу після завершення, разом із посиланням, яке можна надіслати вчителю.</p>
+    <p class="lede"><b>Обери свій клас,</b> а потім роботу, яку задав учитель. Одна спроба, у кожного учня свій набір завдань, результат — одразу після завершення, разом із посиланням, яке можна надіслати вчителю.</p>
   </header>
 
-  <div class="tabs" data-tabs="tests">
-    <div class="tabs-list" role="tablist" aria-label="Клас">
-      <button type="button" role="tab" id="tests-t-eng" aria-controls="tests-p-eng">Старша інженерна школа</button>
-      <button type="button" role="tab" id="tests-t-9" aria-controls="tests-p-9">9 клас</button>
-    </div>
+  <!-- картки класів копіює сюди app.js з вкладки «Самостійні роботи» на головній -->
+  <div data-class-cards-slot></div>
+
+  </div>
+  </section>
+
+  <!-- ================= самостійні роботи: сторінки класів ================= -->
+  <section class="page" id="page-tests-eng" hidden>
+  <div class="wrap wide">
+
+  <header class="top">
+    <h1>Старша інженерна школа</h1>
+    <p class="lede"><b>Обери роботу, яку задав учитель.</b> Одна спроба, у кожного учня свій набір завдань, результат — одразу після завершення, разом із посиланням, яке можна надіслати вчителю.</p>
+  </header>
+
+  <div class="cards check-cards">
+
+    <a class="card check" href="#/check">
+      <div class="card-viz check-viz" aria-hidden="true">
+        <div class="checkviz-row"><span class="checkviz-q">1</span><span class="checkviz-bar"></span><span class="checkviz-pt">1 бал</span></div>
+        <div class="checkviz-row"><span class="checkviz-q">5</span><span class="checkviz-bar"></span><span class="checkviz-pt">1 бал</span></div>
+        <div class="checkviz-row code"><span class="checkviz-q">6</span><span class="checkviz-bar"></span><span class="checkviz-pt">1 бал</span></div>
+        <div class="checkviz-row code"><span class="checkviz-q">7</span><span class="checkviz-bar"></span><span class="checkviz-pt">2 бали</span></div>
+        <div class="checkviz-row code"><span class="checkviz-q">9</span><span class="checkviz-bar"></span><span class="checkviz-pt">2 бали</span></div>
+        <div class="checkviz-total">Разом — <b>12</b> балів</div>
+      </div>
+      <div class="card-body">
+        <span class="card-tag check-tag">Старша інженерна школа</span>
+        <h3>Самостійна робота 1</h3>
+        <p>5 питань з варіантами відповіді — по 1 балу — і 4 практичні завдання, де треба написати функцію: одне на 1 бал і три по 2 бали.</p>
+        <div class="card-meta"><span>9 завдань</span><span>12 балів</span><span>одна спроба</span></div>
+        <div class="card-go">Почати роботу <em>→</em></div>
+      </div>
+    </a>
+
   </div>
 
-  <div class="tab-panel" role="tabpanel" id="tests-p-eng" aria-labelledby="tests-t-eng">
-  <ul class="tests-list">
-    <li><a href="#/check">
-      <span class="tests-name">Самостійна робота 1</span>
-      <span class="tests-meta">9 завдань · 12 балів</span>
-      <span class="tests-go" aria-hidden="true">→</span>
-    </a></li>
-  </ul>
   </div>
+  </section>
 
-  <div class="tab-panel" role="tabpanel" id="tests-p-9" aria-labelledby="tests-t-9" hidden>
-  <ul class="tests-list">
-    <li><a href="#/check-9">
-      <span class="tests-name">Самостійна робота 1</span>
-      <span class="tests-meta">11 завдань · 12 балів</span>
-      <span class="tests-go" aria-hidden="true">→</span>
-    </a></li>
-  </ul>
+  <section class="page" id="page-tests-9" hidden>
+  <div class="wrap wide">
+
+  <header class="top">
+    <h1>9 клас</h1>
+    <p class="lede"><b>Обери роботу, яку задав учитель.</b> Одна спроба, у кожного учня свій набір завдань, результат — одразу після завершення, разом із посиланням, яке можна надіслати вчителю.</p>
+  </header>
+
+  <div class="cards check-cards">
+
+    <a class="card check" href="#/check-9">
+      <div class="card-viz check-viz" aria-hidden="true">
+        <div class="checkviz-row"><span class="checkviz-q">1</span><span class="checkviz-bar"></span><span class="checkviz-pt">1 бал</span></div>
+        <div class="checkviz-row"><span class="checkviz-q">7</span><span class="checkviz-bar"></span><span class="checkviz-pt">1 бал</span></div>
+        <div class="checkviz-row code"><span class="checkviz-q">8</span><span class="checkviz-bar"></span><span class="checkviz-pt">1 бал</span></div>
+        <div class="checkviz-row code"><span class="checkviz-q">10</span><span class="checkviz-bar"></span><span class="checkviz-pt">1 бал</span></div>
+        <div class="checkviz-row code"><span class="checkviz-q">11</span><span class="checkviz-bar"></span><span class="checkviz-pt">2 бали</span></div>
+        <div class="checkviz-total">Разом — <b>12</b> балів</div>
+      </div>
+      <div class="card-body">
+        <span class="card-tag check-tag">9 клас</span>
+        <h3>Самостійна робота 1</h3>
+        <p>7 питань з варіантами відповіді — по 1 балу — і 4 завдання, де треба написати програму: три по 1 балу й одне, з циклом, на 2 бали.</p>
+        <div class="card-meta"><span>11 завдань</span><span>12 балів</span><span>одна спроба</span></div>
+        <div class="card-go">Почати роботу <em>→</em></div>
+      </div>
+    </a>
+
   </div>
 
   </div>
@@ -1816,11 +1868,11 @@ b = list(dict.fromkeys(names))</pre>
 
 
 <!-- чисті помічники оболонки: «пройдено», номери розділів, стежка, пагінація -->
-<script src="js/book.js?v=20260926f1"></script>
+<script src="js/book.js?v=20260927a"></script>
 <!-- оболонка: роутер, меню, анімації головної -->
-<script src="js/app.js?v=20260926f1"></script>
+<script src="js/app.js?v=20260927a"></script>
 <!-- перемикач теми оформлення -->
-<script src="js/theme.js?v=20260926t7"></script>
+<script src="js/theme.js?v=20260927a"></script>
 <!-- рушій руху: FLIP-переїзди й твіни; має бути до collkit.js -->
 <script src="js/motion.js?v=20260922f"></script>
 <!-- спільний рушій віджетів розділу «Колекції» -->

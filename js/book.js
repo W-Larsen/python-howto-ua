@@ -35,26 +35,6 @@ function isDone(slug, seen){
   return slug === "coll" ? COLL.some(s => a.includes(s)) : a.includes(slug);
 }
 
-/* ============================ стежка на головній ============================ */
-/* Станція — середина того краю картки, що дивиться в прохід між колонками:
-   у лівої (парний індекс) — правий край, у правої — лівий. */
-function trailPoints(rects){
-  return rects.map((r, k)=>({ x: k % 2 ? r.left : r.right, y: r.top + r.height / 2 }));
-}
-const r1 = (v) => Math.round(v * 10) / 10;
-/* Кубічна крива між сусідніми станціями: обидві контрольні точки посередині
-   проходу — лінія виходить і входить горизонтально. pick(i) відбирає ділянку
-   i → i+1 (для акцентної стежки до пройдених станцій). */
-function trailPath(pts, pick){
-  let d = "";
-  for(let i = 0; i + 1 < pts.length; i++){
-    if(pick && !pick(i)) continue;
-    const a = pts[i], b = pts[i + 1], mx = r1((a.x + b.x) / 2);
-    d += `M${r1(a.x)} ${r1(a.y)}C${mx} ${r1(a.y)} ${mx} ${r1(b.y)} ${r1(b.x)} ${r1(b.y)}`;
-  }
-  return d;
-}
-
 /* ============================ номери розділів і обкладинка ============================ */
 /* «03» → «3», «5.1» → «5.1»: номер теми в плашці «3.2» без провідного нуля */
 const secBase = (num) => String(num).replace(/^0+(?=\d)/, "");
@@ -79,7 +59,7 @@ function numberHeads(page, num){
 /* Підпис над заголовком обкладинки. Самостійні роботи — без підпису:
    їхня шапка з'являється пізніше й номер «9» там — клас, а не тема. */
 function coverCaption(route, count){
-  if(/^check/.test(route.slug)) return "";
+  if(/^(check|tests)/.test(route.slug)) return "";
   const tail = " · " + count + " " + plural(count, SECTIONS);
   if(route.practice) return "практика" + tail;
   if(/^\d/.test(route.num)) return "тема " + route.num + tail;
@@ -171,7 +151,7 @@ function wrapCheats(root){
 /* ============================ пагінація ============================ */
 function kindLabel(route){
   if(route.practice) return "практика";
-  if(route.slug === "tests") return "самостійні роботи";
+  if(/^tests/.test(route.slug)) return "самостійні роботи";
   if(/^check/.test(route.slug)) return "самостійна робота";
   return "тема " + route.num;
 }
@@ -190,7 +170,7 @@ function pagerHtml(o){
       o.dots.map(d=>`<i${d.cls ? ` class="${d.cls}"` : ""}></i>`).join("") + `</div>` : "");
 }
 
-return { esc, visited:{ list, add }, isDone, trailPoints, trailPath,
+return { esc, visited:{ list, add }, isDone,
   secBase, plural, numberHeads, coverCaption, markCallouts, wrapTasks, wrapCheats,
   kindLabel, pagerHtml };
 })();

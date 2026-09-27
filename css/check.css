@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Самостійні роботи: картка на головній, список робіт, прогрес, картки
+   Самостійні роботи: картки класів і робіт, прогрес, картки
    питань (MCQ і код) та екран результатів.
    Картка завдання з кодом, редактор і підсвітка — спільні з практикою,
    дивись css/pyeditor.css.
@@ -7,21 +7,18 @@
 
   /* ---------- картка на головній ---------- */
   .cards.check-cards{grid-template-columns:repeat(auto-fill,minmax(min(296px,100%),1fr))}
-  /* сторінка «Самостійні роботи»: шапка по центру, під нею таби з класами
-     й простий список робіт вибраного класу */
-  #page-tests header.top{text-align:center}
-  #page-tests header.top .lede{max-width:60ch; margin-left:auto; margin-right:auto}
-  #page-tests .tabs{margin-top:1.6em}
-  .tests-list{list-style:none; max-width:640px; margin:22px auto 0; padding:0; display:flex; flex-direction:column; gap:8px}
-  .tests-list li{margin:0}
-  .tests-list a{display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; padding:13px 18px;
-    border:1px solid var(--rule); border-radius:12px; background:var(--card); color:var(--ink);
-    text-decoration:none; transition:border-color var(--t-fast) var(--ease), background var(--t-fast) var(--ease);
+  /* розділ «Самостійні роботи»: хаб і сторінки класів — шапка по центру,
+     під нею картки класів або робіт (одна картка не розтягується: auto-fill) */
+  :is(#page-tests, #page-tests-eng, #page-tests-9) header.top{text-align:center}
+  :is(#page-tests, #page-tests-eng, #page-tests-9) header.top .lede{max-width:60ch; margin-left:auto; margin-right:auto}
+
+  /* обкладинка картки класу: аркуші робіт цього класу */
+  .class-viz{display:flex; flex-direction:column; justify-content:center; gap:8px; min-height:152px}
+  .classviz-sheet{position:relative; z-index:1; display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;
+    max-width:78%; padding:10px 14px; border:1px solid var(--rule); border-radius:10px; background:var(--card);
     box-shadow:0 2px 0 var(--rule)}
-  .tests-list a:hover{border-color:var(--tc); background:var(--tc-soft)}
-  .tests-name{font-weight:600; font-size:1.02rem}
-  .tests-meta{font-family:var(--mono); font-size:.78rem; color:var(--muted)}
-  .tests-go{margin-left:auto; color:var(--tc-ink); font-weight:600}
+  .classviz-name{font-weight:600; font-size:.9rem; color:var(--ink)}
+  .classviz-pt{font-family:var(--mono); font-size:.7rem; color:var(--muted)}
 
   .check-viz{display:flex; flex-direction:column; justify-content:center; gap:8px; min-height:152px}
   .checkviz-row{display:flex; align-items:center; gap:9px}
@@ -42,6 +39,8 @@
   [data-check-root] > .hero{margin-top:1.5em}
   [data-check-root] > .hero + *{margin-top:1.9em}
   [data-check-root] > header.top{margin-top:0}
+  /* проза тесту — тієї ж ширини, що й на решті сторінок (--measure з .wrap) */
+  [data-check-root] > :is(p,ul,ol,.callout), [data-check-root] > header.top > .lede{max-width:var(--measure)}
 
   /* ---------- прогрес на сторінці тесту ---------- */
   .check-hero{padding:16px 20px}
