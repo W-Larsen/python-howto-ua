@@ -12,13 +12,11 @@
   :is(#page-tests, #page-tests-eng, #page-tests-9) header.top{text-align:center}
   :is(#page-tests, #page-tests-eng, #page-tests-9) header.top .lede{max-width:60ch; margin-left:auto; margin-right:auto}
 
-  /* обкладинка картки класу: аркуші робіт цього класу */
-  .class-viz{display:flex; flex-direction:column; justify-content:center; gap:8px; min-height:152px}
-  .classviz-sheet{position:relative; z-index:1; display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;
-    max-width:78%; padding:10px 14px; border:1px solid var(--rule); border-radius:10px; background:var(--card);
-    box-shadow:0 2px 0 var(--rule)}
-  .classviz-name{font-weight:600; font-size:.9rem; color:var(--ink)}
-  .classviz-pt{font-family:var(--mono); font-size:.7rem; color:var(--muted)}
+  /* картка класу: обкладинка лише з водяним номером класу; під назвою —
+     скільки в класі робіт */
+  .class-viz{min-height:96px}
+  .card .card-count{font-family:var(--mono); font-size:.76rem; color:var(--muted); margin:0 0 .7em}
+  .class-viz + .card-body .card-go{margin-top:auto}   /* тегів нема — «Обрати клас» притискаємо донизу */
 
   .check-viz{display:flex; flex-direction:column; justify-content:center; gap:8px; min-height:152px}
   .checkviz-row{display:flex; align-items:center; gap:9px}
