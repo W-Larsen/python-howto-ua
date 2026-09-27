@@ -162,7 +162,7 @@ createPlayer(document.getElementById("vars-w-swap"), {
 /* ================= 4. імена змінних ================= */
 (function(){
   const root = document.getElementById("vars-w-names");
-  root.innerHTML = `
+  root.innerHTML = window.CollKit.titleBar(root) + `
     <div class="sandbox">
       <input type="text" id="vars-nm-in" value="user_age" spellcheck="false">
       <span class="arrow">→</span>

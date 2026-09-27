@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Самостійні роботи: картка на головній, список робіт, прогрес, картки
+   Самостійні роботи: картки класів і робіт, прогрес, картки
    питань (MCQ і код) та екран результатів.
    Картка завдання з кодом, редактор і підсвітка — спільні з практикою,
    дивись css/pyeditor.css.
@@ -7,34 +7,31 @@
 
   /* ---------- картка на головній ---------- */
   .cards.check-cards{grid-template-columns:repeat(auto-fill,minmax(min(296px,100%),1fr))}
-  .card.check{border-color:#c9b6f0}
-  .card.check .card-viz{background:linear-gradient(180deg,var(--i-soft),var(--panel-2))}
-  .card.check .card-go{color:var(--i)}
-  .check-tag{color:var(--i); background:var(--i-soft); border-color:#c9b6f0}
-  /* сторінка «Самостійні роботи»: шапка по центру, під нею таби з класами
-     й простий список робіт вибраного класу */
-  #page-tests header.top{text-align:center}
-  #page-tests header.top .lede{max-width:60ch; margin-left:auto; margin-right:auto}
-  #page-tests .tabs{margin-top:1.6em}
-  .tests-list{list-style:none; max-width:640px; margin:22px auto 0; padding:0; display:flex; flex-direction:column; gap:8px}
-  .tests-list li{margin:0}
-  .tests-list a{display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; padding:13px 18px;
-    border:1px solid var(--rule); border-radius:11px; background:var(--panel); color:var(--ink);
-    text-decoration:none; transition:border-color var(--t-fast) var(--ease), background var(--t-fast) var(--ease)}
-  .tests-list a:hover{border-color:var(--i); background:var(--i-soft)}
-  .tests-name{font-weight:600; font-size:1.02rem}
-  .tests-meta{font-family:var(--mono); font-size:.78rem; color:var(--muted)}
-  .tests-go{margin-left:auto; color:var(--i); font-weight:600}
+  /* розділ «Самостійні роботи»: хаб і сторінки класів — шапка по центру,
+     під нею картки класів або робіт (одна картка не розтягується: auto-fill) */
+  :is(#page-tests, #page-tests-eng, #page-tests-9) header.top{text-align:center}
+  :is(#page-tests, #page-tests-eng, #page-tests-9) header.top .lede{max-width:60ch; margin-left:auto; margin-right:auto}
+
+  /* картка класу: обкладинка лише з водяним номером класу; під назвою —
+     скільки в класі робіт */
+  .class-viz{min-height:96px}
+  .card .card-count{font-family:var(--mono); font-size:.76rem; color:var(--muted); margin:0 0 .7em}
+  .class-viz + .card-body .card-go{margin-top:auto}   /* тегів нема — «Обрати клас» притискаємо донизу */
 
   .check-viz{display:flex; flex-direction:column; justify-content:center; gap:8px; min-height:152px}
+  /* Колір розділу тут — --ink, і стандартна обкладинка з нього (сірий фон,
+     густі темні крапки) глушить ілюстрацію. Беремо спокійніший папір і ледь
+     помітні крапки; смужка зверху лишається кольору розділу. */
+  .card-viz:is(.check-viz, .class-viz){background-color:var(--panel-2);
+    background-image:radial-gradient(color-mix(in srgb, var(--ink) 9%, transparent) 1px, transparent 1.4px)}
   .checkviz-row{display:flex; align-items:center; gap:9px}
   .checkviz-q{display:grid; place-items:center; width:22px; height:22px; border-radius:50%;
-    background:var(--card); border:1px solid var(--rule); font-family:var(--mono); font-size:.7rem;
-    color:var(--muted); flex:none}
+    background:var(--card); border:1px solid color-mix(in srgb, var(--muted) 55%, var(--card)); font-family:var(--mono); font-size:.7rem;
+    color:var(--body); flex:none}
   .checkviz-row.code .checkviz-q{background:var(--i); border-color:var(--i); color:var(--card); font-weight:700}
-  .checkviz-bar{flex:1; height:8px; border-radius:999px; background:var(--rule-soft)}
-  .checkviz-row.code .checkviz-bar{background:#c9b6f0}
-  .checkviz-pt{font-family:var(--mono); font-size:.7rem; color:var(--muted); flex:none; width:54px; text-align:right}
+  .checkviz-bar{flex:1; height:8px; border-radius:999px; background:color-mix(in srgb, var(--muted) 38%, var(--card))}
+  .checkviz-row.code .checkviz-bar{background:var(--i-line)}
+  .checkviz-pt{font-family:var(--mono); font-size:.7rem; color:var(--body); flex:none; width:54px; text-align:right}
   .checkviz-total{margin-top:5px; font-size:.82rem; color:var(--muted); text-align:right}
   .checkviz-total b{color:var(--i); font-family:var(--mono)}
 
@@ -45,6 +42,8 @@
   [data-check-root] > .hero{margin-top:1.5em}
   [data-check-root] > .hero + *{margin-top:1.9em}
   [data-check-root] > header.top{margin-top:0}
+  /* проза тесту — тієї ж ширини, що й на решті сторінок (--measure з .wrap) */
+  [data-check-root] > :is(p,ul,ol,.callout), [data-check-root] > header.top > .lede{max-width:var(--measure)}
 
   /* ---------- прогрес на сторінці тесту ---------- */
   .check-hero{padding:16px 20px}
@@ -56,10 +55,11 @@
   .check-prog-text{font-family:var(--mono); font-size:.8rem; color:var(--muted); white-space:nowrap}
 
   /* ---------- картка завдання: спільна для MCQ і практичних (з кодом) ---------- */
-  .checkq{border:1px solid var(--rule); border-radius:14px; background:var(--panel);
-    padding:20px 24px 22px; margin:0 0 18px}
+  .checkq{border:1px solid var(--rule); border-radius:14px; background:var(--card);
+    padding:20px 24px 22px; margin:0 0 18px; box-shadow:0 2px 0 var(--rule)}
   .checkq-head{margin-bottom:10px}
-  .checkq-n{font-family:var(--mono); font-size:.76rem; color:var(--muted)}
+  .checkq-n{display:inline-block; padding:2px 9px; border-radius:999px; background:var(--tc-soft);
+    color:var(--tc-ink); font-family:var(--mono); font-size:.74rem; font-weight:700}
   .checkq-text{font-size:1rem; line-height:1.6; margin:0 0 14px}
   .checkq-title{font-family:var(--display); font-weight:700; font-size:1.08rem; color:var(--ink)}
 
@@ -107,13 +107,13 @@
   .checkq-io pre,.checkr-io pre{margin:0; padding:8px 11px; background:var(--card); border:1px solid var(--rule);
     border-radius:8px; font-family:var(--mono); font-size:.84rem; line-height:1.5; white-space:pre-wrap;
     overflow-wrap:anywhere}
-  .checkr-io-err{margin:6px 0 0; font-size:.82rem; color:#8f2419}
+  .checkr-io-err{margin:6px 0 0; font-size:.82rem; color:var(--stop)}
   .checkq-stdin{display:block; margin:0 0 4px}
   .checkq-stdin span{display:block; font-size:.8rem; color:var(--muted); margin-bottom:4px}
   .checkq-stdin textarea{width:100%; box-sizing:border-box; padding:8px 11px; border:1px solid var(--rule);
     border-radius:8px; background:var(--card); color:var(--ink); font-family:var(--mono); font-size:.86rem;
     line-height:1.5; resize:vertical}
-  .checkq-out{margin:10px 0 0; padding:10px 14px; background:#fff; border:1px solid var(--rule); border-radius:9px;
+  .checkq-out{margin:10px 0 0; padding:10px 14px; background:var(--card); border:1px solid var(--rule); border-radius:9px;
     font-family:var(--mono); font-size:.84rem; line-height:1.5; white-space:pre-wrap; overflow-wrap:anywhere;
     max-height:320px; overflow:auto}
   .checkq-out[hidden]{display:none}
@@ -127,7 +127,7 @@
   /* ---------- екран результатів ---------- */
   .checkr-score{display:flex; flex-direction:column; align-items:center; gap:6px; padding:34px 20px;
     border:1px solid var(--rule); border-radius:16px; background:var(--panel); margin-bottom:26px; text-align:center}
-  .checkr-score-n{font-family:var(--display); font-size:3rem; font-weight:700; color:var(--i); line-height:1}
+  .checkr-score-n{font-family:var(--display); font-size:3rem; font-weight:800; letter-spacing:-.03em; color:var(--i); line-height:1}
   .checkr-score-n span{font-size:1.35rem; color:var(--muted); font-weight:400}
   .checkr-score p{margin:4px 0 0; color:var(--body); font-size:.96rem}
   /* фокус ставиться сюди після завершення тесту лише для читачів екрана */
@@ -156,15 +156,15 @@
   .checkr-opts li{padding:7px 11px; border-radius:8px; background:var(--panel); font-family:var(--mono);
     line-height:1.5; white-space:pre-wrap; overflow-wrap:anywhere}
   .checkr-opts li b{font-family:var(--sans); font-weight:600; margin-right:6px}
-  .checkr-opts li.chosen.ok{background:var(--j-soft); color:#075c42}
-  .checkr-opts li.chosen.partial{background:#fbeecb; color:#7a5a06}
-  .checkr-opts li.chosen.bad{background:var(--stop-soft); color:#8f2419}
-  .checkr-opts li.correct{background:var(--j-soft); color:#075c42}
+  .checkr-opts li.chosen.ok{background:var(--j-soft); color:var(--j)}
+  .checkr-opts li.chosen.partial{background:var(--hl); color:var(--hl-ink)}
+  .checkr-opts li.chosen.bad{background:var(--stop-soft); color:var(--stop)}
+  .checkr-opts li.correct{background:var(--j-soft); color:var(--j)}
   .checkr-explain{margin:6px 0 0; font-size:.88rem; color:var(--muted); line-height:1.55}
   .checkr-code-t{margin:10px 0 4px; font-size:.78rem; color:var(--muted)}
-  .checkr-code{margin:0; padding:11px 13px; background:#fff; border:1px solid var(--rule); border-radius:9px;
+  .checkr-code{margin:0; padding:11px 13px; background:var(--card); border:1px solid var(--rule); border-radius:9px;
     font-family:var(--mono); font-size:.82rem; line-height:1.55; overflow-x:auto; white-space:pre}
-  .checkr-code.ref{background:var(--j-soft); border-color:#8ed3bb}
+  .checkr-code.ref{background:var(--j-soft); border-color:var(--j-line)}
   .checkr-code + .checkr-opts{margin-top:10px}
 
   @media (max-width:640px){

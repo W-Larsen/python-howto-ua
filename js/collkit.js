@@ -159,13 +159,43 @@ const ICON = {
 const SPEEDS = [0.5, 1, 2];
 const speedLabel = (s) => (s === 1 ? "1×" : s === 2 ? "2×" : "0.5×");
 
+/* ================= смужка-заголовок віджета ================= */
+/* Назва віджета — найближчий попередній h2 його сторінки, номер — h2[data-sec]
+   (його ставить app.js під час завантаження, раніше, ніж теми будують
+   віджети). Без h2 перед віджетом — «Приклад». Праворуч — налаштування
+   (spec.config); якщо не влазять, flex-wrap переносить їх другим рядком. */
+function headFor(root){
+  const page = root.closest("section.page") || document;
+  let found = null;
+  for(const h of page.querySelectorAll("h2")){
+    if(!(h.compareDocumentPosition(root) & Node.DOCUMENT_POSITION_FOLLOWING)) break;
+    found = h;
+  }
+  return found;
+}
+function titleBar(root, config){
+  const h = headFor(root);
+  let title = "Приклад", sec = "";
+  if(h){
+    const c = h.cloneNode(true);
+    c.querySelectorAll(".badge").forEach(b=>b.remove());   /* бейдж «advanced» у назву не тягнемо */
+    title = c.textContent.trim();
+    sec = h.dataset.sec || "";
+  }
+  return `<div class="w-head">` +
+    (sec ? `<span class="w-sec">${esc(sec)}</span>` : "") +
+    `<span class="w-title">${esc(title)}</span>` +
+    (config ? `<div class="w-config">${config}</div>` : "") +
+    `</div>`;
+}
+
 /* ================= програвач кроків ================= */
 /* Один рушій на всі теми. Теми різняться лише підсвіткою синтаксису й
    швидкістю автопрокрутки — їх передає makePlayer через cfg. */
 function createPlayerWith(root, spec, cfg){
   if(!root) return;
   root.innerHTML = `
-    ${spec.config ? `<div class="w-config">${spec.config}</div>` : ""}
+    ${titleBar(root, spec.config)}
     <div class="panes">
       <div class="pane">
         <div class="pane-title">Код</div>
@@ -357,7 +387,10 @@ function createPlayerWith(root, spec, cfg){
     noteEl.className = "note" + (f.kind?" "+f.kind:"");
     if(extraEl){ patchInto(extraEl, spec.extra(f)); markClickable(extraEl); }
     scrub.value = idx;
-    counter.textContent = `${idx+1} / ${frames.length}`;
+    /* заповнення доріжки й засічки пройдених кроків малює CSS */
+    scrub.style.setProperty("--p", (frames.length > 1 ? idx / (frames.length - 1) * 100 : 0) + "%");
+    ticksEl.querySelectorAll("i").forEach((t, k)=>t.classList.toggle("p", k <= idx));
+    counter.innerHTML = `крок <b>${idx+1}</b> / ${frames.length}`;
     backB.disabled = resetB.disabled = idx===0;
     stepB.disabled = idx===frames.length-1;
 
@@ -584,6 +617,6 @@ function bars(items, maxSize){
 const legendHtml = (parts) => parts.map(p=>`<span><i class="${p[0]}"></i>${p[1]}</span>`).join("");
 
 return { esc, hl, createPlayer, makePlayer, stopAllPlayers, relockAllPlayers,
-         numCfg, modeCfg, q, listStr, dictStr, setStr,
+         numCfg, modeCfg, q, listStr, dictStr, setStr, titleBar,
          cells, row, kv, selems, setrow, conveyor, bars, legendHtml };
 })();

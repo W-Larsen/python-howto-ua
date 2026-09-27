@@ -5,12 +5,12 @@
   /* ---------- hero: аргумент → функція → результат ---------- */
   .fnhero{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:16px}
   .fnpill{font-family:var(--mono); font-size:.92rem; font-weight:700; padding:10px 16px;
-    border-radius:9px; border:1.5px solid var(--rule); background:var(--panel); color:#bcb0a0;
+    border-radius:9px; border:1.5px solid var(--rule); background:var(--panel); color:var(--faint);
     min-width:58px; text-align:center; border-style:dashed;
     transition:border-color .25s, background .25s, color .25s, transform .25s}
   .fnpill.on{border-style:solid}
-  .fnpill.arg.on{border-color:#bda8f7; background:var(--i-soft); color:var(--i)}
-  .fnpill.ret.on{border-color:#8ed3bb; background:var(--j-soft); color:var(--j); transform:scale(1.06)}
+  .fnpill.arg.on{border-color:var(--i-line); background:var(--i-soft); color:var(--i)}
+  .fnpill.ret.on{border-color:var(--j-line); background:var(--j-soft); color:var(--j); transform:scale(1.06)}
   .fnbox{font-family:var(--mono); font-size:.86rem; padding:13px 18px; border-radius:11px;
     border:2px solid var(--rule); background:var(--card); color:var(--ink); text-align:center;
     transition:border-color .25s, box-shadow .25s}
@@ -34,7 +34,7 @@
     transition:border-color .2s, background .2s, opacity .2s}
   .fnobj .nm{display:block; font-size:.84rem; font-weight:700; color:var(--i); margin-bottom:3px}
   .fnobj.ghost{border-style:dashed; background:var(--panel); opacity:.5}
-  .fnobj.ghost .nm{color:#bcb0a0}
+  .fnobj.ghost .nm{color:var(--faint)}
   .fnobj.run{border-color:var(--i); background:var(--i-soft)}
 
   /* ---------- стек викликів ---------- */
@@ -44,21 +44,21 @@
     padding:8px 13px; border-radius:9px; border:1.5px solid var(--rule); background:var(--card);
     color:var(--muted); transition:border-color .2s, background .2s, color .2s, transform .2s}
   .frame .fnm{font-weight:700}
-  .frame .ret{margin-left:auto; font-size:.7rem; color:#7c7266}
+  .frame .ret{margin-left:auto; font-size:.7rem; color:var(--muted)}
   .frame.top{border-color:var(--i); background:var(--i-soft); color:var(--i); transform:translateX(4px)}
   .frame.top .ret{color:var(--i)}
-  .frame.base{border-style:dashed; background:var(--panel); color:#7c7266}
-  .frame.leaving{border-color:#e8b7ae; background:var(--stop-soft); color:var(--stop)}
-  .stackhint{font-family:var(--mono); font-size:.73rem; color:#bcb0a0; padding:4px 0 0}
+  .frame.base{border-style:dashed; background:var(--panel); color:var(--muted)}
+  .frame.leaving{border-color:var(--stop-line); background:var(--stop-soft); color:var(--stop)}
+  .stackhint{font-family:var(--mono); font-size:.73rem; color:var(--faint); padding:4px 0 0}
 
   /* ---------- області видимості ---------- */
   .scopes{display:flex; gap:12px; flex-wrap:wrap; align-items:stretch}
   .scope{flex:1 1 190px; min-width:0; border:1.5px solid var(--rule); border-radius:11px;
     background:var(--card); padding:10px 13px 12px;
     transition:border-color .2s, background .2s, opacity .2s}
-  .scope.local{border-color:#bda8f7; background:var(--i-soft)}
+  .scope.local{border-color:var(--i-line); background:var(--i-soft)}
   .scope.gone{opacity:.34; border-style:dashed; background:var(--panel)}
-  .scope-t{font-family:var(--mono); font-size:.71rem; font-weight:700; color:#736a5e;
+  .scope-t{font-family:var(--mono); font-size:.71rem; font-weight:700; color:var(--muted);
     margin-bottom:8px; letter-spacing:.02em}
   .scope.local .scope-t{color:var(--i)}
   .svars{display:flex; flex-wrap:wrap; gap:6px}
@@ -67,8 +67,8 @@
     transition:border-color .2s, background .2s, color .2s}
   .svar.hit{border-color:var(--j); background:var(--j-soft); color:var(--j); font-weight:700}
   .svar.now{border-color:var(--i); background:var(--card); color:var(--i); font-weight:700}
-  .svar.err{border-color:#e8b7ae; background:var(--stop-soft); color:var(--stop); font-weight:700}
-  .svar.empty{border-style:dashed; color:#bcb0a0}
+  .svar.err{border-color:var(--stop-line); background:var(--stop-soft); color:var(--stop); font-weight:700}
+  .svar.empty{border-style:dashed; color:var(--faint)}
 
   /* ---------- склеювання аргументів print ---------- */
   .joinviz{display:flex; flex-wrap:wrap; align-items:center; gap:5px;
@@ -77,7 +77,7 @@
     color:var(--body); transition:border-color .2s, background .2s}
   .jtok.now{border-color:var(--i); background:var(--i-soft); color:var(--i); font-weight:700}
   .jsep{padding:5px 9px; border:1.5px dashed var(--hl-bar); border-radius:7px; background:var(--hl);
-    color:#5a4406; font-weight:700; white-space:pre}
+    color:var(--hl-ink); font-weight:700; white-space:pre}
   .jsep.nl{font-style:normal}
 
   /* ---------- try / except ---------- */
@@ -85,11 +85,11 @@
   .tryblk{display:flex; align-items:center; gap:10px; font-family:var(--mono); font-size:.79rem;
     padding:9px 13px; border-radius:9px; border:1.5px solid var(--rule); background:var(--card);
     color:var(--muted); transition:border-color .2s, background .2s, color .2s, opacity .2s}
-  .tryblk .tag{font-size:.68rem; font-weight:700; color:#7c7266; flex:none; width:52px}
+  .tryblk .tag{font-size:.68rem; font-weight:700; color:var(--muted); flex:none; width:52px}
   .tryblk.idle{opacity:.4; border-style:dashed}
-  .tryblk.run{border-color:var(--hl-bar); background:var(--hl); color:#5a4406}
+  .tryblk.run{border-color:var(--hl-bar); background:var(--hl); color:var(--hl-ink)}
   .tryblk.ok{border-color:var(--j); background:var(--j-soft); color:var(--j); font-weight:700}
-  .tryblk.boom{border-color:#e8b7ae; background:var(--stop-soft); color:var(--stop); font-weight:700}
+  .tryblk.boom{border-color:var(--stop-line); background:var(--stop-soft); color:var(--stop); font-weight:700}
   .tryblk.ok .tag,.tryblk.boom .tag{color:inherit}
 
   /* ---------- ілюстрація картки «Функції» ---------- */
@@ -102,7 +102,7 @@
   .vz-fpill.on{stroke-dasharray:none}
   .vz-fpill.arg.on{fill:var(--i-soft); stroke:var(--i)}
   .vz-fpill.ret.on{fill:var(--j-soft); stroke:var(--j)}
-  .vz-fpt{font-size:14px; font-weight:700; fill:#bcb0a0; text-anchor:middle; transition:fill .3s}
+  .vz-fpt{font-size:14px; font-weight:700; fill:var(--faint); text-anchor:middle; transition:fill .3s}
   .vz-fpt.arg.on{fill:var(--i)}
   .vz-fpt.ret.on{fill:var(--j)}
   .vz-fwire{stroke:var(--rule); stroke-width:1.8; fill:none; transition:stroke .3s}

@@ -5,19 +5,23 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Python крок за кроком</title>
 <meta name="description" content="Інтерактивний посібник з основ Python — покроково, з анімаціями.">
+<!-- тема оформлення: ставимо data-theme ще до стилів, щоб темна не блимала світлою.
+     Збережений вибір, а без нього — тема системи. Решту (кнопки, збереження)
+     робить js/theme.js -->
+<script>(function(){var t=null;try{t=localStorage.getItem("pgsb.theme")}catch(e){}if(t!=="light"&&t!=="dark")t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";document.documentElement.setAttribute("data-theme",t)})()</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,600;7..72,700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400..800;1,7..72,600..700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 
 <!-- ?v=… — версія для кешу браузера: після змін у css/js підніми її тут і для скриптів унизу -->
-<link rel="stylesheet" href="css/base.css?v=20260922f">
-<link rel="stylesheet" href="css/topics.css?v=20260922f">
-<link rel="stylesheet" href="css/shell.css?v=20260924c">
-<link rel="stylesheet" href="css/collections.css?v=20260922f">
-<link rel="stylesheet" href="css/functions.css?v=20260922f">
-<link rel="stylesheet" href="css/pyeditor.css?v=20260924f">
-<link rel="stylesheet" href="css/shop.css?v=20260922f">
-<link rel="stylesheet" href="css/check.css?v=20260924e">
+<link rel="stylesheet" href="css/base.css?v=20260927a">
+<link rel="stylesheet" href="css/topics.css?v=20260927a">
+<link rel="stylesheet" href="css/shell.css?v=20260927a">
+<link rel="stylesheet" href="css/collections.css?v=20260926t24">
+<link rel="stylesheet" href="css/functions.css?v=20260926t4">
+<link rel="stylesheet" href="css/pyeditor.css?v=20260926t25">
+<link rel="stylesheet" href="css/shop.css?v=20260927a">
+<link rel="stylesheet" href="css/check.css?v=20260927c">
 </head>
 <body data-route="home">
 
@@ -26,14 +30,18 @@
 <aside class="sidebar" id="sidebar" aria-label="Навігація по темах">
   <a class="brand" href="#/">
     <span class="brand-mark">Py</span>
-    <span class="brand-t"><b>Python крок за кроком</b><i>інтерактивний посібник</i></span>
+    <span class="brand-t"><b>Python <em>крок</em> за кроком</b><i>інтерактивний посібник</i></span>
   </a>
   <nav class="nav">
     <div class="nav-label">Теми</div>
     <div id="navList"></div>
   </nav>
   <div class="sidebar-foot">
-    Усі приклади можна крутити кроками вперед і назад.
+    <span class="sidebar-foot-t">Оформлення</span>
+    <div class="theme-switch" role="group" aria-label="Тема оформлення">
+      <button type="button" data-theme-set="light" aria-pressed="false" aria-label="Світла тема" title="Світла тема">&#x2600;&#xFE0E;</button>
+      <button type="button" data-theme-set="dark" aria-pressed="false" aria-label="Темна тема" title="Темна тема">&#x263E;&#xFE0E;</button>
+    </div>
   </div>
 </aside>
 <div class="scrim" id="scrim"></div>
@@ -45,14 +53,18 @@
       <span></span><span></span><span></span>
     </button>
     <a class="topbar-t" href="#/" id="topbarTitle">Python крок за кроком</a>
+    <button type="button" class="theme-cycle" data-theme-cycle aria-label="Тема оформлення">&#x25D0;</button>
   </header>
 
   <!-- ================= головна ================= -->
   <section class="page" id="page-home">
     <div class="home">
+      <div class="home-bar"><button type="button" class="theme-cycle" data-theme-cycle aria-label="Тема оформлення">&#x25D0;</button></div>
       <div class="home-hero">
-        <h1>Python крок за кроком</h1>
-        <p class="lede">Основи мови, які видно. Кожна тема — це не стіна тексту, а <b>віджети, які можна прокрутити кроками</b>: змінити числа, натиснути «Крок» і подивитись, що саме відбувається в пам'яті, у коді й у виводі.</p>
+        <p class="home-type syn" aria-hidden="true"><span class="prompt">&gt;&gt;&gt;</span> <span data-type>print("привіт, Python")</span></p>
+        <h1>Python <em>крок</em> за кроком</h1>
+        <p class="lede">Основи мови, які видно: кожна тема — це <b>віджети, які можна прокрутити кроками</b> й подивитись, що відбувається в пам'яті, у коді й у виводі.</p>
+        <a class="home-cta" href="#/vars">Почати з теми 01 <span aria-hidden="true">→</span></a>
       </div>
 
       <div class="tabs" data-tabs="home">
@@ -65,7 +77,7 @@
 
       <div class="tab-panel" role="tabpanel" id="home-p-topics" aria-labelledby="home-t-topics">
       <p class="tab-note">обери, з чого почати</p>
-      <div class="cards">
+      <div class="cards topic-cards">
 
         <a class="card reveal" href="#/vars" data-viz="vars">
           <div class="card-viz">
@@ -92,7 +104,7 @@
           <div class="card-body">
             <h3>Змінні, print і input</h3>
             <p>Коробка з іменем: як значення потрапляє в пам'ять, чому <code>b = a</code> — це копія, і чому <code>input</code> завжди повертає рядок.</p>
-            <div class="card-meta"><span>7 віджетів</span><span>типи даних</span><span>для початківців</span></div>
+            <div class="card-meta"><span>типи даних</span><span>для початківців</span></div>
             <div class="card-go">Читати тему <em>→</em></div>
           </div>
         </a>
@@ -118,7 +130,7 @@
           <div class="card-body">
             <h3>Умови: if, elif, else</h3>
             <p>Розвилка в програмі. Що таке <code>True</code> і <code>False</code>, чому порядок <code>elif</code> має значення і чим ланцюжок відрізняється від кількох окремих <code>if</code>.</p>
-            <div class="card-meta"><span>6 віджетів</span><span>and / or / not</span><span>вкладені умови</span></div>
+            <div class="card-meta"><span>and / or / not</span><span>вкладені умови</span></div>
             <div class="card-go">Читати тему <em>→</em></div>
           </div>
         </a>
@@ -135,7 +147,7 @@
           <div class="card-body">
             <h3>Цикли: for і while</h3>
             <p>Чому <code>range(5)</code> — це не п'ятірка, як працює <code>break</code>, і що насправді відбувається, коли один цикл стоїть усередині іншого.</p>
-            <div class="card-meta"><span>5 віджетів</span><span>break / continue</span><span>вкладені цикли</span></div>
+            <div class="card-meta"><span>break / continue</span><span>вкладені цикли</span></div>
             <div class="card-go">Читати тему <em>→</em></div>
           </div>
         </a>
@@ -163,7 +175,7 @@
           <div class="card-body">
             <h3>Функції</h3>
             <p>Свій блок коду з іменем: чим <code>return</code> відрізняється від <code>print</code>, звідки береться <code>None</code>, як влаштований стек викликів і чому змінна з функції не видна ззовні.</p>
-            <div class="card-meta"><span>8 віджетів</span><span>стек викликів</span><span>try / except</span></div>
+            <div class="card-meta"><span>стек викликів</span><span>try / except</span></div>
             <div class="card-go">Читати тему <em>→</em></div>
           </div>
         </a>
@@ -192,7 +204,7 @@
           <div class="card-body">
             <h3>Колекції: списки, словники, множини</h3>
             <p>Три контейнери для багатьох значень одразу: чим <code>list</code> відрізняється від <code>dict</code> і <code>set</code>, і що вміють <code>sorted</code>, <code>map</code>, <code>filter</code> та решта вбудованих функцій.</p>
-            <div class="card-meta"><span>3 під-теми</span><span>26 віджетів</span><span>розділ Advanced</span></div>
+            <div class="card-meta"><span>3 під-теми</span><span>розділ Advanced</span></div>
             <div class="card-go">Читати тему <em>→</em></div>
           </div>
         </a>
@@ -228,24 +240,27 @@
       </div>
 
       <div class="tab-panel" role="tabpanel" id="home-p-tests" aria-labelledby="home-t-tests" hidden>
-      <p class="tab-note">підсумкові роботи — одна спроба, у кожного свій набір завдань</p>
-      <div class="cards check-cards">
+      <p class="tab-note">обери свій клас — там список робіт; одна спроба, у кожного свій набір завдань</p>
+      <!-- ці ж картки показує сторінка #/tests: app.js копіює їх туди -->
+      <div class="cards check-cards" data-class-cards>
 
-        <a class="card check reveal" href="#/tests">
-          <div class="card-viz check-viz" aria-hidden="true">
-            <div class="checkviz-row"><span class="checkviz-q">1</span><span class="checkviz-bar"></span><span class="checkviz-pt">1 бал</span></div>
-            <div class="checkviz-row"><span class="checkviz-q">2</span><span class="checkviz-bar"></span><span class="checkviz-pt">1 бал</span></div>
-            <div class="checkviz-row"><span class="checkviz-q">5</span><span class="checkviz-bar"></span><span class="checkviz-pt">1 бал</span></div>
-            <div class="checkviz-row code"><span class="checkviz-q">6</span><span class="checkviz-bar"></span><span class="checkviz-pt">2 бали</span></div>
-            <div class="checkviz-row code"><span class="checkviz-q">9</span><span class="checkviz-bar"></span><span class="checkviz-pt">1 бал</span></div>
-            <div class="checkviz-total">Разом — <b>12</b> балів</div>
-          </div>
+        <a class="card check reveal" href="#/tests-eng">
+          <div class="card-viz class-viz" aria-hidden="true"></div>
           <div class="card-body">
-            <span class="card-tag check-tag">обери свій клас</span>
-            <h3>Самостійні роботи</h3>
-            <p>Підсумкові самостійні роботи на 12 балів — окремо для Старшої інженерної школи й для 9 класу. Питання з варіантами відповіді й практичні завдання з кодом, у кожного свій набір.</p>
-            <div class="card-meta"><span>2 класи</span><span>12 балів</span><span>результат одразу</span></div>
-            <div class="card-go">До самостійних робіт <em>→</em></div>
+            <h3>Старша інженерна школа</h3>
+            <p class="card-count">1 самостійна робота</p>
+            <p>Самостійні роботи для Старшої інженерної школи: питання з варіантами відповіді й практичні завдання, де треба написати функцію.</p>
+            <div class="card-go">Обрати клас <em>→</em></div>
+          </div>
+        </a>
+
+        <a class="card check reveal" href="#/tests-9">
+          <div class="card-viz class-viz" aria-hidden="true"></div>
+          <div class="card-body">
+            <h3>9 клас</h3>
+            <p class="card-count">1 самостійна робота</p>
+            <p>Самостійні роботи за першими уроками Python: питання з варіантами відповіді й завдання, де треба написати невелику програму.</p>
+            <div class="card-go">Обрати клас <em>→</em></div>
           </div>
         </a>
 
@@ -1753,34 +1768,77 @@ b = list(dict.fromkeys(names))</pre>
 
   <header class="top">
     <h1>Самостійні роботи</h1>
-    <p class="lede"><b>Обери свій клас</b> на вкладках нижче, а потім роботу, яку задав учитель. Одна спроба, у кожного учня свій набір завдань, результат — одразу після завершення, разом із посиланням, яке можна надіслати вчителю.</p>
+    <p class="lede"><b>Обери свій клас,</b> а потім роботу, яку задав учитель. Одна спроба, у кожного учня свій набір завдань, результат — одразу після завершення, разом із посиланням, яке можна надіслати вчителю.</p>
   </header>
 
-  <div class="tabs" data-tabs="tests">
-    <div class="tabs-list" role="tablist" aria-label="Клас">
-      <button type="button" role="tab" id="tests-t-eng" aria-controls="tests-p-eng">Старша інженерна школа</button>
-      <button type="button" role="tab" id="tests-t-9" aria-controls="tests-p-9">9 клас</button>
-    </div>
+  <!-- картки класів копіює сюди app.js з вкладки «Самостійні роботи» на головній -->
+  <div data-class-cards-slot></div>
+
+  </div>
+  </section>
+
+  <!-- ================= самостійні роботи: сторінки класів ================= -->
+  <section class="page" id="page-tests-eng" hidden>
+  <div class="wrap wide">
+
+  <header class="top">
+    <h1>Старша інженерна школа</h1>
+    <p class="lede"><b>Обери роботу, яку задав учитель.</b> Одна спроба, у кожного учня свій набір завдань, результат — одразу після завершення, разом із посиланням, яке можна надіслати вчителю.</p>
+  </header>
+
+  <div class="cards check-cards">
+
+    <a class="card check" href="#/check">
+      <div class="card-viz check-viz" aria-hidden="true">
+        <div class="checkviz-row"><span class="checkviz-q">1</span><span class="checkviz-bar"></span><span class="checkviz-pt">1 бал</span></div>
+        <div class="checkviz-row"><span class="checkviz-q">5</span><span class="checkviz-bar"></span><span class="checkviz-pt">1 бал</span></div>
+        <div class="checkviz-row code"><span class="checkviz-q">6</span><span class="checkviz-bar"></span><span class="checkviz-pt">1 бал</span></div>
+        <div class="checkviz-row code"><span class="checkviz-q">7</span><span class="checkviz-bar"></span><span class="checkviz-pt">2 бали</span></div>
+        <div class="checkviz-row code"><span class="checkviz-q">9</span><span class="checkviz-bar"></span><span class="checkviz-pt">2 бали</span></div>
+        <div class="checkviz-total">Разом — <b>12</b> балів</div>
+      </div>
+      <div class="card-body">
+        <span class="card-tag check-tag">Старша інженерна школа</span>
+        <h3>Самостійна робота 1</h3>
+        <p>5 питань з варіантами відповіді — по 1 балу — і 4 практичні завдання, де треба написати функцію: одне на 1 бал і три по 2 бали.</p>
+        <div class="card-meta"><span>9 завдань</span><span>12 балів</span><span>одна спроба</span></div>
+        <div class="card-go">Почати роботу <em>→</em></div>
+      </div>
+    </a>
+
   </div>
 
-  <div class="tab-panel" role="tabpanel" id="tests-p-eng" aria-labelledby="tests-t-eng">
-  <ul class="tests-list">
-    <li><a href="#/check">
-      <span class="tests-name">Самостійна робота 1</span>
-      <span class="tests-meta">9 завдань · 12 балів</span>
-      <span class="tests-go" aria-hidden="true">→</span>
-    </a></li>
-  </ul>
   </div>
+  </section>
 
-  <div class="tab-panel" role="tabpanel" id="tests-p-9" aria-labelledby="tests-t-9" hidden>
-  <ul class="tests-list">
-    <li><a href="#/check-9">
-      <span class="tests-name">Самостійна робота 1</span>
-      <span class="tests-meta">11 завдань · 12 балів</span>
-      <span class="tests-go" aria-hidden="true">→</span>
-    </a></li>
-  </ul>
+  <section class="page" id="page-tests-9" hidden>
+  <div class="wrap wide">
+
+  <header class="top">
+    <h1>9 клас</h1>
+    <p class="lede"><b>Обери роботу, яку задав учитель.</b> Одна спроба, у кожного учня свій набір завдань, результат — одразу після завершення, разом із посиланням, яке можна надіслати вчителю.</p>
+  </header>
+
+  <div class="cards check-cards">
+
+    <a class="card check" href="#/check-9">
+      <div class="card-viz check-viz" aria-hidden="true">
+        <div class="checkviz-row"><span class="checkviz-q">1</span><span class="checkviz-bar"></span><span class="checkviz-pt">1 бал</span></div>
+        <div class="checkviz-row"><span class="checkviz-q">7</span><span class="checkviz-bar"></span><span class="checkviz-pt">1 бал</span></div>
+        <div class="checkviz-row code"><span class="checkviz-q">8</span><span class="checkviz-bar"></span><span class="checkviz-pt">1 бал</span></div>
+        <div class="checkviz-row code"><span class="checkviz-q">10</span><span class="checkviz-bar"></span><span class="checkviz-pt">1 бал</span></div>
+        <div class="checkviz-row code"><span class="checkviz-q">11</span><span class="checkviz-bar"></span><span class="checkviz-pt">2 бали</span></div>
+        <div class="checkviz-total">Разом — <b>12</b> балів</div>
+      </div>
+      <div class="card-body">
+        <span class="card-tag check-tag">9 клас</span>
+        <h3>Самостійна робота 1</h3>
+        <p>7 питань з варіантами відповіді — по 1 балу — і 4 завдання, де треба написати програму: три по 1 балу й одне, з циклом, на 2 бали.</p>
+        <div class="card-meta"><span>11 завдань</span><span>12 балів</span><span>одна спроба</span></div>
+        <div class="card-go">Почати роботу <em>→</em></div>
+      </div>
+    </a>
+
   </div>
 
   </div>
@@ -1803,26 +1861,32 @@ b = list(dict.fromkeys(names))</pre>
 </main>
 
 
+<!-- чисті помічники оболонки: «пройдено», номери розділів, стежка, пагінація -->
+<script src="js/book.js?v=20260927a"></script>
 <!-- оболонка: роутер, меню, анімації головної -->
-<script src="js/app.js?v=20260924d"></script>
+<script src="js/app.js?v=20260927a"></script>
+<!-- перемикач теми оформлення -->
+<script src="js/theme.js?v=20260927b"></script>
 <!-- рушій руху: FLIP-переїзди й твіни; має бути до collkit.js -->
 <script src="js/motion.js?v=20260922f"></script>
 <!-- спільний рушій віджетів розділу «Колекції» -->
-<script src="js/collkit.js?v=20260922f"></script>
+<script src="js/collkit.js?v=20260926t23"></script>
 <!-- цеглинки блок-схем: фігури, стрілки, полотно -->
-<script src="js/flow.js?v=20260922f"></script>
+<script src="js/flow.js?v=20260927a"></script>
 <!-- спільний рушій Python-редактора (підсвітка, автодоповнення, Pyodide) —
      потрібен і практиці, і самостійній роботі -->
 <script src="js/pyeditor.js?v=20260924j"></script>
+<!-- код у тексті: підсвітка тим самим PyEditor.highlight -->
+<script src="js/inlinecode.js?v=20260926t8"></script>
 <!-- логіка окремих сторінок -->
-<script src="js/pages/vars.js?v=20260922f"></script>
-<script src="js/pages/cond.js?v=20260922f"></script>
+<script src="js/pages/vars.js?v=20260926t22"></script>
+<script src="js/pages/cond.js?v=20260926t22"></script>
 <script src="js/pages/loops.js?v=20260922f"></script>
 <script src="js/pages/func.js?v=20260922f"></script>
-<script src="js/pages/coll.js?v=20260922f"></script>
+<script src="js/pages/coll.js?v=20260926t22"></script>
 <script src="js/pages/list.js?v=20260922f"></script>
 <script src="js/pages/shop.js?v=20260922f"></script>
-<script src="js/pages/dict.js?v=20260922f"></script>
+<script src="js/pages/dict.js?v=20260926t22"></script>
 <script src="js/pages/set.js?v=20260922f"></script>
 <!-- самостійні роботи: ядро, Python, рушій і дані тестів по класах -->
 <script src="js/checks/core.js?v=20260924g"></script>

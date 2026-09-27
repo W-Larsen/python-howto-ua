@@ -23,23 +23,34 @@ const ROUTES = [
       { slug:"set",  id:"page-set",  num:"5.3",
         nav:"Множини",  title:"Множини в Python — набір без повторів" }
     ]},
-  /* toc:false — без змісту-якорів під пунктом меню: сторінка й так лише список робіт */
+  /* toc:false — без змісту-якорів під пунктом меню: сторінки й так лише картки.
+     Самостійні: розділ → клас (grade) → робота. Роботи в меню не показуємо
+     (hidden), а поки робота відкрита, підсвічуємо її клас (cls). */
   { slug:"tests", id:"page-tests", num:"✓", toc:false,
     nav:"Самостійні роботи", title:"Самостійні роботи — Python крок за кроком",
     kids:[
-      { slug:"check", id:"page-check", num:"ІШ",
+      { slug:"tests-eng", id:"page-tests-eng", num:"ІШ", grade:true, toc:false,
+        nav:"Старша інженерна школа", title:"Самостійні роботи — Старша інженерна школа" },
+      { slug:"tests-9", id:"page-tests-9", num:"9", grade:true, toc:false,
+        nav:"9 клас", title:"Самостійні роботи — 9 клас" },
+      { slug:"check", id:"page-check", num:"ІШ", hidden:true, cls:"tests-eng",
         nav:"Інженерна школа: Самостійна робота 1", title:"Самостійна робота 1 з Python — Старша інженерна школа" },
-      { slug:"check-9", id:"page-check-9", num:"9",
+      { slug:"check-9", id:"page-check-9", num:"9", hidden:true, cls:"tests-9",
         nav:"9 клас: Самостійна робота 1", title:"Самостійна робота 1 з Python — 9 клас" },
       /* розширений варіант — лише за прямим посиланням від учителя */
-      { slug:"check-9plus", id:"page-check-9plus", num:"9+", hidden:true,
+      { slug:"check-9plus", id:"page-check-9plus", num:"9+", hidden:true, cls:"tests-9",
         nav:"9 клас: Самостійна робота 1, розширений варіант", title:"Самостійна робота 1 з Python — 9 клас, розширений варіант" }
     ]}
 ];
 /* усі маршрути — для пошуку за slug; hidden-маршрути існують, але їх немає
-   в меню й у «далі / назад» (FLAT) */
+   в меню й у крапках прогресу (FLAT) */
 const ALL  = ROUTES.reduce((a, r) => a.concat([r], r.kids || []), []);
 const FLAT = ALL.filter(r => !r.hidden);
+/* теми, які учень «проходить»: для них — номери розділів і позначка «пройдено» */
+const TOPIC_SLUGS = ["vars","cond","loops","func","coll","list","dict","set"];
+/* корінь маршруту: підтема належить своєму розділу (list → coll, check-9 → tests) */
+const topicOf = (route) =>
+  (ROUTES.find(r => r === route || (r.kids || []).includes(route)) || route).slug;
 /* старі посилання не мають ламатись */
 const ALIAS = { dicts:"coll", sets:"set", lists:"list" };
 const HOME_TITLE = "Python крок за кроком";
@@ -76,7 +87,10 @@ const sidebar = $("#sidebar"), scrim = $("#scrim"), burger = $("#burger"),
       navList = $("#navList"), progBar = $("#progBar"), topbarTitle = $("#topbarTitle");
 
 /* ============================ бічне меню ============================ */
+/* Кожна тема — група: пункт, зміст і під-сторінки. Група поточної теми
+   піднімається карткою; колір кружка — колір теми (--tc інлайном). */
 navList.innerHTML = ROUTES.map(r => `
+  <div class="nav-group" data-group="${r.slug}" style="--tc:var(--tc-${r.slug})">
   <a class="nav-item${r.kids ? " has-kids" : ""}" href="#/${r.slug}" data-slug="${r.slug}">
     <span class="num">${r.num}</span><span class="t">${r.nav}</span>
   </a>` +
@@ -84,8 +98,9 @@ navList.innerHTML = ROUTES.map(r => `
   (r.kids ? `<div class="subnav" data-sub="${r.slug}">` + r.kids.filter(c => !c.hidden).map(c => `
     <a class="nav-sub${c.practice ? " practice" : ""}" href="#/${c.slug}" data-slug="${c.slug}">
       <span class="num">${c.num}</span><span class="t">${c.nav}</span>
-    </a>
-    <ul class="toc" data-toc="${c.slug}"></ul>`).join("") + `</div>` : "")
+    </a>` +
+    (c.toc === false ? "" : `<ul class="toc" data-toc="${c.slug}"></ul>`)).join("") + `</div>` : "") +
+  `</div>`
 ).join("");
 
 function closeMenu(){
@@ -100,6 +115,30 @@ burger.addEventListener("click", ()=>{
 });
 scrim.addEventListener("click", closeMenu);
 document.addEventListener("keydown", e=>{ if(e.key==="Escape") closeMenu(); });
+
+/* ============================ книжкові прикраси сторінок ============================ */
+/* Один прохід під час завантаження — раніше, ніж скрипти тем збудують віджети
+   (їхні PageInit запускаються лише з render()): смужка віджета читає номер
+   розділу з h2[data-sec]. Шапку самостійних робіт рушій малює пізніше —
+   їхня обкладинка виходить самим CSS, без підпису. */
+if(window.Book){
+  ALL.forEach(route=>{
+    const page = document.getElementById(route.id);
+    if(!page) return;
+    const count = TOPIC_SLUGS.includes(route.slug)
+      ? Book.numberHeads(page, route.num)
+      : $$("h2", page).length;
+    const h1 = $("header.top > h1", page);
+    if(h1){
+      const cap = Book.coverCaption(route, count);
+      if(cap) h1.dataset.cap = cap;
+      if(route.num) h1.dataset.num = route.num;
+    }
+    Book.markCallouts(page);
+    Book.wrapTasks(page);
+    Book.wrapCheats(page);
+  });
+}
 
 /* ============================ зміст теми ============================ */
 function buildToc(route){
@@ -126,25 +165,26 @@ function buildToc(route){
 }
 
 /* ============================ навігація «далі / назад» ============================ */
+/* Перебудовується на кожному показі сторінки: крапки прогресу залежать від
+   того, що вже пройдено. Самостійні роботи — окремий розділ: там пагінації
+   по темах немає, лише бічне меню. */
 function buildPager(route){
+  if(!window.Book) return;      /* без Book нема ні pagerHtml, ні kindLabel — краще без пагінації, ніж крах */
+  if(topicOf(route) === "tests") return;
   const wrap = $(".wrap", document.getElementById(route.id));
   if(!wrap) return;
+  const old = $(":scope > .pager", wrap);
+  if(old) old.remove();
+  const link = (r, lbl) => ({ href:"#/" + r.slug, lbl, ttl:r.nav, num:r.num, topic:topicOf(r) });
+  const home = (lbl) => ({ href:"#/", lbl, ttl:"Усі теми", num:"", topic:"" });
+  const i = FLAT.indexOf(route);
+  const prev = FLAT[i-1] ? link(FLAT[i-1], "← назад") : home("← на початок");
+  const next = FLAT[i+1] ? link(FLAT[i+1], "далі · " + Book.kindLabel(FLAT[i+1])) : home("це остання тема");
+  const list = Book.visited.list();
+  const dots = FLAT.map(r=>({ cls: r === route ? "cur" : Book.isDone(r.slug, list) ? "done" : "" }));
   const box = document.createElement("div");
   box.className = "pager";
-  if(route.hidden){
-    box.innerHTML =
-      `<a class="prev" href="#/tests"><span class="lbl">← назад</span><span class="ttl">Самостійні роботи</span></a>` +
-      `<a class="next" href="#/"><span class="lbl">на початок →</span><span class="ttl">Усі теми</span></a>`;
-    wrap.appendChild(box);
-    return;
-  }
-  const i = FLAT.indexOf(route);
-  const prev = FLAT[i-1], next = FLAT[i+1];
-  box.innerHTML =
-    (prev ? `<a class="prev" href="#/${prev.slug}"><span class="lbl">← попередня тема</span><span class="ttl">${prev.nav}</span></a>`
-          : `<a class="prev" href="#/"><span class="lbl">← на початок</span><span class="ttl">Усі теми</span></a>`) +
-    (next ? `<a class="next" href="#/${next.slug}"><span class="lbl">наступна тема →</span><span class="ttl">${next.nav}</span></a>`
-          : `<a class="next" href="#/"><span class="lbl">це остання тема →</span><span class="ttl">Усі теми</span></a>`);
+  box.innerHTML = Book.pagerHtml({ prev, next, dots });
   wrap.appendChild(box);
 }
 
@@ -170,11 +210,16 @@ function render(){
   document.getElementById(route ? route.id : "page-home").hidden = false;
 
   document.body.dataset.route = route ? "article" : "home";
+  /* колір теми: --tc задає CSS за body[data-topic] */
+  if(route) document.body.dataset.topic = topicOf(route);
+  else delete document.body.dataset.topic;
   document.title = route ? route.title : HOME_TITLE;
   if(route) topbarTitle.textContent = route.nav;
+  /* тему відкрили — вона пройдена */
+  if(route && TOPIC_SLUGS.includes(route.slug)) window.Book && Book.visited.add(route.slug);
 
   $$(".nav-item, .nav-sub").forEach(a=>
-    a.classList.toggle("active", !!route && a.dataset.slug===route.slug));
+    a.classList.toggle("active", !!route && (a.dataset.slug===route.slug || a.dataset.slug===route.cls)));
   $$(".toc").forEach(u=>u.classList.toggle("open", !!route && u.dataset.toc===route.slug));
   $$(".subnav").forEach(d=>{
     const parent = ROUTES.find(r=>r.slug===d.dataset.sub);
@@ -184,14 +229,19 @@ function render(){
     const head = $(`.nav-item[data-slug="${d.dataset.sub}"]`);
     if(head) head.classList.toggle("trail", on && route.slug!==parent.slug);
   });
+  $$(".nav-group").forEach(g=>{
+    const r = ROUTES.find(x=>x.slug===g.dataset.group);
+    g.classList.toggle("current", !!route && (r===route || (r.kids||[]).includes(route)));
+  });
 
   if(route && !started[route.slug]){
     started[route.slug] = true;
     buildToc(route);
-    buildPager(route);
     try { if(window.PageInit[route.slug]) window.PageInit[route.slug](); }
     catch(err){ console.error("Помилка теми " + route.slug, err); }
   }
+  if(route) buildPager(route);
+  paintVisited();
 
   closeMenu();
   window.scrollTo(0, 0);
@@ -502,6 +552,50 @@ document.addEventListener("visibilitychange", ()=>homeAnim(!activeRoute));
   });
 })();
 
+/* ============================ головна: картки ============================ */
+/* Картки знають свій маршрут: колір обкладинки (--tc), водяний номер, а
+   картки тем — ще й мітку «Тема 01» з порядковим номером. */
+const homeCards = $$("#page-home a.card");
+homeCards.forEach(card=>{
+  const route = ALL.find(r => "#/" + r.slug === card.getAttribute("href"));
+  if(!route) return;
+  card.dataset.slug = route.slug;
+  card.style.setProperty("--tc", "var(--tc-" + topicOf(route) + ")");
+  const viz = $(".card-viz", card);
+  if(viz && (/^\d/.test(route.num) || route.grade)) viz.dataset.n = route.num;
+  if(TOPIC_SLUGS.includes(route.slug) && /^\d+$/.test(route.num))
+    $(".card-body", card).insertAdjacentHTML("afterbegin", `<span class="card-tag">Тема ${route.num}</span>`);
+});
+
+/* Сторінка #/tests показує ті самі картки класів, що й вкладка на головній:
+   копія вже з кольором і водяним номером, але без появи (.reveal) — вона
+   спрацьовує лише на старті, коли сторінка ще схована. */
+(function classCards(){
+  const src = $("#page-home [data-class-cards]"), slot = $("[data-class-cards-slot]");
+  if(!src || !slot) return;
+  const copy = src.cloneNode(true);
+  copy.removeAttribute("data-class-cards");
+  $$(".reveal", copy).forEach(el=>el.classList.remove("reveal"));
+  slot.replaceWith(copy);
+})();
+
+/* Мітки «пройдено» на головній і в меню */
+function paintVisited(){
+  if(!window.Book) return;      /* без Book нема списку пройденого — нема що малювати */
+  const list = Book.visited.list();
+  $$(".nav-item").forEach(a=>a.classList.toggle("done", Book.isDone(a.dataset.slug, list)));
+  homeCards.forEach(card=>{
+    const on = Book.isDone(card.dataset.slug, list);
+    let tag = $(".card-done", card);
+    if(on && !tag){
+      tag = document.createElement("span");
+      tag.className = "card-done";
+      tag.textContent = "✓ пройдено";
+      $(".card-body", card).prepend(tag);
+    } else if(!on && tag) tag.remove();
+  });
+}
+
 /* ============================ таби ============================ */
 /* .tabs[data-tabs] з кнопками [role=tab][aria-controls] перемикає панелі
    .tab-panel. Вибір пам'ятаємо до кінця сесії, щоб «назад» зі сторінки теми
@@ -509,6 +603,11 @@ document.addEventListener("visibilitychange", ()=>homeAnim(!activeRoute));
 $$("[data-tabs]").forEach(box=>{
   const key = "pyguide_tab_" + box.dataset.tabs;
   const tabs = $$("[role=tab]", box);
+  /* лічильник біля назви табу — скільки карток у його панелі */
+  tabs.forEach(t=>{
+    const n = $$(".card", document.getElementById(t.getAttribute("aria-controls"))).length;
+    if(n) t.insertAdjacentHTML("beforeend", ` <span class="tab-n">${n}</span>`);
+  });
   function select(tab, focus){
     tabs.forEach(t=>{
       const on = t === tab;
@@ -545,13 +644,41 @@ document.addEventListener("click", e=>{
   if(!box) return;
   const open = box.classList.toggle("show");
   b.textContent = open ? "Сховати відповідь" : "Показати відповідь";
+  b.setAttribute("aria-expanded", open ? "true" : "false");
+  /* відкрита картка — зелена рамка й кружок */
+  const task = b.closest(".task");
+  if(task) task.classList.toggle("open", open);
 });
+
+/* ============================ друк рядка на головній ============================ */
+/* >>> print("привіт, Python") друкується посимвольно один раз, а наприкінці
+   фарбується тим самим PyEditor.highlight. Під prefers-reduced-motion рядок
+   одразу повний. PyEditor підключається пізніше за app.js, тому запускаємо
+   на старті, а не під час завантаження скрипта. */
+function typeLine(){
+  const el = $("[data-type]");
+  if(!el) return;
+  const text = el.textContent;
+  const done = () => {
+    if(window.PyEditor) el.innerHTML = window.PyEditor.highlight(text);
+    else el.textContent = text;
+  };
+  if(reduced){ done(); return; }
+  let k = 0;
+  el.textContent = "";
+  (function tick(){
+    el.textContent = text.slice(0, ++k);
+    if(k < text.length) setTimeout(tick, 55);
+    else done();
+  })();
+}
 
 /* ============================ старт ============================ */
 /* скрипти окремих тем стоять нижче в документі — чекаємо, поки вони зареєструються */
+function start(){ typeLine(); render(); }
 if(document.readyState === "loading")
-  document.addEventListener("DOMContentLoaded", render, {once:true});
+  document.addEventListener("DOMContentLoaded", start, {once:true});
 else
-  render();
+  start();
 
 })();

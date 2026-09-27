@@ -1,0 +1,80 @@
+/* ==========================================================================
+   Тема оформлення: світла / темна.
+   Вибір живе в localStorage["pgsb.theme"] (light | dark) і стоїть атрибутом
+   data-theme на <html>. Поки учень нічого не обрав, береться тема системи —
+   але лише як стартова: перемикач завжди показує «світла» або «темна».
+   Найперше атрибут ставить вбудований скрипт у <head> — ще до стилів, щоб не
+   блимало. Цей модуль малює стан кнопок і міняє тему на кліку:
+   [data-theme-set] у меню, [data-theme-cycle] на головній і в мобільній панелі.
+   ========================================================================== */
+"use strict";
+window.Theme = (function(){
+
+const KEY = "pgsb.theme";
+const ORDER = ["light", "dark"];
+/* ︎ — текстовий варіант символу, інакше деякі системи малюють емодзі */
+const ICON = { light:"☀︎", dark:"☾︎" };
+const NAME = { light:"світла", dark:"темна" };
+const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const html = document.documentElement;
+
+const system = () => window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+
+/* Збережений вибір, а без нього (або без доступу до сховища) — тема системи */
+function read(){
+  try {
+    const v = localStorage.getItem(KEY);
+    if(v === "light" || v === "dark") return v;
+  } catch(e){}
+  return system();
+}
+function store(mode){
+  try { localStorage.setItem(KEY, mode); } catch(e){}
+}
+function paint(mode){ html.setAttribute("data-theme", mode); }
+/* Анімована зміна — через View Transitions: браузер знімає сторінку й
+   перефарбовує її одним кросфейдом, усю одночасно. Транзиції на кожному
+   елементі давали «хвилю» й гальмували. Колбек спрацьовує асинхронно, тому
+   малює той режим, що актуальний на ту мить, а не той, з яким його кликали. */
+function apply(mode, animate){
+  if(animate && !reduced && document.startViewTransition){
+    document.startViewTransition(()=>paint(current));
+    return;
+  }
+  paint(mode);
+}
+
+let current = read();
+
+function sync(){
+  document.querySelectorAll("[data-theme-set]").forEach(b=>
+    b.setAttribute("aria-pressed", String(b.dataset.themeSet === current)));
+  document.querySelectorAll("[data-theme-cycle]").forEach(b=>{
+    const label = "Тема: " + NAME[current] + ". Змінити";
+    b.textContent = ICON[current];
+    b.setAttribute("aria-label", label);
+    b.title = label;
+  });
+}
+/* animate — лише для кліку користувача; програмний виклик міняє тему одразу.
+   Невідомий режим (зокрема колишнє «авто») — тема системи. */
+function set(mode, animate){
+  if(ORDER.indexOf(mode) < 0) mode = system();
+  current = mode;
+  store(mode);
+  apply(mode, !!animate);
+  sync();
+}
+const next = (mode) => mode === "dark" ? "light" : "dark";
+
+document.addEventListener("click", e=>{
+  const s = e.target.closest("[data-theme-set]");
+  if(s){ set(s.dataset.themeSet, true); return; }
+  if(e.target.closest("[data-theme-cycle]")) set(next(current), true);
+});
+
+apply(current, false);
+sync();
+
+return { read, set, next, sync, get mode(){ return current; } };
+})();

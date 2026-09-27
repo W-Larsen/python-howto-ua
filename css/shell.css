@@ -8,60 +8,101 @@
   body[data-route=article] main{margin-left:var(--sbw)}
   body[data-route=article] .wrap{margin-top:34px}
 
+  /* ---------- колір теми ---------- */
+  body[data-topic="vars"]{--tc:var(--tc-vars)}
+  body[data-topic="cond"]{--tc:var(--tc-cond)}
+  body[data-topic="loops"]{--tc:var(--tc-loops)}
+  body[data-topic="func"]{--tc:var(--tc-func)}
+  body[data-topic="coll"]{--tc:var(--tc-coll)}
+  body[data-topic="tests"]{--tc:var(--tc-tests)}
+
   /* ---------- бічне меню ---------- */
   .sidebar{
     position:fixed; top:0; left:0; bottom:0; width:var(--sbw); z-index:40;
-    background:var(--card); border-right:1px solid var(--rule); display:flex; flex-direction:column;
+    background:var(--panel); border-right:1px solid var(--rule); display:flex; flex-direction:column;
     overflow-y:auto; overscroll-behavior:contain;
-    scrollbar-width:thin; scrollbar-color:#d8cbb6 transparent;
+    scrollbar-width:thin; scrollbar-color:var(--rule) transparent;
   }
   .sidebar::-webkit-scrollbar{width:9px}
-  .sidebar::-webkit-scrollbar-thumb{background:#ddd0bb; border-radius:5px;
-    border:2px solid var(--card)}
-  .sidebar:hover::-webkit-scrollbar-thumb{background:#cdbfa8}
+  .sidebar::-webkit-scrollbar-thumb{background:var(--rule); border-radius:5px;
+    border:2px solid var(--panel)}
+  .sidebar:hover::-webkit-scrollbar-thumb{background:color-mix(in srgb, var(--rule) 70%, var(--muted))}
   body[data-route=home] .sidebar,
   body[data-route=home] .topbar,
   body[data-route=home] .progress{display:none}
 
   .brand{display:flex; align-items:center; gap:11px; padding:20px 20px 18px; text-decoration:none;
     border-bottom:1px solid var(--rule-soft)}
-  .brand-mark{width:34px; height:34px; border-radius:10px; background:var(--i); color:var(--card); flex:none;
-    display:grid; place-items:center; font-family:var(--display); font-weight:700; font-size:1rem;
+  .brand-mark{width:34px; height:34px; border-radius:10px; background:var(--ink); color:var(--card); flex:none;
+    display:grid; place-items:center; font-family:var(--display); font-weight:800; font-size:1rem;
     letter-spacing:-.02em}
   .brand-t{display:flex; flex-direction:column; line-height:1.22}
-  .brand-t b{font-family:var(--display); font-size:1.02rem; color:var(--ink); font-weight:700}
+  .brand-t b{font-family:var(--display); font-size:1.04rem; color:var(--ink); font-weight:800;
+    letter-spacing:-.02em}
+  .brand-t b em{font-style:italic; font-weight:700; color:var(--accent)}
   .brand-t i{font-style:normal; font-size:.76rem; color:var(--muted)}
 
   .nav{padding:18px 12px 10px; flex:1}
-  .nav-label{font-size:.7rem; letter-spacing:.09em; text-transform:uppercase; color:#7c7266;
+  .nav-label{font-size:.7rem; letter-spacing:.09em; text-transform:uppercase; color:var(--muted);
     font-weight:600; padding:0 10px 9px}
-  .nav-item{display:flex; gap:10px; align-items:baseline; padding:9px 10px; border-radius:9px;
+  /* ---------- пункти тем: кружки на пунктирній лінії ---------- */
+  .nav-group{position:relative; padding:4px; margin:0 0 6px; border-radius:14px;
+    transition:background var(--t-base) var(--ease), box-shadow var(--t-base) var(--ease)}
+  /* пунктир від кружка попередньої теми до кружка цієї */
+  .nav-group + .nav-group::before{content:""; position:absolute; left:24px; top:-17px; height:28px;
+    border-left:1.5px dashed var(--rule)}
+  .nav-group.current{background:var(--card);
+    box-shadow:0 0 0 1px var(--rule-soft), var(--shadow-1), var(--shadow-2)}
+  .nav-item{display:flex; gap:11px; align-items:center; padding:7px 10px; border-radius:10px;
     text-decoration:none; color:var(--body); transition:background .15s, color .15s}
   .nav-item:hover{background:var(--panel-2)}
-  .nav-item .num{font-family:var(--mono); font-size:.72rem; color:#7c7266; flex:none}
+  .nav-group.current .nav-item:hover{background:none}
+  .nav-item .num{position:relative; z-index:1; flex:none; display:grid; place-items:center;
+    width:22px; height:22px; border-radius:50%; border:1.5px solid var(--tc); background:var(--card);
+    color:var(--tc-ink); font:700 .6rem/1 var(--mono);
+    transition:background var(--t-base) var(--ease), color var(--t-base) var(--ease)}
+  .nav-item.done .num{background:var(--tc); color:var(--on-tc)}
   .nav-item .t{font-size:.95rem; line-height:1.32}
-  .nav-item.active{background:var(--i-soft); color:var(--i)}
-  .nav-item.active .num{color:var(--i)}
-  .nav-item.active .t{font-weight:600}
+  .nav-item.active .t{font-weight:700; color:var(--ink)}
+  .nav-item.active .num{box-shadow:0 0 0 3px var(--tc-soft)}
 
-  .toc{list-style:none; margin:1px 0 6px; padding:0 0 0 22px; display:none}
+  .toc{list-style:none; margin:1px 0 6px; padding:0 0 0 38px; display:none}
   .nav-item.active + .toc{display:block}
   .toc a{display:block; font-size:.83rem; line-height:1.35; color:var(--muted); text-decoration:none;
     padding:5px 10px; border-left:2px solid var(--rule-soft); transition:color .15s, border-color .15s}
   .toc a:hover{color:var(--ink)}
-  .toc a.on{color:var(--i); border-left-color:var(--i); font-weight:500}
+  .toc a.on{color:var(--tc-ink); border-left-color:var(--tc); font-weight:600}
 
-  .sidebar-foot{padding:14px 20px 20px; border-top:1px solid var(--rule-soft);
-    font-size:.76rem; color:#7c7266; line-height:1.5}
+  .sidebar-foot{display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:14px 16px 18px 20px; border-top:1px solid var(--rule-soft)}
+  .sidebar-foot-t{font-size:.76rem; color:var(--muted)}
+
+  /* ---------- перемикач теми ---------- */
+  .theme-switch{display:inline-flex; gap:2px; padding:3px; border:1px solid var(--rule);
+    border-radius:999px; background:var(--panel)}
+  .theme-switch button{appearance:none; border:0; background:none; font:inherit; font-size:.8rem;
+    line-height:1; color:var(--muted); padding:6px 10px; border-radius:999px; cursor:pointer;
+    transition:background var(--t-fast) var(--ease), color var(--t-fast) var(--ease)}
+  .theme-switch button:hover{color:var(--ink)}
+  .theme-switch button[aria-pressed=true]{background:var(--card); color:var(--ink); font-weight:600;
+    box-shadow:var(--shadow-1)}
+  .theme-cycle{width:38px; height:38px; flex:none; display:grid; place-items:center; padding:0;
+    border:1px solid var(--rule); border-radius:50%; background:var(--card); color:var(--ink);
+    font-size:1rem; line-height:1; cursor:pointer}
+  .theme-cycle:hover{background:var(--panel-2)}
+  .topbar .theme-cycle{margin-left:auto}
+  .home{position:relative}
+  .home-bar{position:absolute; top:22px; right:26px}
+  @media (max-width:720px){ .home-bar{top:12px; right:14px} }
 
   /* ---------- смуга прогресу ---------- */
   .progress{position:fixed; top:0; left:var(--sbw); right:0; height:3px; z-index:45; pointer-events:none}
-  .progress i{display:block; height:100%; width:0; background:var(--i); border-radius:0 3px 3px 0;
+  .progress i{display:block; height:100%; width:0; background:var(--tc); border-radius:0 3px 3px 0;
     transition:width .1s linear}
 
   /* ---------- верхня панель (мобільна) ---------- */
   .topbar{display:none; position:sticky; top:0; z-index:35; height:var(--topbar);
-    align-items:center; gap:12px; padding:0 14px; background:rgba(255,253,248,.92);
+    align-items:center; gap:12px; padding:0 14px; background:color-mix(in srgb, var(--card) 92%, transparent);
     backdrop-filter:blur(8px); border-bottom:1px solid var(--rule)}
   .burger{width:38px; height:38px; flex:none; display:flex; flex-direction:column; align-items:center;
     justify-content:center; gap:4px; border:1px solid var(--rule); background:var(--card); border-radius:9px;
@@ -69,14 +110,14 @@
   .burger span{display:block; width:16px; height:1.7px; background:var(--ink); border-radius:2px}
   .topbar-t{font-family:var(--display); font-weight:700; color:var(--ink); font-size:1rem;
     text-decoration:none; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
-  .scrim{display:none; position:fixed; inset:0; background:rgba(40,32,22,.42); z-index:38}
+  .scrim{display:none; position:fixed; inset:0; background:var(--scrim); z-index:38}
   .scrim.on{display:block}
 
   @media (max-width:1080px){
     body[data-route=article] main{margin-left:0}
     body[data-route=article] .topbar{display:flex}
     .sidebar{transform:translateX(-100%); transition:transform .26s cubic-bezier(.3,.8,.35,1);
-      box-shadow:0 0 44px rgba(60,45,25,.2)}
+      box-shadow:var(--shadow-3)}
     .sidebar.open{transform:none}
     .progress{left:0}
     body[data-route=article] .wrap{margin-top:0}
@@ -91,26 +132,41 @@
      на спільну вісь, а підзаголовок звужений, щоб центрований абзац не
      тягнувся на всю ширину сітки карток. */
   .home-hero{max-width:none; text-align:center}
-  .home-hero h1{font-family:var(--display); font-weight:700; letter-spacing:-.03em;
+  .home-hero h1{font-family:var(--display); font-weight:800; letter-spacing:-.03em;
     font-size:clamp(2.5rem,7vw,3.7rem); line-height:1.02; color:var(--ink); margin:0 0 .32em;
     text-wrap:balance}
-  .home-hero .lede{font-size:1.16rem; line-height:1.6; color:#4a4238;
+  .home-hero .lede{font-size:1.16rem; line-height:1.6; color:var(--body);
     max-width:60ch; margin-left:auto; margin-right:auto; text-wrap:pretty}
   .home-hero .lede b{color:var(--ink)}
 
+  /* пластинка з рядком, що друкується */
+  .home-type{display:inline-block; margin:0 0 26px; padding:7px 14px; font-family:var(--mono);
+    font-size:.95rem; line-height:1.5; color:var(--ink); background:var(--card);
+    border:1px solid var(--rule); box-shadow:0 2px 0 var(--rule); border-radius:8px; white-space:pre}
+  .home-type .prompt{color:var(--muted)}
+  .home-type::after{content:""; display:inline-block; width:.55em; height:1.1em; margin-left:2px;
+    vertical-align:-.2em; background:var(--accent); animation:caret 1.05s steps(1) infinite}
+  .home-cta{display:inline-flex; align-items:center; gap:10px; margin-top:8px; padding:12px 22px;
+    border-radius:999px; background:var(--ink); color:var(--card); font-weight:600; text-decoration:none;
+    box-shadow:var(--shadow-1), var(--shadow-2); transition:transform var(--t-base) var(--ease)}
+  .home-cta:hover{transform:translateY(-2px)}
+  .home-cta span{transition:transform var(--t-base) var(--ease)}
+  .home-cta:hover span{transform:translateX(4px)}
+  .home-cta:focus-visible{outline:2px solid var(--i); outline-offset:3px}
+
   /* ---------- таби (головна, «Самостійні роботи») ---------- */
-  /* Перемикач по центру; панелі — .tab-panel з hidden, логіка в js/app.js.
-     На вузькому екрані список табів прокручується вбік, а не переноситься. */
-  .tabs{display:flex; justify-content:center; margin:44px 0 0}
-  .tabs-list{display:inline-flex; gap:4px; padding:4px; max-width:100%; overflow-x:auto;
-    background:var(--panel-2); border:1px solid var(--rule); border-radius:999px; scrollbar-width:none}
-  .tabs-list [role=tab]{appearance:none; border:0; background:none; font:inherit; font-size:.95rem;
-    font-weight:500; color:var(--muted); padding:9px 20px; border-radius:999px; cursor:pointer;
-    white-space:nowrap; transition:background .2s, color .2s, box-shadow .2s}
+  .tabs{display:flex; justify-content:center; margin:44px 0 0; border-bottom:1px solid var(--rule)}
+  .tabs-list{display:inline-flex; gap:28px; max-width:100%; overflow-x:auto; scrollbar-width:none}
+  .tabs-list [role=tab]{appearance:none; border:0; background:none; font:inherit; font-size:1rem;
+    font-weight:500; color:var(--muted); padding:10px 2px 12px; position:relative; cursor:pointer;
+    white-space:nowrap; transition:color .2s}
   .tabs-list [role=tab]:hover{color:var(--ink)}
-  .tabs-list [role=tab][aria-selected=true]{background:var(--card); color:var(--ink); font-weight:600;
-    box-shadow:0 1px 2px rgba(60,45,25,.08), 0 4px 12px -6px rgba(60,45,25,.3)}
+  .tabs-list [role=tab][aria-selected=true]{color:var(--ink); font-weight:700}
+  /* підкреслення активного табу лежить на спільній лінії-рулі */
+  .tabs-list [role=tab][aria-selected=true]::after{content:""; position:absolute; left:0; right:0;
+    bottom:0; height:2.5px; border-radius:2px 2px 0 0; background:var(--accent)}
   .tabs-list [role=tab]:focus-visible{outline:2px solid var(--i); outline-offset:2px}
+  .tab-n{margin-left:4px; font-family:var(--mono); font-size:.74rem; font-weight:400; color:var(--muted)}
   .tab-note{text-align:center; font-size:.88rem; color:var(--muted); margin:14px 0 0}
   /* одна картка на вкладці — по центру, під табами, а не під лівим краєм */
   .tab-panel .cards:has(> .card:only-child){grid-template-columns:minmax(0,360px); justify-content:center}
@@ -119,34 +175,50 @@
      завширшки і сітка вилазить за край, даючи горизонтальну прокрутку */
   .cards{display:grid; grid-template-columns:repeat(auto-fit,minmax(min(296px,100%),1fr));
     gap:22px; margin-top:22px}
+  /* теми на головній — звичайна сітка по черзі: зліва направо, потім униз */
+  .cards.topic-cards{grid-template-columns:repeat(auto-fill,minmax(min(296px,100%),1fr)); margin-top:26px}
   .card{display:flex; flex-direction:column; text-decoration:none; color:inherit; background:var(--card);
     border:1px solid var(--rule); border-radius:16px; overflow:hidden;
-    box-shadow:0 1px 2px rgba(60,45,25,.05), 0 12px 30px -22px rgba(60,45,25,.35);
+    box-shadow:var(--shadow-1), var(--shadow-2);
     transition:transform .28s cubic-bezier(.2,.8,.3,1), box-shadow .28s, border-color .2s}
-  .card:hover{transform:translateY(-5px); border-color:#d6c8b2;
-    box-shadow:0 2px 4px rgba(60,45,25,.06), 0 26px 48px -26px rgba(60,45,25,.5)}
+  .card:hover{transform:translateY(-5px); border-color:color-mix(in srgb, var(--rule) 60%, var(--muted));
+    box-shadow:var(--shadow-1), var(--shadow-3)}
   .card:active{transform:translateY(-1px); transition-duration:.08s}
   .card:focus-visible{outline:2px solid var(--i); outline-offset:3px}
   /* panel-2, а не panel: на теплому папері --panel майже збігається з --page,
      і зона ілюстрації зливалася б із фоном сторінки */
-  .card-viz{background:var(--panel-2); border-bottom:1px solid var(--rule); padding:14px 16px 10px}
-  .card-viz svg{display:block; width:100%; height:auto}
+  /* «обкладинка» картки: тонована кольором своєї теми, з крапковою
+     фактурою, кольоровою смугою й водяним номером. Суцільний --tc тут не
+     годиться: SVG-ілюстрації намальовані токенами для світлих поверхонь. */
+  .card-viz{position:relative; overflow:hidden; padding:14px 16px 10px;
+    border-top:4px solid var(--tc); border-bottom:1px solid var(--rule);
+    background-color:var(--tc-soft);
+    background-image:radial-gradient(color-mix(in srgb, var(--tc) 22%, transparent) 1px, transparent 1.4px);
+    background-size:5px 5px}
+  .card-viz svg{position:relative; z-index:1; display:block; width:100%; height:auto}
+  .card-viz[data-n]::after{content:attr(data-n); position:absolute; right:10px; bottom:-16px; z-index:0;
+    font:800 5.4rem/1 var(--display); letter-spacing:-.05em; color:var(--tc); opacity:.16;
+    pointer-events:none}
+  .card-done{align-self:flex-start; margin-bottom:9px; padding:2px 9px; border-radius:999px;
+    font:700 .7rem/1.5 var(--mono); color:var(--j); background:var(--j-soft)}
   .card-body{padding:18px 20px 20px; display:flex; flex-direction:column; flex:1}
-  .card h3{font-family:var(--display); font-size:1.24rem; font-weight:700; color:var(--ink);
-    letter-spacing:-.015em; margin:0 0 .38em; line-height:1.18}
-  .card p{font-size:.93rem; line-height:1.55; color:#4f473c; margin:0 0 15px}
+  .card h3{font-family:var(--display); font-size:1.24rem; font-weight:800; color:var(--ink);
+    letter-spacing:-.03em; margin:0 0 .38em; line-height:1.18}
+  .card p{font-size:.93rem; line-height:1.55; color:var(--body); margin:0 0 15px}
   .card-meta{display:flex; flex-wrap:wrap; gap:7px; margin-top:auto}
   .card-meta span{font-family:var(--mono); font-size:.71rem; color:var(--muted); background:var(--panel);
     border:1px solid var(--rule-soft); border-radius:999px; padding:3px 10px}
-  .card-go{margin-top:15px; font-size:.87rem; font-weight:600; color:var(--i);
+  .card-go{margin-top:15px; font-size:.87rem; font-weight:600; color:var(--tc-ink);
     display:inline-flex; align-items:center; gap:7px}
   .card-go em{font-style:normal; transition:transform .25s}
   .card:hover .card-go em{transform:translateX(5px)}
 
   @media (max-width:720px){
     .home{padding:40px 18px 64px}      /* 78px згори на телефоні — задарма */
+    .home{padding-top:64px}            /* перемикач теми в .home-bar інакше налягає на .home-type */
     .tabs{margin-top:30px}
-    .tabs-list [role=tab]{padding:8px 14px; font-size:.9rem}
+    .tabs-list{gap:18px}
+    .tabs-list [role=tab]{padding:8px 2px 10px; font-size:.95rem}
     .cards{gap:16px}
   }
 
@@ -164,7 +236,7 @@
   .vz-box.cool{stroke:var(--j); stroke-width:2}
   .vz-lid{fill:var(--panel-2); stroke:none; opacity:.9}
   .vz-val{font-size:15px; font-weight:700; fill:var(--ink); text-anchor:middle}
-  .vz-val.none{font-size:10px; font-weight:400; fill:#bcb0a0}
+  .vz-val.none{font-size:10px; font-weight:400; fill:var(--faint)}
   .vz-val.pop{animation:vzdrop .45s cubic-bezier(.2,1.3,.5,1)}
   @keyframes vzdrop{0%{transform:translateY(-16px); opacity:0}60%{opacity:1}100%{transform:none}}
   .vz-name{font-size:12px; font-weight:700; fill:var(--i); text-anchor:middle}
@@ -184,9 +256,9 @@
   .vz-dia{fill:var(--card); stroke:var(--rule); stroke-width:1.8; transition:fill .3s, stroke .3s}
   .viz-cond.checking .vz-dia{fill:var(--hl); stroke:var(--hl-bar)}
   .vz-dia-t{font-size:11px; fill:var(--body); text-anchor:middle; font-weight:700}
-  .vz-lab{font-size:10px; fill:#bcb0a0; transition:fill .3s}
+  .vz-lab{font-size:10px; fill:var(--faint); transition:fill .3s}
   .vz-pill{fill:var(--panel); stroke:var(--rule); stroke-width:1.5; transition:fill .3s, stroke .3s}
-  .vz-pill-t{font-size:10.5px; fill:#bcb0a0; text-anchor:middle; transition:fill .3s; font-weight:700}
+  .vz-pill-t{font-size:10.5px; fill:var(--faint); text-anchor:middle; transition:fill .3s; font-weight:700}
   .viz-cond.t .vz-wire.l,.viz-cond.f .vz-wire.r{stroke:var(--i)}
   .viz-cond.t .vz-lab.l{fill:var(--j)}
   .viz-cond.f .vz-lab.r{fill:var(--stop)}
@@ -194,13 +266,13 @@
   .viz-cond.t .vz-pill-t.l{fill:var(--j)}
   .viz-cond.f .vz-pill.r{fill:var(--stop-soft); stroke:var(--stop)}
   .viz-cond.f .vz-pill-t.r{fill:var(--stop)}
-  .vz-chip{fill:var(--i-soft); stroke:#bda8f7; stroke-width:1.2}
+  .vz-chip{fill:var(--i-soft); stroke:var(--i-line); stroke-width:1.2}
   .vz-chip-t{font-size:11px; fill:var(--i); text-anchor:middle; font-weight:700}
 
   .vz-cell{fill:var(--card); stroke:var(--rule); stroke-width:1.5; transition:fill .2s, stroke .2s}
-  .vz-cell.done{fill:var(--j-soft); stroke:#8ed3bb}
+  .vz-cell.done{fill:var(--j-soft); stroke:var(--j-line)}
   .vz-cell.now{fill:var(--i); stroke:var(--i)}
-  .vz-cn{font-size:11px; fill:#bcb0a0; text-anchor:middle; transition:fill .2s; font-weight:700}
+  .vz-cn{font-size:11px; fill:var(--faint); text-anchor:middle; transition:fill .2s; font-weight:700}
   .vz-cn.done{fill:var(--j)}
   .vz-cn.now{fill:var(--card)}
   .vz-mark{fill:var(--i); transition:transform .24s cubic-bezier(.3,1.4,.5,1); opacity:0}
@@ -208,15 +280,30 @@
   .vz-line{font-size:11.5px; fill:var(--muted); font-weight:700}
   .vz-line tspan.hi{fill:var(--i)}
 
-  /* ---------- перехід між темами ---------- */
-  .pager{display:flex; gap:14px; flex-wrap:wrap; margin:56px 0 0; padding-top:26px;
-    border-top:1px solid var(--rule)}
-  .pager a{flex:1 1 220px; display:block; text-decoration:none; border:1px solid var(--rule);
-    border-radius:12px; padding:13px 16px; background:var(--panel); transition:border-color .2s, background .2s}
-  .pager a:hover{border-color:var(--i); background:var(--i-soft)}
-  .pager .lbl{display:block; font-size:.74rem; color:var(--muted); font-family:var(--mono); margin-bottom:3px}
-  .pager .ttl{display:block; font-family:var(--display); font-weight:600; color:var(--ink); font-size:1.02rem}
-  .pager a.next{text-align:right}
+  /* ---------- «наступна сторінка книжки» ---------- */
+  .pager{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.6fr); gap:14px;
+    align-items:stretch; padding-top:26px; border-top:1px solid var(--rule)}
+  .pager a{display:flex; flex-direction:column; justify-content:center; text-decoration:none;
+    border-radius:14px; padding:14px 18px}
+  .pager .prev{border:1.5px dashed var(--rule); transition:border-color .2s}
+  .pager .prev:hover{border-color:var(--muted)}
+  .pager .next{position:relative; overflow:hidden; padding:18px 76px 18px 20px; background:var(--card);
+    border:1px solid var(--rule); box-shadow:var(--shadow-1), var(--shadow-2)}
+  .pager .lbl{display:block; margin-bottom:3px; font-family:var(--mono); font-size:.74rem; color:var(--muted)}
+  .pager .ttl{display:block; font-family:var(--display); font-weight:600; font-size:1.02rem; color:var(--ink)}
+  .pager .next .ttl{position:relative; z-index:1; font-weight:800; font-size:1.25rem; letter-spacing:-.02em}
+  .pager .wm{position:absolute; right:64px; bottom:-18px; font:800 4.5rem/1 var(--display);
+    letter-spacing:-.05em; color:var(--tc); opacity:.14; pointer-events:none}
+  .pager .go{position:absolute; right:18px; top:50%; width:40px; height:40px; margin-top:-20px;
+    display:grid; place-items:center; border-radius:50%; background:var(--ink); color:var(--card);
+    font-size:1.1rem; transition:transform var(--t-base) var(--ease)}
+  .pager .next:hover .go{transform:translateX(4px)}
+  .pager-dots{grid-column:1 / -1; display:flex; justify-content:center; gap:6px; margin-top:6px}
+  .pager-dots i{width:6px; height:6px; border-radius:999px; background:var(--rule);
+    transition:width var(--t-base) var(--ease)}
+  .pager-dots i.done{background:var(--muted)}
+  .pager-dots i.cur{width:20px; background:var(--accent)}
+  @media (max-width:620px){ .pager{grid-template-columns:minmax(0,1fr)} }
 
   .vz-kv{fill:var(--card); stroke:var(--rule); stroke-width:1.5; transition:fill .3s, stroke .3s, opacity .3s}
   .vz-k{font-size:12px; font-weight:700; fill:var(--i)}
