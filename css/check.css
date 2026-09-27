@@ -19,14 +19,19 @@
   .class-viz + .card-body .card-go{margin-top:auto}   /* тегів нема — «Обрати клас» притискаємо донизу */
 
   .check-viz{display:flex; flex-direction:column; justify-content:center; gap:8px; min-height:152px}
+  /* Колір розділу тут — --ink, і стандартна обкладинка з нього (сірий фон,
+     густі темні крапки) глушить ілюстрацію. Беремо спокійніший папір і ледь
+     помітні крапки; смужка зверху лишається кольору розділу. */
+  .card-viz:is(.check-viz, .class-viz){background-color:var(--panel-2);
+    background-image:radial-gradient(color-mix(in srgb, var(--ink) 9%, transparent) 1px, transparent 1.4px)}
   .checkviz-row{display:flex; align-items:center; gap:9px}
   .checkviz-q{display:grid; place-items:center; width:22px; height:22px; border-radius:50%;
-    background:var(--card); border:1px solid var(--rule); font-family:var(--mono); font-size:.7rem;
-    color:var(--muted); flex:none}
+    background:var(--card); border:1px solid color-mix(in srgb, var(--muted) 55%, var(--card)); font-family:var(--mono); font-size:.7rem;
+    color:var(--body); flex:none}
   .checkviz-row.code .checkviz-q{background:var(--i); border-color:var(--i); color:var(--card); font-weight:700}
-  .checkviz-bar{flex:1; height:8px; border-radius:999px; background:var(--rule-soft)}
+  .checkviz-bar{flex:1; height:8px; border-radius:999px; background:color-mix(in srgb, var(--muted) 38%, var(--card))}
   .checkviz-row.code .checkviz-bar{background:var(--i-line)}
-  .checkviz-pt{font-family:var(--mono); font-size:.7rem; color:var(--muted); flex:none; width:54px; text-align:right}
+  .checkviz-pt{font-family:var(--mono); font-size:.7rem; color:var(--body); flex:none; width:54px; text-align:right}
   .checkviz-total{margin-top:5px; font-size:.82rem; color:var(--muted); text-align:right}
   .checkviz-total b{color:var(--i); font-family:var(--mono)}
 
