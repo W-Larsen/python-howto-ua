@@ -14,7 +14,6 @@ function keep(fn){
     Theme.set(mode);
     try { saved === null ? localStorage.removeItem(KEY) : localStorage.setItem(KEY, saved); } catch(e){}
     if(attr === null) html.removeAttribute("data-theme"); else html.setAttribute("data-theme", attr);
-    html.classList.remove("theme-anim");
   }
 }
 
@@ -68,5 +67,12 @@ T.test("тема: кнопки перемикача й циклер показу
     box.querySelector('[data-theme-set="dark"]').click();
     T.eq(Theme.mode, "dark");
   } finally { box.remove(); }
+}));
+
+T.test("тема: програмна зміна діє одразу, без відкладеного переходу", () => keep(() => {
+  Theme.set("dark");
+  T.eq(document.documentElement.getAttribute("data-theme"), "dark");
+  Theme.set("light");
+  T.eq(document.documentElement.getAttribute("data-theme"), "light");
 }));
 })();

@@ -120,13 +120,9 @@
   /* явно світла в темній системі: нативні контроли й смуги теж світлі */
   :root[data-theme="light"]{color-scheme:light}
 
-  /* Плавна зміна кольорів лише на час перемикання (клас ставить js/theme.js
-     на 300 мс). Постійний transition на всьому гальмував би кожен hover. */
-  @media (prefers-reduced-motion:no-preference){
-    html.theme-anim, html.theme-anim *, html.theme-anim *::before, html.theme-anim *::after{
-      transition:background-color .3s ease, color .3s ease, border-color .3s ease,
-        fill .3s ease, stroke .3s ease, box-shadow .3s ease !important}
-  }
+  /* Перемикання теми — один кросфейд усієї сторінки (View Transitions у
+     js/theme.js), а не транзиції на кожному елементі: ті йшли «хвилею». */
+  ::view-transition-old(root), ::view-transition-new(root){animation-duration:.18s}
   *{box-sizing:border-box}
   /* смуга прокрутки завжди займає своє місце — інакше при переході між
      темами різної висоти вся сторінка стрибає на ширину смуги */

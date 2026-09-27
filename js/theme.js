@@ -16,7 +16,6 @@ const ICON = { light:"☀︎", auto:"◐", dark:"☾︎" };
 const NAME = { light:"світла", auto:"як у системі", dark:"темна" };
 const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const html = document.documentElement;
-let animTimer = null;
 
 /* Без доступу до сховища (приватне вікно) — завжди «авто», без помилок */
 function read(){
@@ -31,14 +30,20 @@ function store(mode){
     else localStorage.setItem(KEY, mode);
   } catch(e){}
 }
-function apply(mode, animate){
-  if(animate && !reduced){
-    html.classList.add("theme-anim");
-    clearTimeout(animTimer);
-    animTimer = setTimeout(()=>html.classList.remove("theme-anim"), 300);
-  }
+function paint(mode){
   if(mode === "auto") html.removeAttribute("data-theme");
   else html.setAttribute("data-theme", mode);
+}
+/* Анімована зміна — через View Transitions: браузер знімає сторінку й
+   перефарбовує її одним кросфейдом, усю одночасно. Транзиції на кожному
+   елементі давали «хвилю» й гальмували. Колбек спрацьовує асинхронно, тому
+   малює той режим, що актуальний на ту мить, а не той, з яким його кликали. */
+function apply(mode, animate){
+  if(animate && !reduced && document.startViewTransition){
+    document.startViewTransition(()=>paint(current));
+    return;
+  }
+  paint(mode);
 }
 
 let current = read();
@@ -53,19 +58,20 @@ function sync(){
     b.title = label;
   });
 }
-function set(mode){
+/* animate — лише для кліку користувача; програмний виклик міняє тему одразу */
+function set(mode, animate){
   if(ORDER.indexOf(mode) < 0) mode = "auto";
   current = mode;
   store(mode);
-  apply(mode, true);
+  apply(mode, !!animate);
   sync();
 }
 const next = (mode) => ORDER[(ORDER.indexOf(mode) + 1) % ORDER.length];
 
 document.addEventListener("click", e=>{
   const s = e.target.closest("[data-theme-set]");
-  if(s){ set(s.dataset.themeSet); return; }
-  if(e.target.closest("[data-theme-cycle]")) set(next(current));
+  if(s){ set(s.dataset.themeSet, true); return; }
+  if(e.target.closest("[data-theme-cycle]")) set(next(current), true);
 });
 
 apply(current, false);
