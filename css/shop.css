@@ -22,18 +22,13 @@
   .viz-shop g.hit .vz-price{fill:var(--j)}
   .viz-shop g.dim{opacity:.3}
 
-  /* ---------- широке полотно ----------
-     Усе — і проза, і вітрина, і завдання — займає всю ширину блоку. */
-  .wrap.wide{
-    max-width:1560px; --wrap-px:40px; padding:var(--wrap-pt) var(--wrap-px) 64px;
-    grid-template-columns:[full-start text-start] minmax(0,1fr) [text-end full-end];
-  }
+  /* ---------- вітрина й завдання ----------
+     Ширина аркуша — спільна для всіх сторінок (.wrap у base.css). */
   .wrap.wide > :is(.store,.pytask,.shop-hero,.steps3){grid-column:full}
   .wrap.wide > .store{margin-top:1.6em}
   .wrap.wide > .pytask{margin-top:1.4em}
   .wrap.wide > .pytask + h2{margin-top:2.6em}
   .wrap.wide > .store + .pytask{margin-top:3.2em}
-  @media (max-width:720px){ .wrap.wide{--wrap-px:14px; padding-bottom:48px} }
 
   /* ---------- прогрес ---------- */
   .shop-hero{padding:16px 20px}

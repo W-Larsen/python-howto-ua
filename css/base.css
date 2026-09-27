@@ -139,22 +139,24 @@
   ::selection{background:var(--i-soft); color:var(--ink)}
 
   /* ---------- компонування: одна колонка на все ----------
-     Одне джерело правди для ширин: і проза, і віджети, і таблиці стоять в
-     одній смузі, тож їхні ліві та праві краї збігаються рівно. Ширину задає
-     сам .wrap (800px мінус поля ≈ 66ch — читабельна довжина рядка).
+     Один аркуш однакової ширини на всіх сторінках — теми, практика,
+     самостійні. Віджети, таблиці, задачі й шпаргалки займають усю смугу, а
+     проза (абзаци, списки, виноски, lede) — лише --measure від лівого краю:
+     рядок довший за ~70 знаків читати важко.
      У grid вертикальні відступи НЕ схлопуються, тому ритм тримається на
      односторонніх margin-top; margin-bottom у прямих дітей .wrap завжди 0. */
   .wrap{
-    --wrap-px:44px; --wrap-pt:8px;
+    --wrap-px:40px; --wrap-pt:8px; --measure:70ch;
     display:grid;
     grid-template-columns:[full-start text-start] minmax(0,1fr) [text-end full-end];
     row-gap:0;
-    max-width:800px; margin:40px auto 60px; background:var(--card);
+    max-width:1560px; margin:40px auto 60px; background:var(--card);
     border:1px solid var(--rule); border-radius:16px;
     box-shadow:var(--shadow-1), var(--shadow-2);
     padding:var(--wrap-pt) var(--wrap-px) 64px;
   }
   .wrap > *{grid-column:text; min-width:0; margin:1.35em 0 0}
+  .wrap > :is(p,ul,ol,.callout), .wrap > header.top > .lede{max-width:var(--measure)}
 
   .wrap > :is(p,ul){margin-top:1.1em}
   .wrap > h2{margin-top:3.2em}
