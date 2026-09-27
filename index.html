@@ -6,8 +6,9 @@
 <title>Python крок за кроком</title>
 <meta name="description" content="Інтерактивний посібник з основ Python — покроково, з анімаціями.">
 <!-- тема оформлення: ставимо data-theme ще до стилів, щоб темна не блимала світлою.
-     Решту (кнопки, збереження) робить js/theme.js -->
-<script>try{var t=localStorage.getItem("pgsb.theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+     Збережений вибір, а без нього — тема системи. Решту (кнопки, збереження)
+     робить js/theme.js -->
+<script>(function(){var t=null;try{t=localStorage.getItem("pgsb.theme")}catch(e){}if(t!=="light"&&t!=="dark")t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";document.documentElement.setAttribute("data-theme",t)})()</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400..800;1,7..72,600..700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -39,7 +40,6 @@
     <span class="sidebar-foot-t">Оформлення</span>
     <div class="theme-switch" role="group" aria-label="Тема оформлення">
       <button type="button" data-theme-set="light" aria-pressed="false" aria-label="Світла тема" title="Світла тема">&#x2600;&#xFE0E;</button>
-      <button type="button" data-theme-set="auto" aria-pressed="true" aria-label="Авто — як у системі" title="Авто — як у системі">авто</button>
       <button type="button" data-theme-set="dark" aria-pressed="false" aria-label="Темна тема" title="Темна тема">&#x263E;&#xFE0E;</button>
     </div>
   </div>
@@ -1866,7 +1866,7 @@ b = list(dict.fromkeys(names))</pre>
 <!-- оболонка: роутер, меню, анімації головної -->
 <script src="js/app.js?v=20260927a"></script>
 <!-- перемикач теми оформлення -->
-<script src="js/theme.js?v=20260927a"></script>
+<script src="js/theme.js?v=20260927b"></script>
 <!-- рушій руху: FLIP-переїзди й твіни; має бути до collkit.js -->
 <script src="js/motion.js?v=20260922f"></script>
 <!-- спільний рушій віджетів розділу «Колекції» -->
