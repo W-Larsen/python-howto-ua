@@ -669,7 +669,17 @@ function notepad(file){
   }).join(""));
 }
 
+/* CSV-таблиця: head — назви стовпців, rows — масиви клітинок,
+   cur — індекс рядка, який щойно додано (підсвічується) */
+function csvTable(head, rows, cur){
+  return `<div class="csvt-wrap"><table class="csvt"><thead><tr>` +
+    head.map(h=>`<th>${esc(h)}</th>`).join("") + `</tr></thead><tbody>` +
+    rows.map((r, k)=>`<tr${k === cur ? ` class="now"` : ""}>` +
+      r.map(c=>`<td>${esc(c)}</td>`).join("") + `</tr>`).join("") +
+    `</tbody></table></div>`;
+}
+
 return { esc, hl, makeHl, createPlayer, makePlayer, stopAllPlayers, relockAllPlayers,
          numCfg, modeCfg, q, listStr, dictStr, setStr, titleBar,
-         cells, row, kv, selems, setrow, conveyor, bars, legendHtml, notepad };
+         cells, row, kv, selems, setrow, conveyor, bars, legendHtml, notepad, csvTable };
 })();

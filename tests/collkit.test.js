@@ -145,4 +145,15 @@ T.test("блокнот: порожній файл", () => {
   T.eq(d.querySelector(".np-empty").textContent, "файл порожній");
   T.ok(d.querySelector(".np-caret"), "у порожньому файлі каретка на початку");
 });
+
+T.test("CSV-таблиця: шапка, рядки, підсвітка й екранування", () => {
+  const d = dom(CollKit.csvTable(["name", "grade"], [["Оля", "11"], ["<b>", "9"]], 1));
+  T.eq([...d.querySelectorAll("th")].map(t=>t.textContent), ["name", "grade"]);
+  T.eq(d.querySelectorAll("tbody tr").length, 2);
+  T.eq(d.querySelectorAll("tbody td").length, 4);
+  T.eq(d.querySelectorAll("tr.now").length, 1);
+  T.eq(d.querySelector("tr.now td").textContent, "<b>");
+  T.eq(d.querySelector("tbody b"), null);
+  T.eq(dom(CollKit.csvTable(["a"], [])).querySelectorAll("tbody tr").length, 0);
+});
 })();
