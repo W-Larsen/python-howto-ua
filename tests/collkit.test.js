@@ -72,4 +72,17 @@ T.test("віджет: шкала заповнена до кроку, засіч�
     T.eq(root.querySelector("[data-counter] b").textContent, "2");
   } finally { s.remove(); }
 });
+
+/* ================= тема «Файли»: підсвітка, блокнот, CSV-таблиця ================= */
+function dom(html){ const d = document.createElement("div"); d.innerHTML = html; return d; }
+
+T.test("підсвітка: makeHl додає свої ключові слова й функції", () => {
+  const hl = CollKit.makeHl(/\b(with|as)\b/g, /\b(open)\b/g);
+  const s = hl('with open("a.txt") as f:');
+  T.ok(s.includes('<span class="kw">with</span>'), s);
+  T.ok(s.includes('<span class="kw">as</span>'), s);
+  T.ok(s.includes('<span class="fn">open</span>'), s);
+  T.ok(s.includes('<span class="str">"a.txt"</span>'), s);
+  T.ok(CollKit.hl("for x in y").includes('<span class="kw">for</span>'), "звичайна hl зламалась");
+});
 })();

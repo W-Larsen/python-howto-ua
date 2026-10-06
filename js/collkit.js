@@ -9,27 +9,32 @@ const esc = (s) => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(
 const KW = /\b(for|in|while|if|elif|else|not|and|or|True|False|None|del|lambda|return|def|import|from|is)\b/g;
 const FN = /\b(print|len|range|sorted|sum|min|max|map|filter|any|all|enumerate|zip|list|set|dict|tuple|str|int|float|abs|round|reversed|type|append|insert|remove|pop|get|items|keys|values|add|discard|union|intersection|difference|symmetric_difference|issubset|issuperset|isdisjoint|update|copy|index|count|sort|split|join|fromkeys|Counter|key|reverse|default)\b/g;
 
-/* підсвітка синтаксису: рядки й коментарі витягуються у плейсхолдери, щоб їх не чіпали інші правила */
-function hl(line){
-  let s = esc(line), cmt = null, inq = false, ci = -1;
-  for(let k = 0; k < s.length; k++){
-    const c = s[k];
-    if(c === '"') inq = !inq;
-    else if(c === "#" && !inq){ ci = k; break; }
-  }
-  if(ci >= 0){ cmt = s.slice(ci); s = s.slice(0, ci); }
+/* Підсвітка синтаксису: рядки й коментарі витягуються у плейсхолдери, щоб їх
+   не чіпали інші правила. Набори слів — параметри: тема з with / try / open
+   додає свої, а не копіює розбір рядка. */
+function makeHl(kw, fn){
+  return function(line){
+    let s = esc(line), cmt = null, inq = false, ci = -1;
+    for(let k = 0; k < s.length; k++){
+      const c = s[k];
+      if(c === '"') inq = !inq;
+      else if(c === "#" && !inq){ ci = k; break; }
+    }
+    if(ci >= 0){ cmt = s.slice(ci); s = s.slice(0, ci); }
 
-  const lits = [];
-  s = s.replace(/"[^"]*"/g, m => {
-    lits.push(m);
-    return "\u0001" + String.fromCharCode(64 + lits.length) + "\u0001";
-  });
-  s = s.replace(KW, '<span class="kw">$1</span>');
-  s = s.replace(FN, '<span class="fn">$1</span>');
-  s = s.replace(/\b(\d+)\b/g, '<span class="num">$1</span>');
-  s = s.replace(/\u0001([A-Z])\u0001/g, (m, k) => `<span class="str">${lits[k.charCodeAt(0) - 65]}</span>`);
-  return s + (cmt ? `<span class="cmt">${cmt}</span>` : "");
+    const lits = [];
+    s = s.replace(/"[^"]*"/g, m => {
+      lits.push(m);
+      return "\u0001" + String.fromCharCode(64 + lits.length) + "\u0001";
+    });
+    s = s.replace(kw, '<span class="kw">$1</span>');
+    s = s.replace(fn, '<span class="fn">$1</span>');
+    s = s.replace(/\b(\d+)\b/g, '<span class="num">$1</span>');
+    s = s.replace(/\u0001([A-Z])\u0001/g, (m, k) => `<span class="str">${lits[k.charCodeAt(0) - 65]}</span>`);
+    return s + (cmt ? `<span class="cmt">${cmt}</span>` : "");
+  };
 }
+const hl = makeHl(KW, FN);
 
 /* Рушій руху. Якщо motion.js чомусь не під'єднали, працюємо без анімацій —
    кадри від цього не ламаються, бо все й так намальоване в DOM. */
@@ -616,7 +621,7 @@ function bars(items, maxSize){
 
 const legendHtml = (parts) => parts.map(p=>`<span><i class="${p[0]}"></i>${p[1]}</span>`).join("");
 
-return { esc, hl, createPlayer, makePlayer, stopAllPlayers, relockAllPlayers,
+return { esc, hl, makeHl, createPlayer, makePlayer, stopAllPlayers, relockAllPlayers,
          numCfg, modeCfg, q, listStr, dictStr, setStr, titleBar,
          cells, row, kv, selems, setrow, conveyor, bars, legendHtml };
 })();
