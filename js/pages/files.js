@@ -443,4 +443,69 @@ createPlayer($id("files-w-split"), {
   extra:(f)=> stack(notepad(f.file), f.parts ? row("row", fields(f.parts, f.st)) : "")
 });
 
+/* ================= 6.10 DictReader ================= */
+const STUDENTS = `name,class,grade\nОля,9-А,11\nІван,9-Б,9\nНіна,9-А,12\n`;
+const HEAD = ["name", "class", "grade"];
+const ROWS = [["Оля", "9-А", "11"], ["Іван", "9-Б", "9"], ["Ніна", "9-А", "12"]];
+const rowDict = (r) => "{" + HEAD.map((h, i)=>`"${h}": "${r[i]}"`).join(", ") + "}";
+
+createPlayer($id("files-w-dict"), {
+  config:`<span class="seg">
+      <button data-mode="str" aria-pressed="true">s["grade"]</button>
+      <button data-mode="int" aria-pressed="false">int(s["grade"])</button>
+    </span>`,
+  readCfg:(r)=>({mode:modeCfg(r)}),
+  build:({mode})=>{
+    const asInt = mode === "int";
+    const code = [
+      `import csv`,
+      `students = []`,
+      `with open("students.csv", encoding="utf-8") as f:`,
+      `    for row in csv.DictReader(f):`,
+      `        students.append(row)`,
+      `for s in sorted(students, key=lambda s: ${asInt ? `int(s["grade"])` : `s["grade"]`}):`,
+      `    print(s["name"], s["grade"])`
+    ];
+    const spans = lineSpans(STUDENTS);
+    const on = fv("students.csv", "r"), off = fv("students.csv", null);
+    const S = (n) => V("students", "[" + new Array(n).fill("{…}").join(", ") + "]", "i");
+    const closed = file("students.csv", null, STUDENTS, null);
+    const frames = [], out = [];
+    frames.push({line:0, vars:[], out:[], file:closed, table:false, note:`Підключаємо модуль csv.`});
+    frames.push({line:1, vars:[S(0)], out:[], file:closed, table:false, note:`Порожній список для учнів.`});
+    frames.push({line:2, vars:[S(0), on], out:[], file:file("students.csv", "r", STUDENTS, 0), table:false,
+      note:`Відкриваємо файл на читання.`});
+    frames.push({line:3, vars:[S(0), on], out:[], table:true, rows:[], cur:null,
+      file:file("students.csv", "r", STUDENTS, spans[0][1], [{from:spans[0][0], to:spans[0][1], cls:"read"}]),
+      note:`DictReader першим ділом забирає рядок-заголовок: name, class і grade стануть ключами словників.`});
+    ROWS.forEach((r, k)=>{
+      const [a, b] = spans[k + 1];
+      const fl = file("students.csv", "r", STUDENTS, b, [{from:a, to:b, cls:"read"}]);
+      const R = V("row", rowDict(r), "j"), rows = ROWS.slice(0, k + 1);
+      frames.push({line:3, vars:[S(k), on, R], out:[], file:fl, table:true, rows, cur:k,
+        note: k === 0 ? `Кожен наступний рядок стає словником: ключі із заголовка, значення з рядка. Зверни увагу на "11" у лапках: з файлу все приходить рядками.`
+                      : `Наступний рядок — наступний словник.`});
+      frames.push({line:4, vars:[S(k + 1), on, R], out:[], file:fl, table:true, rows, cur:k,
+        note: k === 0 ? `Словник іде в список students.` : `І він теж — у список.`});
+    });
+    /* порівняння як у Python: рядки — посимвольно, числа — за значенням */
+    const by = (r) => asInt ? Number(r[2]) : r[2];
+    const sorted = [...ROWS].sort((x, y)=> by(x) < by(y) ? -1 : by(x) > by(y) ? 1 : 0);
+    frames.push({line:5, vars:[S(3), off], out:[], file:closed, table:true, rows:ROWS, cur:null,
+      note: asInt ? `int(s["grade"]) перетворює оцінку на число перед порівнянням — і 9 < 11 < 12, як і має бути.`
+                  : `sorted порівнює s["grade"], а це рядки. Рядки порівнюються посимвольно, як слова в словнику: "11" < "12" < "9", бо "1" менше за "9".`});
+    sorted.forEach((r, k)=>{
+      const end = k === sorted.length - 1;
+      out.push(`${r[0]} ${r[2]}`);
+      frames.push({line:6, vars:[S(3), off, V("s", rowDict(r), "j")], out:[...out], file:closed,
+        table:true, rows:ROWS, cur:ROWS.indexOf(r), kind: end ? "end" : undefined,
+        note: !end ? `${r[0]}: оцінка ${r[2]}.`
+          : asInt ? `Порядок правильний: від меншої оцінки до більшої.`
+                  : `Іван із дев'яткою опинився останнім. Числа з CSV завжди приходять рядками — перетвори їх через int(), перш ніж порівнювати чи рахувати.`});
+    });
+    return {code, frames};
+  },
+  extra:(f)=> stack(notepad(f.file), f.table ? csvTable(HEAD, f.rows, f.cur) : "")
+});
+
 };
