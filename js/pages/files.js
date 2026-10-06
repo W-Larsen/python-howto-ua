@@ -316,4 +316,64 @@ createPlayer($id("files-w-missing"), {
   extra:(f)=> notepad(f.file)
 });
 
+/* ================= 6.7 де шукається файл ================= */
+/* дерево папок: рядки {depth, name, dir, cls, tag} */
+function tree(rows){
+  return `<div class="ftree">` + rows.map(r=>
+    `<div class="ft-row d${r.depth}${r.dir ? " dir" : ""}${r.cls ? " " + r.cls : ""}">` +
+    `<span class="ft-ico" aria-hidden="true">${r.dir ? "▾" : "·"}</span>` +
+    `<span class="ft-name">${esc(r.name)}${r.dir ? "/" : ""}</span>` +
+    (r.tag ? `<span class="ft-tag">${esc(r.tag)}</span>` : "") + `</div>`).join("") + `</div>`;
+}
+/* where — звідки запущено ("proj" чи "data"); look — чи вже шукаємо файл */
+function pathTree(where, look){
+  const fromData = where === "data";
+  const rows = [
+    {depth:0, name:"project", dir:true, tag: fromData ? "" : "тут запущено"},
+    {depth:1, name:"main.py"},
+    {depth:1, name:"data", dir:true, tag: fromData ? "тут запущено" : ""},
+    {depth:2, name:"names.txt", cls: look && !fromData ? "hit" : "", tag: look && !fromData ? "знайдено" : ""}
+  ];
+  if(look && fromData) rows.push(
+    {depth:2, name:"data", dir:true, cls:"ghost"},
+    {depth:3, name:"names.txt", cls:"ghost", tag:"шукаємо тут — немає"});
+  return tree(rows);
+}
+
+createPlayer($id("files-w-path"), {
+  config:`<span class="seg">
+      <button data-mode="proj" aria-pressed="true">запущено з project/</button>
+      <button data-mode="data" aria-pressed="false">запущено з data/</button>
+    </span>`,
+  readCfg:(r)=>({where:modeCfg(r)}),
+  build:({where})=>{
+    const fromData = where === "data";
+    const code = [
+      `from pathlib import Path`,
+      `path = Path("data") / "names.txt"`,
+      `if path.exists():`,
+      `    print(path.read_text(encoding="utf-8").rstrip())`,
+      `else:`,
+      `    print("файлу немає")`
+    ];
+    const P = V("path", `Path("data/names.txt")`, "i");
+    const frames = [
+      {line:0, vars:[], out:[], where, look:false,
+        note:`pathlib — модуль для роботи зі шляхами, Path — його головний тип. Програму запустили з папки ${fromData ? "data/" : "project/"}.`},
+      {line:1, vars:[P], out:[], where, look:false,
+        note:`Оператор / склеює частини шляху. Роздільник Python підставить сам: / на macOS і Linux, \\ на Windows.`},
+      {line:2, vars:[P], out:[], where, look:true,
+        note: fromData
+          ? `Шлях відносний, тож рахується від папки запуску: data/ → data/ → names.txt. Такого файлу немає, хоча names.txt лежить просто поруч!`
+          : `Шлях відносний, тож рахується від папки запуску: project/ → data/ → names.txt. Файл є — exists() повертає True.`}
+    ];
+    if(fromData) frames.push({line:5, vars:[P], out:["файлу немає"], where, look:true, kind:"end",
+      note:`Звідси й «FileNotFoundError, хоча файл же є»: відносний шлях залежить від того, звідки запустили програму, а не від того, де лежить .py-файл.`});
+    else frames.push({line:3, vars:[P], out:["Оля", "Іван", "Петро"], where, look:true, kind:"end",
+      note:`read_text() відкриває, читає й закриває файл одним викликом — with тут не потрібен.`});
+    return {code, frames};
+  },
+  extra:(f)=> pathTree(f.where, f.look)
+});
+
 };
