@@ -478,7 +478,34 @@ function vizFunc(svg){
   ]);
 }
 
-/* --- 6. практика: магазин --- */
+/* --- 6. файли --- */
+function vizFiles(svg){
+  const mode = $("[data-mode]", svg), caret = $("[data-caret]", svg);
+  const lines = [0,1,2].map(k=>$('[data-l="' + k + '"]', svg));
+  const setMode = (t, on) => {
+    mode.textContent = t;
+    mode.setAttribute("class", "vz-np-mode" + (on ? " on" : ""));
+  };
+  /* каретка їде рядками вниз; рядок у svg — 24 одиниці */
+  const caretTo = (k) => { caret.style.transform = "translateY(" + (k * 24) + "px)"; };
+  const steps = [{ d:700, run(){
+    lines.forEach(l=>l.setAttribute("class", "vz-np-tx"));
+    setMode("відкрито: a", true);
+    caret.setAttribute("class", "vz-caret");
+    caretTo(0);
+  }}];
+  lines.forEach((l, k)=>steps.push({ d:800, run(){
+    l.setAttribute("class", "vz-np-tx on");
+    caretTo(k + 1);
+  }}));
+  steps.push({ d:1700, run(){
+    setMode("закрито", false);
+    caret.setAttribute("class", "vz-caret off");
+  }});
+  return cycler(steps);
+}
+
+/* --- 7. практика: магазин --- */
 function vizShop(svg){
   const line = $("[data-line]", svg), note = $("[data-note]", svg);
   const tiles = [0,1,2,3].map(k=>$('[data-tile="' + k + '"]', svg));
@@ -514,7 +541,7 @@ function vizShop(svg){
 
 const VIZ = {};
 (function initViz(){
-  const map = { vars: vizVars, cond: vizCond, loops: vizLoop, func: vizFunc, dicts: vizDict, shop: vizShop };
+  const map = { vars: vizVars, cond: vizCond, loops: vizLoop, func: vizFunc, dicts: vizDict, files: vizFiles, shop: vizShop };
   /* Раніше картки оживали лише на mouseenter — тобто на сенсорному екрані
      не грали ніколи. Тепер запускає поява в екрані, а наведення лишається
      додатковим тригером. */
