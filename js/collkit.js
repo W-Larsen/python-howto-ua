@@ -621,7 +621,55 @@ function bars(items, maxSize){
 
 const legendHtml = (parts) => parts.map(p=>`<span><i class="${p[0]}"></i>${p[1]}</span>`).join("");
 
+/* ================= тема «Файли» ================= */
+/* Блокнот — вигляд файлу. file = {name, mode, text, pos, marks, missing}:
+   mode    — null (закрито) або "r" / "w" / "a";
+   text    — увесь вміст, з \n;
+   pos     — індекс символу в text, перед яким стоїть каретка; null — без каретки;
+   marks   — [{from, to, cls}], cls: read | new | gone — підсвітка шматків;
+   missing — файлу немає зовсім.
+   Кожен \n малюється як ↵ у кінці свого рядка: кінець рядка — теж символ,
+   і саме він потрапляє в змінну разом із текстом. */
+function notepad(file){
+  const text = file.text || "", marks = file.marks || [];
+  const pos = file.pos == null ? -1 : file.pos;
+  const st = file.missing ? ["miss", "немає"] : file.mode ? ["on", "відкрито: " + file.mode] : ["", "закрито"];
+  const wrap = (body) => `<div class="np"><div class="np-head"><span class="np-name">${esc(file.name)}</span>` +
+    `<span class="np-state ${st[0]}">${st[1]}</span></div><div class="np-body">${body}</div></div>`;
+  const caret = `<span class="np-caret" aria-hidden="true"></span>`;
+  const ln = (n, html) => `<div class="np-ln"><span class="np-no">${n}</span><span class="np-tx">${html}</span></div>`;
+
+  if(file.missing) return wrap(`<div class="np-missing">такого файлу немає</div>`);
+  if(!text) return wrap(ln(1, (pos === 0 ? caret : "") + `<span class="np-empty">файл порожній</span>`));
+
+  const clsAt = (k) => { for(const m of marks) if(k >= m.from && k < m.to) return m.cls; return ""; };
+  /* межі рядків [from, to): рядок разом зі своїм \n. Порожній хвіст після
+     останнього \n показуємо лише тоді, коли в ньому стоїть каретка */
+  const spans = [];
+  let a = 0;
+  for(let k = 0; k < text.length; k++) if(text[k] === "\n"){ spans.push([a, k + 1]); a = k + 1; }
+  if(a < text.length || pos === text.length) spans.push([a, text.length]);
+
+  return wrap(spans.map(([from, to], n)=>{
+    let html = "", chunk = "", chunkCls = "";
+    const flush = () => {
+      if(chunk) html += chunkCls ? `<span class="np-${chunkCls}">${chunk}</span>` : chunk;
+      chunk = "";
+    };
+    for(let k = from; k < to; k++){
+      if(k === pos){ flush(); html += caret; }
+      const c = clsAt(k);
+      if(c !== chunkCls){ flush(); chunkCls = c; }
+      chunk += text[k] === "\n" ? `<span class="np-nl">↵</span>` : esc(text[k]);
+    }
+    flush();
+    /* каретка за останнім символом: у цьому ж рядку, якщо він не кінчається \n */
+    if(pos === to && to === text.length && (from === to || text[to - 1] !== "\n")) html += caret;
+    return ln(n + 1, html);
+  }).join(""));
+}
+
 return { esc, hl, makeHl, createPlayer, makePlayer, stopAllPlayers, relockAllPlayers,
          numCfg, modeCfg, q, listStr, dictStr, setStr, titleBar,
-         cells, row, kv, selems, setrow, conveyor, bars, legendHtml };
+         cells, row, kv, selems, setrow, conveyor, bars, legendHtml, notepad };
 })();

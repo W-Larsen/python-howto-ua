@@ -85,4 +85,64 @@ T.test("підсвітка: makeHl додає свої ключові слова
   T.ok(s.includes('<span class="str">"a.txt"</span>'), s);
   T.ok(CollKit.hl("for x in y").includes('<span class="kw">for</span>'), "звичайна hl зламалась");
 });
+
+T.test("блокнот: ↵ на кожен \\n, номери рядків, без каретки", () => {
+  const d = dom(CollKit.notepad({name:"names.txt", mode:"r", text:"Оля\nІван\n", pos:null}));
+  T.eq(d.querySelectorAll(".np-nl").length, 2);
+  T.eq([...d.querySelectorAll(".np-no")].map(n=>n.textContent), ["1", "2"]);
+  T.eq(d.querySelector(".np-caret"), null);
+  T.eq(d.querySelector(".np-tx").textContent, "Оля↵");
+});
+
+T.test("блокнот: каретка стоїть перед символом pos", () => {
+  const d = dom(CollKit.notepad({name:"a.txt", mode:"r", text:"ab\ncd\n", pos:3}));
+  T.eq(d.querySelectorAll(".np-caret").length, 1);
+  T.eq(d.querySelectorAll(".np-tx")[1].firstElementChild.className, "np-caret");
+});
+
+T.test("блокнот: каретка в кінці файлу з \\n — на новому порожньому рядку", () => {
+  const d = dom(CollKit.notepad({name:"a.txt", mode:"a", text:"ab\n", pos:3}));
+  const tx = d.querySelectorAll(".np-tx");
+  T.eq(tx.length, 2);
+  T.eq(tx[1].children.length, 1);
+  T.eq(tx[1].firstElementChild.className, "np-caret");
+  T.eq(dom(CollKit.notepad({name:"a.txt", mode:"r", text:"ab\n", pos:null})).querySelectorAll(".np-tx").length, 1);
+});
+
+T.test("блокнот: каретка в кінці файлу без \\n — у тому ж рядку", () => {
+  const tx = dom(CollKit.notepad({name:"a.txt", mode:"a", text:"ab", pos:2})).querySelectorAll(".np-tx");
+  T.eq(tx.length, 1);
+  T.eq(tx[0].lastElementChild.className, "np-caret");
+});
+
+T.test("блокнот: підсвітка шматків тексту за marks", () => {
+  const d = dom(CollKit.notepad({name:"a.txt", mode:"r", text:"ab\ncd\n", pos:3,
+    marks:[{from:0, to:3, cls:"read"}, {from:3, to:5, cls:"new"}]}));
+  T.eq(d.querySelectorAll(".np-read").length, 1);
+  T.eq(d.querySelector(".np-read").textContent, "ab↵");
+  T.eq(d.querySelector(".np-new").textContent, "cd");
+});
+
+T.test("блокнот: екранує текст і ім'я файлу", () => {
+  const d = dom(CollKit.notepad({name:"<i>.txt", mode:null, text:"<b>x</b>", pos:null}));
+  T.eq(d.querySelector("b"), null);
+  T.eq(d.querySelector("i"), null);
+  T.eq(d.querySelector(".np-tx").textContent, "<b>x</b>");
+  T.eq(d.querySelector(".np-name").textContent, "<i>.txt");
+});
+
+T.test("блокнот: стан у шапці — закрито / відкрито / немає", () => {
+  T.eq(dom(CollKit.notepad({name:"a", mode:null, text:"x"})).querySelector(".np-state").textContent, "закрито");
+  T.eq(dom(CollKit.notepad({name:"a", mode:"a", text:"x"})).querySelector(".np-state").textContent, "відкрито: a");
+  const m = dom(CollKit.notepad({name:"a", missing:true}));
+  T.eq(m.querySelector(".np-state").textContent, "немає");
+  T.eq(m.querySelector(".np-missing").textContent, "такого файлу немає");
+  T.eq(m.querySelector(".np-ln"), null);
+});
+
+T.test("блокнот: порожній файл", () => {
+  const d = dom(CollKit.notepad({name:"a", mode:"w", text:"", pos:0}));
+  T.eq(d.querySelector(".np-empty").textContent, "файл порожній");
+  T.ok(d.querySelector(".np-caret"), "у порожньому файлі каретка на початку");
+});
 })();
