@@ -198,4 +198,50 @@ createPlayer($id("files-w-read"), {
   extra:(f)=> notepad(f.file)
 });
 
+/* ================= 6.5 читаємо в список і сортуємо ================= */
+createPlayer($id("files-w-sort"), {
+  build:()=>{
+    const code = [
+      `names = []`,
+      `with open("names.txt", encoding="utf-8") as f:`,
+      `    for line in f:`,
+      `        names.append(line.rstrip())`,
+      `for name in sorted(names):`,
+      `    print("привіт,", name)`
+    ];
+    const names = [], frames = [], out = [];
+    const L = () => V("names", pyList(names), "i");
+    const on = fv("names.txt", "r"), off = fv("names.txt", null);
+    const closed = file("names.txt", null, NAMES, null);
+    frames.push({line:0, vars:[L()], out:[], names:[], file:closed,
+      note:`Порожній список — сюди складемо імена з файлу.`});
+    frames.push({line:1, vars:[L(), on], out:[], names:[], file:file("names.txt", "r", NAMES, 0),
+      note:`Відкриваємо файл на читання.`});
+    lineSpans(NAMES).forEach(([a, b], k)=>{
+      const s = NAMES.slice(a, b), name = s.replace(/\n$/, "");
+      const fl = file("names.txt", "r", NAMES, b, [{from:a, to:b, cls:"read"}]);
+      const LN = V("line", pyStr(s), "j");
+      frames.push({line:2, vars:[L(), on, LN], out:[], names:[...names], file:fl,
+        note:`Беремо рядок ${pyStr(s)}.`});
+      names.push(name);
+      frames.push({line:3, vars:[L(), on, LN], out:[], names:[...names], add:names.length - 1, file:fl,
+        note: k === 0 ? `rstrip() відрізає \\n, і в список іде чисте ім'я. Без rstrip сортування й порівняння спотикались би об невидимий символ.`
+                      : `"${name}" — у список.`});
+    });
+    const sorted = [...names].sort();
+    frames.push({line:4, vars:[L(), off], out:[], names:[...names], file:closed,
+      note:`Файл уже закрито — далі звичайний список. sorted(names) повертає новий, відсортований список: ${sorted.join(", ")}. Сам names не змінюється.`});
+    sorted.forEach((name, k)=>{
+      const end = k === sorted.length - 1;
+      out.push(`привіт, ${name}`);
+      frames.push({line:5, vars:[L(), off, V("name", pyStr(name), "j")], out:[...out], names:[...names], file:closed,
+        kind: end ? "end" : undefined,
+        note: end ? `Імена з файлу — за алфавітом.` : `Вітаємо: ${name}.`});
+    });
+    return {code, frames};
+  },
+  extra:(f)=> stack(notepad(f.file),
+    row("names", cells(f.names, {state: f.add != null ? {[f.add]:"now"} : {}})))
+});
+
 };
