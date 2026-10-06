@@ -508,4 +508,51 @@ createPlayer($id("files-w-dict"), {
   extra:(f)=> stack(notepad(f.file), f.table ? csvTable(HEAD, f.rows, f.cur) : "")
 });
 
+/* ================= 6.11 запис CSV ================= */
+createPlayer($id("files-w-write"), {
+  build:()=>{
+    const code = [
+      `import csv`,
+      `students = [{"name": "Оля", "grade": 11}, {"name": "Іван", "grade": 9}]`,
+      `with open("grades.csv", "w", encoding="utf-8", newline="") as f:`,
+      `    writer = csv.DictWriter(f, fieldnames=["name", "grade"])`,
+      `    writer.writeheader()`,
+      `    for s in students:`,
+      `        writer.writerow(s)`
+    ];
+    const DATA = [["Оля", 11], ["Іван", 9]];
+    const ST = V("students", `[{"name": "Оля", "grade": 11}, {"name": "Іван", "grade": 9}]`, "i");
+    const WR = V("writer", `DictWriter(fieldnames=["name", "grade"])`, "j");
+    const on = fv("grades.csv", "w"), off = fv("grades.csv", null);
+    const none = {name:"grades.csv", missing:true};
+    let text = "";
+    /* дописує рядок у файл і віддає підсвітку саме цього шматка */
+    const put = (add) => { const from = text.length; text += add; return [{from, to:text.length, cls:"new"}]; };
+    const frames = [];
+    frames.push({line:0, vars:[], out:[], file:none, note:`Підключаємо модуль csv. Файлу grades.csv поки немає.`});
+    frames.push({line:1, vars:[ST], out:[], file:none, note:`Дані, які треба зберегти: список словників.`});
+    frames.push({line:2, vars:[ST, on], out:[], file:file("grades.csv", "w", "", 0),
+      note:`Режим "w" створює порожній файл. newline="" для CSV обов'язковий — чому, пояснено під віджетом.`});
+    frames.push({line:3, vars:[ST, on, WR], out:[], file:file("grades.csv", "w", "", 0),
+      note:`DictWriter пише у файл f, а fieldnames задає стовпці і їхній порядок.`});
+    let m = put("name,grade\n");
+    frames.push({line:4, vars:[ST, on, WR], out:[], file:file("grades.csv", "w", text, text.length, m),
+      note:`writeheader() записує рядок-заголовок із назв стовпців.`});
+    let S = null;
+    DATA.forEach(([name, grade], k)=>{
+      S = V("s", `{"name": "${name}", "grade": ${grade}}`, "j");
+      frames.push({line:5, vars:[ST, on, WR, S], out:[], file:file("grades.csv", "w", text, text.length),
+        note:`Беремо наступний словник.`});
+      m = put(`${name},${grade}\n`);
+      frames.push({line:6, vars:[ST, on, WR, S], out:[], file:file("grades.csv", "w", text, text.length, m),
+        note: k === 0 ? `writerow бере значення зі словника в порядку fieldnames і сам ставить коми. Число 11 у файлі стало текстом.`
+                      : `Ще один рядок таблиці.`});
+    });
+    frames.push({line:6, vars:[ST, off, WR, S], out:[], file:file("grades.csv", null, text, null), kind:"end",
+      note:`Блок with закрив файл. Такий CSV відкриється і в Python, і в Excel чи Google Таблицях.`});
+    return {code, frames};
+  },
+  extra:(f)=> notepad(f.file)
+});
+
 };
