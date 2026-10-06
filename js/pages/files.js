@@ -244,4 +244,76 @@ createPlayer($id("files-w-sort"), {
     row("names", cells(f.names, {state: f.add != null ? {[f.add]:"now"} : {}})))
 });
 
+/* ================= 6.6 коли файлу немає ================= */
+createPlayer($id("files-w-missing"), {
+  config:`<span class="seg">
+      <button data-mode="have" data-group="file" aria-pressed="true">файл є</button>
+      <button data-mode="none" data-group="file" aria-pressed="false">файлу немає</button>
+    </span>
+    <span class="seg">
+      <button data-mode="plain" data-group="guard" aria-pressed="true">без try</button>
+      <button data-mode="try" data-group="guard" aria-pressed="false">з try</button>
+    </span>`,
+  readCfg:(r)=>({have: modeCfg(r, "file") === "have", guard: modeCfg(r, "guard") === "try"}),
+  build:({have, guard})=>{
+    const N = NAMES.length, names = ["Оля", "Іван", "Петро"];
+    const gone = {name:"names.txt", missing:true};
+    const on = fv("names.txt", "r"), off = fv("names.txt", null);
+    const opened = file("names.txt", "r", NAMES, 0);
+    const read = file("names.txt", "r", NAMES, N, [{from:0, to:N, cls:"read"}]);
+    const closed = file("names.txt", null, NAMES, null);
+    const ERR = "FileNotFoundError: [Errno 2] No such file or directory: 'names.txt'";
+    const frames = [];
+
+    if(!guard){
+      const code = [
+        `with open("names.txt", encoding="utf-8") as f:`,
+        `    print(f.read().rstrip())`,
+        `print("кінець програми")`
+      ];
+      if(have){
+        frames.push({line:0, vars:[on], out:[], file:opened, note:`Файл є — open спокійно його відкриває.`});
+        frames.push({line:1, vars:[on], out:[...names], file:read, note:`read() забрав увесь текст, rstrip() зрізав останній \\n.`});
+        frames.push({line:2, vars:[off], out:[...names, "кінець програми"], file:closed, kind:"end",
+          note:`Програма дійшла до кінця.`});
+      }else{
+        const out = [TRACE, ERR];
+        frames.push({line:0, vars:[], out, file:gone, kind:"end",
+          note:`Файлу немає, і open падає з FileNotFoundError прямо на першому рядку.`});
+        frames.push({line:2, vars:[], out, file:gone, kind:"end",
+          note:`До останнього рядка програма так і не дійшла.`});
+      }
+      return {code, frames};
+    }
+
+    const code = [
+      `try:`,
+      `    with open("names.txt", encoding="utf-8") as f:`,
+      `        print(f.read().rstrip())`,
+      `except FileNotFoundError:`,
+      `    print("файлу names.txt немає")`,
+      `print("кінець програми")`
+    ];
+    frames.push({line:0, vars:[], out:[], file: have ? closed : gone,
+      note:`try: — «спробуй виконати цей блок». Якщо в ньому станеться помилка, Python пошукає відповідний except.`});
+    if(have){
+      frames.push({line:1, vars:[on], out:[], file:opened, note:`Файл є — відкрився.`});
+      frames.push({line:2, vars:[on], out:[...names], file:read, note:`Читаємо й друкуємо вміст.`});
+      frames.push({line:5, vars:[off], out:[...names, "кінець програми"], file:closed, kind:"end",
+        note:`Помилки не було, тож блок except пропущено повністю.`});
+    }else{
+      frames.push({line:1, vars:[], out:[], file:gone,
+        note:`open не знаходить файлу й кидає FileNotFoundError. Але програма не падає: помилка сталась усередині try.`});
+      frames.push({line:3, vars:[], out:[], file:gone,
+        note:`except FileNotFoundError ловить саме цю помилку. Решта блоку try пропускається.`});
+      frames.push({line:4, vars:[], out:["файлу names.txt немає"], file:gone,
+        note:`Замість трейсбеку — зрозуміле повідомлення.`});
+      frames.push({line:5, vars:[], out:["файлу names.txt немає", "кінець програми"], file:gone, kind:"end",
+        note:`І програма спокійно йде далі.`});
+    }
+    return {code, frames};
+  },
+  extra:(f)=> notepad(f.file)
+});
+
 };
