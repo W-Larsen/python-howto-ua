@@ -54,9 +54,9 @@
   .ft-row.hit{background:var(--j-soft); border-color:var(--j-line)}
   .ft-row.hit .ft-name{color:var(--j); font-weight:700}
   .ft-row.hit .ft-tag{background:var(--card); color:var(--j)}
-  .ft-row.ghost{border-style:dashed; border-color:var(--stop-line); background:var(--stop-soft)}
-  .ft-row.ghost .ft-name{color:var(--stop); text-decoration:line-through}
-  .ft-row.ghost .ft-tag{background:var(--card); color:var(--stop)}
+  .ft-row.ft-ghost{border-style:dashed; border-color:var(--stop-line); background:var(--stop-soft)}
+  .ft-row.ft-ghost .ft-name{color:var(--stop); text-decoration:line-through}
+  .ft-row.ft-ghost .ft-tag{background:var(--card); color:var(--stop)}
 
   /* ---------- hero ---------- */
   #files-heroBox{max-width:420px; margin-bottom:14px}

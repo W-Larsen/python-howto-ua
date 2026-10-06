@@ -335,8 +335,8 @@ function pathTree(where, look){
     {depth:2, name:"names.txt", cls: look && !fromData ? "hit" : "", tag: look && !fromData ? "знайдено" : ""}
   ];
   if(look && fromData) rows.push(
-    {depth:2, name:"data", dir:true, cls:"ghost"},
-    {depth:3, name:"names.txt", cls:"ghost", tag:"шукаємо тут — немає"});
+    {depth:2, name:"data", dir:true, cls:"ft-ghost"},
+    {depth:3, name:"names.txt", cls:"ft-ghost", tag:"шукаємо тут — немає"});
   return tree(rows);
 }
 
