@@ -15,8 +15,11 @@ const createPlayer = K.makePlayer({ hl, tick:700 });
 /* ================= спільне ================= */
 const NAMES = "Оля\nІван\nПетро\n";
 const TRACE = "Traceback (most recent call last):";
-/* рядок так, як його показує Python: з лапками й видимим \n */
-const pyStr  = (s) => `"${s.replace(/\\/g, "\\\\").replace(/\n/g, "\\n")}"`;
+/* рядок так, як його показує Python: з лапками й видимим \n.
+   Якщо всередині є " і немає ', Python бере одинарні лапки: '"Іваненко, Оля"'.
+   Коли є обидва види лапок, Python ще й екранує лапку-обмежувач — для даних цієї сторінки це не потрібно. */
+const pyStr  = (s) => { const q = s.includes('"') && !s.includes("'") ? "'" : '"';
+  return q + s.replace(/\\/g, "\\\\").replace(/\n/g, "\\n") + q; };
 const pyList = (a) => "[" + a.map(pyStr).join(", ") + "]";
 /* список рядків так, як його друкує print: в одинарних лапках */
 const pyRow  = (a) => "[" + a.map(x=>`'${x}'`).join(", ") + "]";
@@ -429,7 +432,7 @@ createPlayer($id("files-w-split"), {
              `Тут ком у значеннях немає — знову три шматки.`][k]});
       out.push(`${parts.length} ${pyRow(parts)}`);
       frames.push({line:3, vars: useCsv ? [on, R] : [on, LN, R], out:[...out], file:fl, parts, st,
-        note: bad ? `Програма певна, що в рядку 4 поля. Тепер row[1] — це ' Оля"', а не клас.` : `${parts.length} поля.`});
+        note: bad ? `У row тепер 4 елементи замість трьох, тож row[1] — це ' Оля"', а не клас.` : `${parts.length} поля.`});
     });
     frames.push({line: useCsv ? 2 : 1, vars:[off], out:[...out], file:file("students.csv", null, QUOTED, null), parts:null, kind:"end",
       note: useCsv
