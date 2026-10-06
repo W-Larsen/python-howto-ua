@@ -555,4 +555,42 @@ createPlayer($id("files-w-write"), {
   extra:(f)=> notepad(f.file)
 });
 
+/* ================= hero ================= */
+(function(){
+  const box = $id("files-heroBox"), line = $id("files-heroLine"), btn = $id("files-heroBtn");
+  if(!box) return;
+  const WHO = ["Оля", "Іван", "Петро"];
+  const show = (st) => { box.innerHTML = notepad(st); };
+  show({name:"names.txt", mode:null, text:"", pos:null});
+  let t = null;
+  function run(){
+    clearInterval(t);
+    let k = 0, text = "";
+    show({name:"names.txt", mode:"w", text:"", pos:0});
+    line.innerHTML = `f = open("names.txt", "w", encoding="utf-8")`;
+    t = setInterval(()=>{
+      if(k < WHO.length){
+        const add = WHO[k] + "\n", from = text.length;
+        text += add;
+        show({name:"names.txt", mode:"w", text, pos:text.length, marks:[{from, to:text.length, cls:"new"}]});
+        line.innerHTML = `f.write(<b>"${WHO[k]}\\n"</b>)`;
+        k++;
+        return;
+      }
+      clearInterval(t); t = null;
+      show({name:"names.txt", mode:null, text, pos:null});
+      line.innerHTML = `програма завершилась: змінні зникли, а <b>файл лишився</b>`;
+    }, 1100);
+  }
+  btn.onclick = run;
+  let auto = null;
+  /* запуск і зупинку веде роутер: сторінки лишаються в DOM, тож анімацію
+     схованої теми треба гасити, а при повторному заході — заводити знову */
+  window.registerAnim({
+    el: btn,
+    stop(){ clearInterval(t); t = null; clearTimeout(auto); auto = null; },
+    start(){ clearTimeout(auto); auto = setTimeout(run, 600); }
+  });
+})();
+
 };
