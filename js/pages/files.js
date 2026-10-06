@@ -88,4 +88,47 @@ createPlayer($id("files-w-modes"), {
   extra:(f)=> notepad(f.file)
 });
 
+/* ================= 6.3 with ================= */
+createPlayer($id("files-w-with"), {
+  config:`<span class="seg">
+      <button data-mode="close" aria-pressed="true">open … close()</button>
+      <button data-mode="with" aria-pressed="false">with</button>
+    </span>`,
+  readCfg:(r)=>({mode:modeCfg(r)}),
+  build:({mode})=>{
+    const W = mode === "with";
+    const code = W ? [
+      `with open("names.txt", "a", encoding="utf-8") as f:`,
+      `    f.write("Ніна\\n")`,
+      `    f.write(100)`,
+      `print("сюди не дійдемо")`
+    ] : [
+      `f = open("names.txt", "a", encoding="utf-8")`,
+      `f.write("Ніна\\n")`,
+      `f.write(100)`,
+      `f.close()`
+    ];
+    const N = NAMES.length, TEXT = NAMES + "Ніна\n";
+    const on = [fv("names.txt", "a")];
+    const err = [TRACE, "TypeError: write() argument must be str, not int"];
+    /* головна різниця: після помилки файл з with закритий, а без with — ні */
+    const after = W ? [fv("names.txt", null)] : on;
+    const fileAfter = file("names.txt", W ? null : "a", TEXT, W ? null : TEXT.length);
+    return {code, frames:[
+      {line:0, vars:on, out:[], file:file("names.txt", "a", NAMES, N),
+        note: W ? `with відкриває файл і дає йому ім'я f — до кінця блоку з відступом.`
+                : `Відкриваємо файл на дописування — каретка в кінці.`},
+      {line:1, vars:on, out:[], file:file("names.txt", "a", TEXT, TEXT.length, [{from:N, to:TEXT.length, cls:"new"}]),
+        note:`Перший запис проходить як слід.`},
+      {line:2, vars:after, out:err, file:fileAfter, kind:"end",
+        note: W ? `Та сама помилка: write приймає тільки рядки. Але, виходячи з блоку with — навіть через помилку, — Python сам закриває файл. Подивись на шапку блокнота: «закрито».`
+                : `write приймає тільки рядки, тому 100 — помилка. Програма падає, а файл лишається відкритим: подивись на шапку блокнота.`},
+      {line:3, vars:after, out:err, file:fileAfter, kind:"end",
+        note: W ? `print не виконався — програма впала. Зате «Ніна» вже у файлі, і файл закрито як слід.`
+                : `f.close() так і не виконався. Коли програма завершиться, Python прибере за нею, але в довгій програмі такі «забуті» файли накопичуються, а записане може ще не дійти до диска.`}
+    ]};
+  },
+  extra:(f)=> notepad(f.file)
+});
+
 };
