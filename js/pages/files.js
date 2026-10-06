@@ -131,4 +131,71 @@ createPlayer($id("files-w-with"), {
   extra:(f)=> notepad(f.file)
 });
 
+/* ================= 6.4 читання ================= */
+createPlayer($id("files-w-read"), {
+  config:`<span class="seg">
+      <button data-mode="read" aria-pressed="true">read()</button>
+      <button data-mode="for" aria-pressed="false">for line in f</button>
+      <button data-mode="strip" aria-pressed="false">for + rstrip()</button>
+      <button data-mode="lines" aria-pressed="false">readlines()</button>
+    </span>`,
+  readCfg:(r)=>({mode:modeCfg(r)}),
+  build:({mode})=>{
+    const N = NAMES.length, first = `with open("names.txt", encoding="utf-8") as f:`;
+    const on = fv("names.txt", "r"), off = fv("names.txt", null);
+    const all = [{from:0, to:N, cls:"read"}];
+    const closed = file("names.txt", null, NAMES, null);
+    const frames = [{line:0, vars:[on], out:[], file:file("names.txt", "r", NAMES, 0),
+      note:`Файл відкрито на читання — каретка стоїть на самому початку.`}];
+
+    if(mode === "read"){
+      const code = [first, `    text = f.read()`, `    again = f.read()`, `print(text)`, `print(repr(again))`];
+      const T = V("text", pyStr(NAMES), "j"), A = V("again", `""`, "j");
+      frames.push({line:1, vars:[on, T], out:[], file:file("names.txt", "r", NAMES, N, all),
+        note:`read() забирає весь файл одним рядком — разом із символами \\n. Каретка доїхала до кінця.`});
+      frames.push({line:2, vars:[on, T, A], out:[], file:file("names.txt", "r", NAMES, N, all),
+        note:`Другий read() читає з того місця, де стоїть каретка, — а вона вже в кінці. Читати нічого, тож повертається порожній рядок. Сам файл назад не перемотується.`});
+      frames.push({line:3, vars:[off, T, A], out:["Оля", "Іван", "Петро", ""], file:closed,
+        note:`Блок with скінчився — файл закрито, а text лишився. print(text) друкує три рядки, а \\n з кінця файлу плюс власний перенос print дають порожній рядок унизу.`});
+      frames.push({line:4, vars:[off, T, A], out:["Оля", "Іван", "Петро", "", "''"], file:closed, kind:"end",
+        note:`repr() показує рядок разом із лапками: '' — порожньо. Друга спроба справді нічого не прочитала.`});
+      return {code, frames};
+    }
+
+    if(mode === "lines"){
+      const code = [first, `    lines = f.readlines()`, `print(lines)`];
+      const L = V("lines", pyList(lineSpans(NAMES).map(([a, b])=>NAMES.slice(a, b))), "j");
+      frames.push({line:1, vars:[on, L], out:[], file:file("names.txt", "r", NAMES, N, all),
+        note:`readlines() теж читає весь файл, але віддає не один рядок, а список — по елементу на кожен рядок файлу.`});
+      frames.push({line:2, vars:[off, L], out:["['Оля\\n', 'Іван\\n', 'Петро\\n']"], file:closed, kind:"end",
+        note:`\\n лишився в кожному елементі. Щоб його позбутись, рядки все одно доведеться пройти циклом із rstrip(), тому частіше одразу пишуть for line in f.`});
+      return {code, frames};
+    }
+
+    const strip = mode === "strip";
+    const code = [first, `    for line in f:`, strip ? `        print(line.rstrip())` : `        print(line)`];
+    const out = [];
+    let last = null;
+    lineSpans(NAMES).forEach(([a, b], k)=>{
+      const s = NAMES.slice(a, b), read = [{from:a, to:b, cls:"read"}];
+      last = V("line", pyStr(s), "j");
+      frames.push({line:1, vars:[on, last], out:[...out], file:file("names.txt", "r", NAMES, b, read),
+        note: k === 0 ? `for бере з файлу по одному рядку. У line потрапляє ${pyStr(s)} — разом із символом кінця рядка.`
+                      : `Наступний рядок: ${pyStr(s)}. Каретка посунулась далі.`});
+      out.push(s.replace(/\n$/, ""));
+      if(!strip) out.push("");
+      frames.push({line:2, vars:[on, last], out:[...out], file:file("names.txt", "r", NAMES, b, read),
+        note: strip
+          ? (k === 0 ? `rstrip() відрізає з правого краю пробіли й \\n. print отримує чисте ім'я — порожніх рядків немає.` : `Ще одне чисте ім'я.`)
+          : (k === 0 ? `print друкує рядок, у якому вже є \\n, і додає ще свій. Два переноси — і після імені з'являється порожній рядок.` : `Знову два переноси — знову порожній рядок.`)});
+    });
+    frames.push({line:1, vars:[off, last], out:[...out], file:closed, kind:"end",
+      note: strip
+        ? `Рядки скінчились, with закрив файл. Звичка «прочитав рядок — одразу rstrip()» рятує і від порожніх рядків, і від зайвого \\n у порівняннях.`
+        : `Рядки скінчились — цикл завершився, а with закрив файл. Порожні рядки у виводі — це ті самі \\n із файлу.`});
+    return {code, frames};
+  },
+  extra:(f)=> notepad(f.file)
+});
+
 };
