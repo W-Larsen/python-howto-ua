@@ -1,0 +1,64 @@
+/* ==========================================================================
+   6. Файли: блокнот, CSV-таблиця, дерево папок
+   ========================================================================== */
+
+  /* ---------- блокнот ---------- */
+  .np{border:1.5px solid var(--rule); border-radius:10px; background:var(--card); overflow:hidden;
+    font-family:var(--mono); font-size:.82rem}
+  .np-head{display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:7px 12px; background:var(--panel-2); border-bottom:1px solid var(--rule)}
+  .np-name{font-weight:700; color:var(--ink)}
+  .np-state{font-size:.7rem; padding:2px 8px; border-radius:999px; color:var(--muted);
+    background:var(--panel); border:1px solid var(--rule);
+    transition:background var(--t-base) var(--ease), color var(--t-base) var(--ease), border-color var(--t-base) var(--ease)}
+  .np-state.on{color:var(--i); background:var(--i-soft); border-color:var(--i-line)}
+  .np-state.miss{color:var(--stop); background:var(--stop-soft); border-color:var(--stop-line)}
+  .np-body{padding:8px 0}
+  .np-ln{display:flex; gap:12px; padding:1px 12px 1px 0; line-height:1.6}
+  .np-no{flex:none; width:2.4em; text-align:right; color:var(--faint); user-select:none}
+  .np-tx{min-width:0; white-space:pre-wrap; overflow-wrap:anywhere; color:var(--body)}
+  /* ↵ — і у віджетах, і в тексті статті */
+  .np-nl{color:var(--faint); padding:0 1px; font-family:var(--mono)}
+  .np-read{background:var(--j-soft); color:var(--j); border-radius:3px}
+  .np-new{background:var(--i-soft); color:var(--i); border-radius:3px; font-weight:700}
+  .np-gone{background:var(--stop-soft); color:var(--stop); border-radius:3px; text-decoration:line-through}
+  .np-read .np-nl, .np-new .np-nl, .np-gone .np-nl{color:inherit; opacity:.6}
+  .np-caret{display:inline-block; width:2px; height:1.15em; margin:0 -1px; vertical-align:-.2em;
+    background:var(--i); border-radius:1px; animation:np-blink 1.05s steps(1) infinite}
+  @keyframes np-blink{50%{opacity:0}}
+  .np-empty{color:var(--faint); font-style:italic}
+  .np-missing{padding:4px 12px; color:var(--stop); font-style:italic}
+  /* блокнот + ще щось під ним у .extra */
+  .np-stack{display:flex; flex-direction:column; gap:12px}
+
+  /* ---------- CSV-таблиця ---------- */
+  .csvt-wrap{overflow-x:auto}
+  .csvt{border-collapse:collapse; font-family:var(--mono); font-size:.8rem}
+  .csvt th, .csvt td{border:1px solid var(--rule); padding:5px 12px; text-align:left; white-space:nowrap}
+  .csvt th{background:var(--panel-2); color:var(--ink); font-weight:700}
+  .csvt td{background:var(--card); color:var(--body); transition:background var(--t-base), color var(--t-base)}
+  .csvt tr.now td{background:var(--j-soft); color:var(--j); font-weight:700}
+
+  /* ---------- дерево папок ---------- */
+  .ftree{display:flex; flex-direction:column; gap:3px; font-family:var(--mono); font-size:.84rem}
+  .ft-row{display:flex; align-items:center; gap:8px; padding:4px 10px; border-radius:7px;
+    border:1.5px solid transparent; transition:background var(--t-base), border-color var(--t-base)}
+  .ft-row.d1{margin-left:22px}
+  .ft-row.d2{margin-left:44px}
+  .ft-row.d3{margin-left:66px}
+  .ft-ico{color:var(--muted); width:.8em; text-align:center}
+  .ft-name{color:var(--body)}
+  .ft-row.dir .ft-name{color:var(--ink); font-weight:700}
+  .ft-tag{font-family:var(--sans); font-size:.68rem; font-weight:600; padding:2px 8px; border-radius:999px;
+    background:var(--i-soft); color:var(--i)}
+  .ft-row.hit{background:var(--j-soft); border-color:var(--j-line)}
+  .ft-row.hit .ft-name{color:var(--j); font-weight:700}
+  .ft-row.hit .ft-tag{background:var(--card); color:var(--j)}
+  .ft-row.ghost{border-style:dashed; border-color:var(--stop-line); background:var(--stop-soft)}
+  .ft-row.ghost .ft-name{color:var(--stop); text-decoration:line-through}
+  .ft-row.ghost .ft-tag{background:var(--card); color:var(--stop)}
+
+  /* ---------- hero ---------- */
+  #files-heroBox{max-width:420px; margin-bottom:14px}
+
+  @media (prefers-reduced-motion:reduce){ .np-caret{animation:none} }
