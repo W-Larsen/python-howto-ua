@@ -376,4 +376,68 @@ createPlayer($id("files-w-path"), {
   extra:(f)=> pathTree(f.where, f.look)
 });
 
+/* ================= 6.9 чому не split ================= */
+const QUOTED = `name,class,grade\n"Іваненко, Оля",9-А,11\nПетро,9-Б,9\n`;
+/* ті самі рядки так, як їх розбирає csv.reader: кома в лапках — частина значення */
+const QUOTED_ROWS = [["name", "class", "grade"], ["Іваненко, Оля", "9-А", "11"], ["Петро", "9-Б", "9"]];
+/* поля рядка в комірках; лапки як у Python: '"Іваненко' */
+const fields = (parts, st) => `<div class="lst">` + parts.map((p, i)=>
+  `<div class="cellw"><div class="cell ${st[i] || ""}">${esc(`'${p}'`)}</div><div class="ix">${i}</div></div>`).join("") + `</div>`;
+
+createPlayer($id("files-w-split"), {
+  config:`<span class="seg">
+      <button data-mode="split" aria-pressed="true">split(",")</button>
+      <button data-mode="csv" aria-pressed="false">csv.reader</button>
+    </span>`,
+  readCfg:(r)=>({mode:modeCfg(r)}),
+  build:({mode})=>{
+    const useCsv = mode === "csv";
+    const code = useCsv ? [
+      `import csv`,
+      `with open("students.csv", encoding="utf-8") as f:`,
+      `    for row in csv.reader(f):`,
+      `        print(len(row), row)`
+    ] : [
+      `with open("students.csv", encoding="utf-8") as f:`,
+      `    for line in f:`,
+      `        row = line.rstrip().split(",")`,
+      `        print(len(row), row)`
+    ];
+    const on = fv("students.csv", "r"), off = fv("students.csv", null);
+    const frames = [], out = [];
+    if(useCsv) frames.push({line:0, vars:[], out:[], file:file("students.csv", null, QUOTED, null), parts:null,
+      note:`csv — модуль стандартної бібліотеки, встановлювати нічого не треба.`});
+    frames.push({line: useCsv ? 1 : 0, vars:[on], out:[], file:file("students.csv", "r", QUOTED, 0), parts:null,
+      note:`Файл відкрито. У другому рядку прізвище й ім'я взято в лапки: всередині значення є кома.`});
+    lineSpans(QUOTED).forEach(([a, b], k)=>{
+      const s = QUOTED.slice(a, b), fl = file("students.csv", "r", QUOTED, b, [{from:a, to:b, cls:"read"}]);
+      const parts = useCsv ? QUOTED_ROWS[k] : s.replace(/\n$/, "").split(",");
+      const bad = parts.length !== 3;
+      const st = {};
+      if(bad) parts.forEach((p, i)=>{ if(p.includes('"')) st[i] = "warn"; });
+      const R = V("row", pyRow(parts), bad ? "n" : "j");
+      const LN = V("line", pyStr(s), "j");
+      if(!useCsv) frames.push({line:1, vars:[on, LN], out:[...out], file:fl, parts:null,
+        note: k === 0 ? `Перший рядок — заголовок із назвами стовпців.` : `Наступний рядок файлу.`});
+      frames.push({line:2, vars: useCsv ? [on, R] : [on, LN, R], out:[...out], file:fl, parts, st,
+        note: useCsv
+          ? [`csv.reader сам ділить рядок на поля й віддає список. Заголовок — звичайний перший рядок.`,
+             `Кома всередині лапок — частина значення, а не роздільник. Лапки csv.reader прибрав: 'Іваненко, Оля' — одне поле.`,
+             `Три поля, як і має бути.`][k]
+          : [`split(",") ріже рядок на кожній комі. Заголовок без сюрпризів: три назви — три шматки.`,
+             `Кома всередині лапок для split — така сама кома. Замість 3 полів вийшло 4, а лапки лишились усередині значень.`,
+             `Тут ком у значеннях немає — знову три шматки.`][k]});
+      out.push(`${parts.length} ${pyRow(parts)}`);
+      frames.push({line:3, vars: useCsv ? [on, R] : [on, LN, R], out:[...out], file:fl, parts, st,
+        note: bad ? `Програма певна, що в рядку 4 поля. Тепер row[1] — це ' Оля"', а не клас.` : `${parts.length} поля.`});
+    });
+    frames.push({line: useCsv ? 2 : 1, vars:[off], out:[...out], file:file("students.csv", null, QUOTED, null), parts:null, kind:"end",
+      note: useCsv
+        ? `Усі рядки — рівно по три поля. І ще дрібниця: rstrip() не знадобився, \\n csv.reader прибирає сам.`
+        : `Досить одному значенню містити кому — і «таблиця» роз'їжджається. Тому CSV читають не split-ом, а модулем csv.`});
+    return {code, frames};
+  },
+  extra:(f)=> stack(notepad(f.file), f.parts ? row("row", fields(f.parts, f.st)) : "")
+});
+
 };
