@@ -23,6 +23,8 @@ const ROUTES = [
       { slug:"set",  id:"page-set",  num:"5.3",
         nav:"Множини",  title:"Множини в Python — набір без повторів" }
     ]},
+  { slug:"files", id:"page-files", num:"06",
+    nav:"Файли",                 title:"Файли в Python — open, with, читання, запис і CSV" },
   /* toc:false — без змісту-якорів під пунктом меню: сторінки й так лише картки.
      Самостійні: розділ → клас (grade) → робота. Роботи в меню не показуємо
      (hidden), а поки робота відкрита, підсвічуємо її клас (cls). */
@@ -47,7 +49,7 @@ const ROUTES = [
 const ALL  = ROUTES.reduce((a, r) => a.concat([r], r.kids || []), []);
 const FLAT = ALL.filter(r => !r.hidden);
 /* теми, які учень «проходить»: для них — номери розділів і позначка «пройдено» */
-const TOPIC_SLUGS = ["vars","cond","loops","func","coll","list","dict","set"];
+const TOPIC_SLUGS = ["vars","cond","loops","func","coll","list","dict","set","files"];
 /* корінь маршруту: підтема належить своєму розділу (list → coll, check-9 → tests) */
 const topicOf = (route) =>
   (ROUTES.find(r => r === route || (r.kids || []).includes(route)) || route).slug;
