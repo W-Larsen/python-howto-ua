@@ -9,27 +9,32 @@ const esc = (s) => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(
 const KW = /\b(for|in|while|if|elif|else|not|and|or|True|False|None|del|lambda|return|def|import|from|is)\b/g;
 const FN = /\b(print|len|range|sorted|sum|min|max|map|filter|any|all|enumerate|zip|list|set|dict|tuple|str|int|float|abs|round|reversed|type|append|insert|remove|pop|get|items|keys|values|add|discard|union|intersection|difference|symmetric_difference|issubset|issuperset|isdisjoint|update|copy|index|count|sort|split|join|fromkeys|Counter|key|reverse|default)\b/g;
 
-/* підсвітка синтаксису: рядки й коментарі витягуються у плейсхолдери, щоб їх не чіпали інші правила */
-function hl(line){
-  let s = esc(line), cmt = null, inq = false, ci = -1;
-  for(let k = 0; k < s.length; k++){
-    const c = s[k];
-    if(c === '"') inq = !inq;
-    else if(c === "#" && !inq){ ci = k; break; }
-  }
-  if(ci >= 0){ cmt = s.slice(ci); s = s.slice(0, ci); }
+/* Підсвітка синтаксису: рядки й коментарі витягуються у плейсхолдери, щоб їх
+   не чіпали інші правила. Набори слів — параметри: тема з with / try / open
+   додає свої, а не копіює розбір рядка. */
+function makeHl(kw, fn){
+  return function(line){
+    let s = esc(line), cmt = null, inq = false, ci = -1;
+    for(let k = 0; k < s.length; k++){
+      const c = s[k];
+      if(c === '"') inq = !inq;
+      else if(c === "#" && !inq){ ci = k; break; }
+    }
+    if(ci >= 0){ cmt = s.slice(ci); s = s.slice(0, ci); }
 
-  const lits = [];
-  s = s.replace(/"[^"]*"/g, m => {
-    lits.push(m);
-    return "\u0001" + String.fromCharCode(64 + lits.length) + "\u0001";
-  });
-  s = s.replace(KW, '<span class="kw">$1</span>');
-  s = s.replace(FN, '<span class="fn">$1</span>');
-  s = s.replace(/\b(\d+)\b/g, '<span class="num">$1</span>');
-  s = s.replace(/\u0001([A-Z])\u0001/g, (m, k) => `<span class="str">${lits[k.charCodeAt(0) - 65]}</span>`);
-  return s + (cmt ? `<span class="cmt">${cmt}</span>` : "");
+    const lits = [];
+    s = s.replace(/"[^"]*"/g, m => {
+      lits.push(m);
+      return "\u0001" + String.fromCharCode(64 + lits.length) + "\u0001";
+    });
+    s = s.replace(kw, '<span class="kw">$1</span>');
+    s = s.replace(fn, '<span class="fn">$1</span>');
+    s = s.replace(/\b(\d+)\b/g, '<span class="num">$1</span>');
+    s = s.replace(/\u0001([A-Z])\u0001/g, (m, k) => `<span class="str">${lits[k.charCodeAt(0) - 65]}</span>`);
+    return s + (cmt ? `<span class="cmt">${cmt}</span>` : "");
+  };
 }
+const hl = makeHl(KW, FN);
 
 /* Рушій руху. Якщо motion.js чомусь не під'єднали, працюємо без анімацій —
    кадри від цього не ламаються, бо все й так намальоване в DOM. */
@@ -616,7 +621,65 @@ function bars(items, maxSize){
 
 const legendHtml = (parts) => parts.map(p=>`<span><i class="${p[0]}"></i>${p[1]}</span>`).join("");
 
-return { esc, hl, createPlayer, makePlayer, stopAllPlayers, relockAllPlayers,
+/* ================= тема «Файли» ================= */
+/* Блокнот — вигляд файлу. file = {name, mode, text, pos, marks, missing}:
+   mode    — null (закрито) або "r" / "w" / "a";
+   text    — увесь вміст, з \n;
+   pos     — індекс символу в text, перед яким стоїть каретка; null — без каретки;
+   marks   — [{from, to, cls}], cls: read | new | gone — підсвітка шматків;
+   missing — файлу немає зовсім.
+   Кожен \n малюється як ↵ у кінці свого рядка: кінець рядка — теж символ,
+   і саме він потрапляє в змінну разом із текстом. */
+function notepad(file){
+  const text = file.text || "", marks = file.marks || [];
+  const pos = file.pos == null ? -1 : file.pos;
+  const st = file.missing ? ["miss", "немає"] : file.mode ? ["on", "відкрито: " + file.mode] : ["", "закрито"];
+  const wrap = (body) => `<div class="np"><div class="np-head"><span class="np-name">${esc(file.name)}</span>` +
+    `<span class="np-state ${st[0]}">${st[1]}</span></div><div class="np-body">${body}</div></div>`;
+  const caret = `<span class="np-caret" aria-hidden="true"></span>`;
+  const ln = (n, html) => `<div class="np-ln"><span class="np-no">${n}</span><span class="np-tx">${html}</span></div>`;
+
+  if(file.missing) return wrap(`<div class="np-missing">такого файлу немає</div>`);
+  if(!text) return wrap(ln(1, (pos === 0 ? caret : "") + `<span class="np-empty">файл порожній</span>`));
+
+  const clsAt = (k) => { for(const m of marks) if(k >= m.from && k < m.to) return m.cls; return ""; };
+  /* межі рядків [from, to): рядок разом зі своїм \n. Порожній хвіст після
+     останнього \n показуємо лише тоді, коли в ньому стоїть каретка */
+  const spans = [];
+  let a = 0;
+  for(let k = 0; k < text.length; k++) if(text[k] === "\n"){ spans.push([a, k + 1]); a = k + 1; }
+  if(a < text.length || pos === text.length) spans.push([a, text.length]);
+
+  return wrap(spans.map(([from, to], n)=>{
+    let html = "", chunk = "", chunkCls = "";
+    const flush = () => {
+      if(chunk) html += chunkCls ? `<span class="np-${chunkCls}">${chunk}</span>` : chunk;
+      chunk = "";
+    };
+    for(let k = from; k < to; k++){
+      if(k === pos){ flush(); html += caret; }
+      const c = clsAt(k);
+      if(c !== chunkCls){ flush(); chunkCls = c; }
+      chunk += text[k] === "\n" ? `<span class="np-nl">↵</span>` : esc(text[k]);
+    }
+    flush();
+    /* каретка за останнім символом: у цьому ж рядку, якщо він не кінчається \n */
+    if(pos === to && to === text.length && (from === to || text[to - 1] !== "\n")) html += caret;
+    return ln(n + 1, html);
+  }).join(""));
+}
+
+/* CSV-таблиця: head — назви стовпців, rows — масиви клітинок,
+   cur — індекс рядка, який щойно додано (підсвічується) */
+function csvTable(head, rows, cur){
+  return `<div class="csvt-wrap"><table class="csvt"><thead><tr>` +
+    head.map(h=>`<th>${esc(h)}</th>`).join("") + `</tr></thead><tbody>` +
+    rows.map((r, k)=>`<tr${k === cur ? ` class="now"` : ""}>` +
+      r.map(c=>`<td>${esc(c)}</td>`).join("") + `</tr>`).join("") +
+    `</tbody></table></div>`;
+}
+
+return { esc, hl, makeHl, createPlayer, makePlayer, stopAllPlayers, relockAllPlayers,
          numCfg, modeCfg, q, listStr, dictStr, setStr, titleBar,
-         cells, row, kv, selems, setrow, conveyor, bars, legendHtml };
+         cells, row, kv, selems, setrow, conveyor, bars, legendHtml, notepad, csvTable };
 })();

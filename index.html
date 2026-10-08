@@ -14,14 +14,15 @@
 <link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400..800;1,7..72,600..700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 
 <!-- ?v=… — версія для кешу браузера: після змін у css/js підніми її тут і для скриптів унизу -->
-<link rel="stylesheet" href="css/base.css?v=20260927a">
+<link rel="stylesheet" href="css/base.css?v=20261008a">
 <link rel="stylesheet" href="css/topics.css?v=20260927a">
-<link rel="stylesheet" href="css/shell.css?v=20260927a">
+<link rel="stylesheet" href="css/shell.css?v=20261008a">
 <link rel="stylesheet" href="css/collections.css?v=20260926t24">
 <link rel="stylesheet" href="css/functions.css?v=20260926t4">
 <link rel="stylesheet" href="css/pyeditor.css?v=20260926t25">
 <link rel="stylesheet" href="css/shop.css?v=20260927a">
 <link rel="stylesheet" href="css/check.css?v=20260927c">
+<link rel="stylesheet" href="css/files.css?v=20261008a">
 </head>
 <body data-route="home">
 
@@ -205,6 +206,30 @@
             <h3>Колекції: списки, словники, множини</h3>
             <p>Три контейнери для багатьох значень одразу: чим <code>list</code> відрізняється від <code>dict</code> і <code>set</code>, і що вміють <code>sorted</code>, <code>map</code>, <code>filter</code> та решта вбудованих функцій.</p>
             <div class="card-meta"><span>3 під-теми</span><span>розділ Advanced</span></div>
+            <div class="card-go">Читати тему <em>→</em></div>
+          </div>
+        </a>
+
+        <a class="card reveal" href="#/files" data-viz="files">
+          <div class="card-viz">
+            <svg viewBox="0 0 320 152" class="viz viz-files" aria-hidden="true">
+              <rect class="vz-np" x="40" y="12" width="240" height="130" rx="10"/>
+              <path class="vz-np-bar" d="M41 40 V22 a9 9 0 0 1 9 -9 H270 a9 9 0 0 1 9 9 V40 Z"/>
+              <text class="vz-np-name" x="54" y="31">names.txt</text>
+              <text class="vz-np-mode" data-mode x="266" y="31">закрито</text>
+              <text class="vz-np-no" x="66" y="64">1</text>
+              <text class="vz-np-no" x="66" y="88">2</text>
+              <text class="vz-np-no" x="66" y="112">3</text>
+              <text class="vz-np-tx on" data-l="0" x="80" y="64">Оля<tspan class="nl"> ↵</tspan></text>
+              <text class="vz-np-tx on" data-l="1" x="80" y="88">Іван<tspan class="nl"> ↵</tspan></text>
+              <text class="vz-np-tx on" data-l="2" x="80" y="112">Петро<tspan class="nl"> ↵</tspan></text>
+              <rect class="vz-caret off" data-caret x="80" y="51" width="2" height="16" rx="1"/>
+            </svg>
+          </div>
+          <div class="card-body">
+            <h3>Файли</h3>
+            <p>Як зберегти дані між запусками: <code>open</code> і режими <code>r</code>, <code>w</code>, <code>a</code>, чому <code>with</code> надійніший за <code>close()</code>, звідки береться зайвий <code>\n</code> і як читати CSV.</p>
+            <div class="card-meta"><span>with / open</span><span>CSV</span></div>
             <div class="card-go">Читати тему <em>→</em></div>
           </div>
         </a>
@@ -1762,6 +1787,192 @@ b = list(dict.fromkeys(names))</pre>
   </div>
   </section>
 
+  <!-- ================= тема: файли ================= -->
+  <section class="page" id="page-files" hidden>
+  <div class="wrap">
+
+  <header class="top">
+    <h1>Файли</h1>
+    <p class="lede">Усе, що програма тримає в змінних, зникає, щойно вона завершується. Щоб імена, оцінки чи налаштування дожили до наступного запуску, їх кладуть у <b>файл</b>. Python уміє відкрити файл, прочитати його рядок за рядком і дописати в нього нове — кількома рядками коду.</p>
+  </header>
+
+  <div class="hero" id="files-hero">
+    <div id="files-heroBox"></div>
+    <div class="hero-line" id="files-heroLine">натисни, щоб подивитись запис у файл</div>
+    <button class="ctl replay" id="files-heroBtn">Показати ще раз</button>
+  </div>
+
+  <h2>Навіщо файли</h2>
+  <p>Змінна живе в оперативній пам’яті, поки працює програма. Закрив програму — і <code>names = ["Оля", "Іван"]</code> зник разом із нею. Наступний запуск починається з чистого аркуша.</p>
+  <p>Файл лежить на диску. Його можна записати сьогодні, а прочитати завтра — іншою програмою, у текстовому редакторі чи навіть на іншому комп’ютері. Так зберігаються збереження в іграх, налаштування застосунків і таблиці з оцінками.</p>
+  <p>У цій темі — <b>текстові файли</b>, які відкриваються в Блокноті. Усередині такий файл — один довгий рядок символів, а «рядки», які ти бачиш у редакторі, розділяє невидимий символ <code>\n</code>. У віджетах нижче він видимий: <span class="np-nl">↵</span>.</p>
+
+  <h2>open і режими</h2>
+  <p>Щоб працювати з файлом, його спершу відкривають: <code>open("names.txt", "w", encoding="utf-8")</code>. Перший аргумент — ім’я файлу, другий — <b>режим</b>, тобто що ти збираєшся з файлом робити:</p>
+  <ul>
+    <li><code>"r"</code> (read) — тільки читати. Це режим за замовчуванням;</li>
+    <li><code>"w"</code> (write) — записати з нуля. Якщо файл був, його вміст <b>стирається</b>; якщо не було — створюється новий;</li>
+    <li><code>"a"</code> (append) — дописати в кінець, не чіпаючи того, що вже є.</li>
+  </ul>
+  <p><code>open</code> повертає об’єкт файлу. Через нього пишуть — <code>f.write("Ніна\n")</code>, — а наприкінці закривають: <code>f.close()</code>. <code>write</code> пише рівно те, що йому дали, тому <code>\n</code> у кінці рядка додають самі. Перемкни режим і подивись, що станеться з тим самим файлом.</p>
+
+  <div class="widget" id="files-w-modes" tabindex="0"></div>
+
+  <div class="callout warn">
+    <p><b>"w" не питає дозволу.</b> Відкрити наявний файл у режимі <code>"w"</code> — означає стерти його ще до першого <code>write</code>. Якщо треба додати рядок до журналу чи списку, потрібен <code>"a"</code>.</p>
+  </div>
+
+  <div class="callout">
+    <p><b>Навіщо encoding="utf-8".</b> На диску файл — це байти, а кодування каже, як перетворити букви на байти й назад. Без нього Python бере кодування системи, і на Windows кирилиця з чужого файлу перетворюється на «РћР»СЏ» замість «Оля». Тому в кожному <code>open</code> на цій сторінці стоїть <code>encoding="utf-8"</code> — звикай писати його завжди.</p>
+  </div>
+
+  <h2>with: файл закривається сам</h2>
+  <p>Відкритий файл треба закрити: тоді записане гарантовано опиниться на диску, а система звільнить файл для інших програм. Але <code>f.close()</code> легко забути, а ще легше — не дійти до нього: якщо посередині станеться помилка, програма впаде раніше.</p>
+  <p>Тому файли майже завжди відкривають так: <code>with open("names.txt", "a", encoding="utf-8") as f:</code>. Усе, що з відступом під цим рядком, працює з відкритим файлом <code>f</code>. Щойно блок закінчився — <b>будь-яким способом</b>, навіть через помилку, — Python сам закриває файл. Порівняй обидва варіанти: в обох посередині трапляється помилка.</p>
+
+  <div class="widget" id="files-w-with" tabindex="0"></div>
+
+  <div class="callout">
+    <p><b>print теж уміє писати у файл.</b> <code>print("Ніна", file=f)</code> робить те саме, що <code>f.write("Ніна\n")</code>, але сам додає <code>\n</code> у кінці й сам перетворює числа на текст.</p>
+  </div>
+
+  <h2>Читання</h2>
+  <p>Відкритий на читання файл можна прочитати трьома способами. <code>f.read()</code> забирає все одним рядком. <code>for line in f</code> дає рядки по одному — найзручніше й найекономніше. <code>f.readlines()</code> повертає список рядків.</p>
+  <p>Стеж за <b>кареткою</b> в блокноті: файл пам’ятає, де зупинилось читання, і наступне читання продовжує з того самого місця. І стеж за <span class="np-nl">↵</span>: кожен прочитаний рядок приносить свій <code>\n</code> із собою.</p>
+
+  <div class="widget" id="files-w-read" tabindex="0"></div>
+
+  <div class="callout warn">
+    <p><b>Звідки порожні рядки.</b> <code>print(line)</code> друкує рядок, у якому вже є <code>\n</code>, і додає свій. Два переноси — порожній рядок. Ліки — <code>line.rstrip()</code>: він зрізає пробіли й <code>\n</code> з правого краю.</p>
+  </div>
+
+  <h2>Читаємо в список і сортуємо</h2>
+  <p>Найчастіший сценарій: прочитати файл, скласти рядки в список і далі працювати вже зі списком — сортувати, шукати, рахувати. Усе, що ти знаєш про <a href="#/list">списки</a>, тут працює без змін.</p>
+  <p>Головне — прибрати <code>\n</code> ще під час читання. <code>"Оля\n"</code> і <code>"Оля"</code> для Python — різні рядки: перевірка <code>"Оля" in names</code> на неочищеному списку дасть <code>False</code>.</p>
+
+  <div class="widget" id="files-w-sort" tabindex="0"></div>
+
+  <h2>Коли файлу немає</h2>
+  <p>Відкрити на читання файл, якого немає, не вийде: <code>open</code> упаде з помилкою <code>FileNotFoundError</code>. Режими <code>"w"</code> і <code>"a"</code> самі створюють <b>файл</b>, тож відсутній файл — не проблема. Але <b>папки</b> вони не створюють: якщо потрібної папки немає, <code>open</code> теж упаде з <code>FileNotFoundError</code>.</p>
+  <p>Відсутній файл — звичайна ситуація: програму запустили вперше, файл видалили чи перейменували. Таку помилку ловлять знайомим з теми <a href="#/func">«Функції»</a> <code>try / except</code>. Спробуй обидва перемикачі.</p>
+
+  <div class="widget" id="files-w-missing" tabindex="0"></div>
+
+  <h2>Де шукається файл</h2>
+  <p>Ім’я <code>"names.txt"</code> — це <b>відносний шлях</b>. Python шукає такий файл у <b>робочій папці</b> — тій, з якої запустили програму. Не в папці, де лежить <code>.py</code>-файл, а саме звідки запустили: це найчастіша причина помилки «FileNotFoundError, хоча файл же є».</p>
+  <p><b>Абсолютний шлях</b> починається від кореня диска — <code>C:\Users\olia\data\names.txt</code> на Windows чи <code>/home/olia/data/names.txt</code> на Linux — і працює звідки завгодно. Але з таким шляхом програма прив’язана до одного комп’ютера.</p>
+  <p>Для шляхів у Python є модуль <code>pathlib</code>. <code>Path("data") / "names.txt"</code> склеює частини шляху правильним для системи роздільником, <code>.exists()</code> перевіряє, чи є такий файл, а <code>.read_text()</code> і <code>.write_text()</code> читають і пишуть файл одним викликом — без <code>open</code> і <code>with</code>.</p>
+
+  <div class="widget" id="files-w-path" tabindex="0"></div>
+
+  <h2 class="adv">Advanced: CSV<span class="badge">advanced</span></h2>
+
+  <div class="adv-intro">
+    <h3>Таблиця у звичайному тексті</h3>
+    <p>CSV (comma-separated values — «значення через кому») — найпростіший формат таблиць. Кожен рядок файлу — рядок таблиці, коми ділять його на стовпці, а перший рядок зазвичай містить назви стовпців. Такий файл відкриється і в Блокноті, і в Excel, і в Google Таблицях.</p>
+  </div>
+
+  <h2>Чому не просто split(",")</h2>
+  <p>Перша думка — читати CSV як звичайний текст і різати кожен рядок через <code>split(",")</code>. Це працює рівно доти, доки в якомусь значенні не трапиться кома. Тоді значення беруть у лапки — <code>"Іваненко, Оля",9-А,11</code>, — а <code>split</code> про лапки нічого не знає.</p>
+  <p>Модуль <code>csv</code> зі стандартної бібліотеки знає: <code>csv.reader(f)</code> перебирає рядки файлу й віддає кожен уже як список полів.</p>
+
+  <div class="widget" id="files-w-split" tabindex="0"></div>
+
+  <h2>DictReader: рядок як словник</h2>
+  <p><code>row[2]</code> — не найзрозуміліший запис: доводиться пам’ятати, що третій стовпець — це оцінка. <code>csv.DictReader</code> бере назви стовпців із першого рядка й віддає кожен наступний рядок як <a href="#/dict">словник</a>: <code>row["grade"]</code> читається саме як «оцінка».</p>
+  <p>Тут же ховається пастка: <b>усе, що прочитано з файлу, — рядки</b>, навіть якщо виглядає як число. Посортуй учнів за оцінкою обома способами.</p>
+
+  <div class="widget" id="files-w-dict" tabindex="0"></div>
+
+  <h2>Запис CSV</h2>
+  <p>Записують CSV дзеркально: <code>csv.DictWriter</code> отримує файл і список стовпців <code>fieldnames</code>, <code>writeheader()</code> пише рядок-заголовок, а <code>writerow(словник)</code> — по рядку на кожен словник. Коми, лапки навколо значень із комами й перетворення чисел на текст він бере на себе.</p>
+
+  <div class="widget" id="files-w-write" tabindex="0"></div>
+
+  <div class="callout warn">
+    <p><b>newline="" при записі CSV.</b> Модуль <code>csv</code> сам закінчує кожен рядок парою символів <code>\r\n</code>. Без <code>newline=""</code> Windows перетворить ще й <code>\n</code> на <code>\r\n</code>, і в Excel між рядками з’являться порожні. Тому для запису CSV завжди <code>open(..., "w", newline="")</code>.</p>
+  </div>
+
+  <h2>Перевір себе</h2>
+
+  <div class="task">
+    <p>1. Цю програму запустили двічі. Що буде у файлі <code>log.txt</code>, якщо до першого запуску його не було?</p>
+    <pre>with open("log.txt", "a", encoding="utf-8") as f:
+    f.write("старт\n")</pre>
+    <button class="ctl" data-answer="files-a1">Показати відповідь</button>
+    <div class="answer" id="files-a1"><p>Два рядки <code>старт</code>. Перший запуск створив файл — режим <code>"a"</code> створює його, якщо файлу немає, — а другий дописав ще один рядок у кінець.</p></div>
+  </div>
+
+  <div class="task">
+    <p>2. Що виведе програма?</p>
+    <pre>with open("a.txt", "w", encoding="utf-8") as f:
+    f.write("раз")
+    f.write("два")
+with open("a.txt", encoding="utf-8") as f:
+    print(f.read())</pre>
+    <button class="ctl" data-answer="files-a2">Показати відповідь</button>
+    <div class="answer" id="files-a2"><p><code>раздва</code> — одним словом. <code>write</code> не додає <code>\n</code> сам, тож обидва шматки опинились в одному рядку.</p></div>
+  </div>
+
+  <div class="task">
+    <p>3. У <code>names.txt</code> три рядки: <code>Оля</code>, <code>Іван</code>, <code>Петро</code>, кожен закінчується <code>\n</code>. Що виведе програма?</p>
+    <pre>with open("names.txt", encoding="utf-8") as f:
+    print(len(f.read()))
+    print(len(f.read()))</pre>
+    <button class="ctl" data-answer="files-a3">Показати відповідь</button>
+    <div class="answer" id="files-a3"><p><code>15</code> і <code>0</code>. Перший <code>read()</code> забрав 12 букв і три <code>\n</code>. Другий почав з місця, де зупинилась каретка, — з кінця файлу, — і прочитав порожній рядок.</p></div>
+  </div>
+
+  <div class="task">
+    <p>4. На скільки частин <code>split(",")</code> розріже цей рядок із CSV-файлу?</p>
+    <pre>'"Коваль, Ніна",9-Б,12'.split(",")</pre>
+    <button class="ctl" data-answer="files-a4">Показати відповідь</button>
+    <div class="answer" id="files-a4"><p>На 4: <code>split</code> ріже й на комі всередині лапок. <code>csv.reader</code> розібрав би цей рядок правильно — на 3 поля, перше з них <code>Коваль, Ніна</code>.</p></div>
+  </div>
+
+  <div class="task">
+    <p>5. Файлу <code>new.txt</code> немає. Що зробить цей код?</p>
+    <pre>with open("new.txt", "w", encoding="utf-8") as f:
+    pass</pre>
+    <button class="ctl" data-answer="files-a5">Показати відповідь</button>
+    <div class="answer" id="files-a5"><p>Створить порожній файл <code>new.txt</code> — без жодної помилки: <code>"w"</code> і <code>"a"</code> створюють файл самі. <code>FileNotFoundError</code> при відкритті на запис буває лише тоді, коли немає <b>папки</b>, де цей файл має лежати.</p></div>
+  </div>
+
+  <div class="task">
+    <p>6. Чому тут <code>False</code>, хоча Оля у файлі є?</p>
+    <pre>with open("names.txt", encoding="utf-8") as f:
+    names = f.readlines()
+print("Оля" in names)</pre>
+    <button class="ctl" data-answer="files-a6">Показати відповідь</button>
+    <div class="answer" id="files-a6"><p>У списку лежить <code>"Оля\n"</code>, а не <code>"Оля"</code>: <code>readlines()</code> лишає <code>\n</code> у кожному рядку. Треба прибрати його: усередині блоку <code>with</code> (поки <code>f</code> ще відкритий) замініть <code>names = f.readlines()</code> на <code>names = [line.rstrip() for line in f]</code>.</p></div>
+  </div>
+
+  <h2>Шпаргалка</h2>
+  <table class="cheat">
+    <tr><td>open("a.txt", encoding="utf-8")</td><td>відкрити на читання ("r" — за замовчуванням)</td></tr>
+    <tr><td>open("a.txt", "w", encoding="utf-8")</td><td>записати з нуля: старий вміст стирається</td></tr>
+    <tr><td>open("a.txt", "a", encoding="utf-8")</td><td>дописати в кінець</td></tr>
+    <tr><td>with open(...) as f:</td><td>файл закриється сам, навіть після помилки</td></tr>
+    <tr><td>f.read()</td><td>увесь файл одним рядком</td></tr>
+    <tr><td>for line in f:</td><td>рядки по одному, разом із \n</td></tr>
+    <tr><td>f.readlines()</td><td>список рядків, теж із \n</td></tr>
+    <tr><td>line.rstrip()</td><td>зрізати \n і пробіли справа</td></tr>
+    <tr><td>f.write("Оля\n")</td><td>записати рядок; \n — самому</td></tr>
+    <tr><td>print("Оля", file=f)</td><td>записати, \n додасться сам</td></tr>
+    <tr><td>except FileNotFoundError:</td><td>файлу немає</td></tr>
+    <tr><td>Path("data") / "a.txt"</td><td>шлях із частин</td></tr>
+    <tr><td>path.exists()</td><td>чи є такий файл</td></tr>
+    <tr><td>path.read_text(encoding="utf-8")</td><td>прочитати файл одним викликом</td></tr>
+    <tr><td>csv.reader(f)</td><td>рядки CSV як списки полів</td></tr>
+    <tr><td>csv.DictReader(f)</td><td>рядки CSV як словники</td></tr>
+    <tr><td>int(row["grade"])</td><td>з CSV усе приходить рядками</td></tr>
+    <tr><td>csv.DictWriter(f, fieldnames=[...])</td><td>запис CSV: writeheader(), writerow(d)</td></tr>
+    <tr><td>open(..., "w", newline="")</td><td>обов'язково для запису CSV</td></tr>
+  </table>
+
+  </div>
+  </section>
+
   <!-- ================= самостійні роботи: загальна сторінка ================= -->
   <section class="page" id="page-tests" hidden>
   <div class="wrap wide">
@@ -1864,13 +2075,13 @@ b = list(dict.fromkeys(names))</pre>
 <!-- чисті помічники оболонки: «пройдено», номери розділів, стежка, пагінація -->
 <script src="js/book.js?v=20260927a"></script>
 <!-- оболонка: роутер, меню, анімації головної -->
-<script src="js/app.js?v=20260927a"></script>
+<script src="js/app.js?v=20261008a"></script>
 <!-- перемикач теми оформлення -->
 <script src="js/theme.js?v=20260927b"></script>
 <!-- рушій руху: FLIP-переїзди й твіни; має бути до collkit.js -->
 <script src="js/motion.js?v=20260922f"></script>
 <!-- спільний рушій віджетів розділу «Колекції» -->
-<script src="js/collkit.js?v=20260926t23"></script>
+<script src="js/collkit.js?v=20261006b"></script>
 <!-- цеглинки блок-схем: фігури, стрілки, полотно -->
 <script src="js/flow.js?v=20260927a"></script>
 <!-- спільний рушій Python-редактора (підсвітка, автодоповнення, Pyodide) —
@@ -1888,6 +2099,7 @@ b = list(dict.fromkeys(names))</pre>
 <script src="js/pages/shop.js?v=20260922f"></script>
 <script src="js/pages/dict.js?v=20260926t22"></script>
 <script src="js/pages/set.js?v=20260922f"></script>
+<script src="js/pages/files.js?v=20261008a"></script>
 <!-- самостійні роботи: ядро, Python, рушій і дані тестів по класах -->
 <script src="js/checks/core.js?v=20260924g"></script>
 <script src="js/checks/harness.js?v=20260924a"></script>

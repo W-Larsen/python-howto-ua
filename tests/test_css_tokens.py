@@ -20,7 +20,7 @@ MIGRATED = None
 LIGHT = (":root",)
 DARK_A = (':root[data-theme="dark"]',)
 DARK_B = ("@media (prefers-color-scheme:dark)", ':root:not([data-theme="light"])')
-TOPICS = ["vars", "cond", "loops", "func", "coll", "tests"]
+TOPICS = ["vars", "cond", "loops", "func", "coll", "files", "tests"]
 # (текст, тло, мінімум): основний текст і дрібні підписи — AA 4.5
 PAIRS = [
     ("--body", "--card", 4.5), ("--body", "--page", 4.5), ("--ink", "--card", 4.5),
@@ -117,7 +117,7 @@ class Tokens(unittest.TestCase):
         light = tokens(LIGHT)
         need = ["--accent", "--syn-kw", "--syn-fn", "--syn-num", "--syn-str", "--syn-cmt",
                 "--shadow-1", "--shadow-2", "--shadow-3", "--paper-dot", "--on-tc", "--tc",
-                "--tc-vars", "--tc-cond", "--tc-loops", "--tc-func", "--tc-coll", "--tc-tests",
+                "--tc-vars", "--tc-cond", "--tc-loops", "--tc-func", "--tc-coll", "--tc-files", "--tc-tests",
                 "--faint", "--hl-ink", "--scrim", "--i-line", "--j-line", "--n-line", "--stop-line",
                 "--on-hl-bar"]
         self.assertEqual([t for t in need if t not in light], [])
@@ -152,7 +152,7 @@ class Tokens(unittest.TestCase):
                 "--hl-bar", "--stop", "--stop-soft", "--term", "--term-ink", "--term-hi",
                 "--accent", "--syn-kw", "--syn-fn", "--syn-str", "--syn-cmt", "--shadow-1",
                 "--shadow-2", "--shadow-3", "--paper-dot", "--on-tc", "--tc-vars", "--tc-cond",
-                "--tc-loops", "--tc-func", "--tc-coll", "--faint", "--hl-ink", "--scrim",
+                "--tc-loops", "--tc-func", "--tc-coll", "--tc-files", "--faint", "--hl-ink", "--scrim",
                 "--on-hl-bar"]
         self.assertEqual([t for t in need if t not in dark], [])
 

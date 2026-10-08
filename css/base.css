@@ -48,6 +48,7 @@
     --tc-loops:#c2410c;
     --tc-func:#b45309;
     --tc-coll:#2563eb;
+    --tc-files:#a21caf;
     --tc-tests:var(--ink);
     --tc:var(--accent);
     --on-tc:#fff;
@@ -99,6 +100,7 @@
       --shadow-3:0 26px 48px -22px rgba(0,0,0,.8);
       --paper-dot:rgba(255,240,210,.035); --on-tc:#1d1a16;
       --tc-vars:#a78bfa; --tc-cond:#2dd4bf; --tc-loops:#f59e6b; --tc-func:#fbbf24; --tc-coll:#60a5fa;
+      --tc-files:#e879f9;
       --faint:#5f574b; --hl-ink:#f5d58a; --scrim:rgba(0,0,0,.6);
       --on-hl-bar:#1d1a16;
     }
@@ -115,6 +117,7 @@
       --shadow-3:0 26px 48px -22px rgba(0,0,0,.8);
       --paper-dot:rgba(255,240,210,.035); --on-tc:#1d1a16;
       --tc-vars:#a78bfa; --tc-cond:#2dd4bf; --tc-loops:#f59e6b; --tc-func:#fbbf24; --tc-coll:#60a5fa;
+      --tc-files:#e879f9;
       --faint:#5f574b; --hl-ink:#f5d58a; --scrim:rgba(0,0,0,.6);
       --on-hl-bar:#1d1a16;
   }
@@ -514,7 +517,9 @@
     .callout::before{left:16px; top:14px}
   }
   .callout p:last-child{margin-bottom:0}
-  .tasks{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; align-items:start}
+  /* stretch: картки одного ряду однакової висоти, навіть якщо відповідь
+     відкрито лише в одній із них */
+  .tasks{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; align-items:stretch}
   @media (max-width:720px){ .tasks{grid-template-columns:minmax(0,1fr)} }
   .task{border:1px solid var(--rule); border-radius:12px; padding:16px 18px; background:var(--card);
     box-shadow:0 2px 0 var(--rule); min-width:0;

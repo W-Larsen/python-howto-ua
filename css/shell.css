@@ -14,6 +14,7 @@
   body[data-topic="loops"]{--tc:var(--tc-loops)}
   body[data-topic="func"]{--tc:var(--tc-func)}
   body[data-topic="coll"]{--tc:var(--tc-coll)}
+  body[data-topic="files"]{--tc:var(--tc-files)}
   body[data-topic="tests"]{--tc:var(--tc-tests)}
 
   /* ---------- бічне меню ---------- */
@@ -312,5 +313,17 @@
   .viz-dict g.hit .vz-v{fill:var(--j)}
   .viz-dict g.dim{opacity:.42}
   .vz-code.err{fill:var(--stop)}
+
+  .vz-np{fill:var(--card); stroke:var(--rule); stroke-width:1.5}
+  .vz-np-bar{fill:var(--panel-2)}
+  .vz-np-name{font-size:11px; font-weight:700; fill:var(--ink)}
+  .vz-np-mode{font-size:10px; fill:var(--muted); text-anchor:end; transition:fill .3s}
+  .vz-np-mode.on{fill:var(--i)}
+  .vz-np-no{font-size:11px; fill:var(--faint); text-anchor:end}
+  .vz-np-tx{font-size:13px; font-weight:700; fill:var(--ink); opacity:0; transition:opacity .3s}
+  .vz-np-tx.on{opacity:1}
+  .vz-np-tx .nl{fill:var(--faint); font-weight:400}
+  .vz-caret{fill:var(--i); transition:transform .35s var(--ease), opacity .2s}
+  .vz-caret.off{opacity:0; transition:opacity .2s}
 
   @media (prefers-reduced-motion:reduce){ .reveal{opacity:1; transform:none} }

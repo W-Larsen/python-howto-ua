@@ -23,6 +23,8 @@ const ROUTES = [
       { slug:"set",  id:"page-set",  num:"5.3",
         nav:"Множини",  title:"Множини в Python — набір без повторів" }
     ]},
+  { slug:"files", id:"page-files", num:"06",
+    nav:"Файли",                 title:"Файли в Python — open, with, читання, запис і CSV" },
   /* toc:false — без змісту-якорів під пунктом меню: сторінки й так лише картки.
      Самостійні: розділ → клас (grade) → робота. Роботи в меню не показуємо
      (hidden), а поки робота відкрита, підсвічуємо її клас (cls). */
@@ -47,7 +49,7 @@ const ROUTES = [
 const ALL  = ROUTES.reduce((a, r) => a.concat([r], r.kids || []), []);
 const FLAT = ALL.filter(r => !r.hidden);
 /* теми, які учень «проходить»: для них — номери розділів і позначка «пройдено» */
-const TOPIC_SLUGS = ["vars","cond","loops","func","coll","list","dict","set"];
+const TOPIC_SLUGS = ["vars","cond","loops","func","coll","list","dict","set","files"];
 /* корінь маршруту: підтема належить своєму розділу (list → coll, check-9 → tests) */
 const topicOf = (route) =>
   (ROUTES.find(r => r === route || (r.kids || []).includes(route)) || route).slug;
@@ -476,7 +478,35 @@ function vizFunc(svg){
   ]);
 }
 
-/* --- 6. практика: магазин --- */
+/* --- 6. файли --- */
+function vizFiles(svg){
+  const mode = $("[data-mode]", svg), caret = $("[data-caret]", svg);
+  const lines = [0,1,2].map(k=>$('[data-l="' + k + '"]', svg));
+  const setMode = (t, on) => {
+    mode.textContent = t;
+    mode.setAttribute("class", "vz-np-mode" + (on ? " on" : ""));
+  };
+  /* каретка їде рядками вниз; рядок у svg — 24 одиниці */
+  const caretTo = (k) => { caret.style.transform = "translateY(" + (k * 24) + "px)"; };
+  const steps = [{ d:700, run(){
+    lines.forEach(l=>l.setAttribute("class", "vz-np-tx"));
+    setMode("відкрито: w", true);
+    caret.setAttribute("class", "vz-caret");
+    caretTo(0);
+  }}];
+  lines.forEach((l, k)=>steps.push({ d:800, run(){
+    l.setAttribute("class", "vz-np-tx on");
+    caretTo(k + 1);
+  }}));
+  steps.push({ d:1700, run(){
+    setMode("закрито", false);
+    caret.setAttribute("class", "vz-caret off");
+    caretTo(0);
+  }});
+  return cycler(steps);
+}
+
+/* --- 7. практика: магазин --- */
 function vizShop(svg){
   const line = $("[data-line]", svg), note = $("[data-note]", svg);
   const tiles = [0,1,2,3].map(k=>$('[data-tile="' + k + '"]', svg));
@@ -512,7 +542,7 @@ function vizShop(svg){
 
 const VIZ = {};
 (function initViz(){
-  const map = { vars: vizVars, cond: vizCond, loops: vizLoop, func: vizFunc, dicts: vizDict, shop: vizShop };
+  const map = { vars: vizVars, cond: vizCond, loops: vizLoop, func: vizFunc, dicts: vizDict, files: vizFiles, shop: vizShop };
   /* Раніше картки оживали лише на mouseenter — тобто на сенсорному екрані
      не грали ніколи. Тепер запускає поява в екрані, а наведення лишається
      додатковим тригером. */
