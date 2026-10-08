@@ -517,7 +517,9 @@
     .callout::before{left:16px; top:14px}
   }
   .callout p:last-child{margin-bottom:0}
-  .tasks{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; align-items:start}
+  /* stretch: картки одного ряду однакової висоти, навіть якщо відповідь
+     відкрито лише в одній із них */
+  .tasks{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; align-items:stretch}
   @media (max-width:720px){ .tasks{grid-template-columns:minmax(0,1fr)} }
   .task{border:1px solid var(--rule); border-radius:12px; padding:16px 18px; background:var(--card);
     box-shadow:0 2px 0 var(--rule); min-width:0;
