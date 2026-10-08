@@ -15,8 +15,8 @@ const createPlayer = K.makePlayer({ hl, tick:700 });
 /* ================= спільне ================= */
 const NAMES = "Оля\nІван\nПетро\n";
 const TRACE = "Traceback (most recent call last):";
-/* рядок так, як його показує Python: з лапками й видимим \n.
-   Якщо всередині є " і немає ', Python бере одинарні лапки: '"Іваненко, Оля"'.
+/* рядок у стилі чипів сайту: з лапками й видимим \n; лапки подвійні,
+   а якщо всередині є " (і немає '), одинарні: '"Іваненко, Оля"' — так само вибирає лапки й repr у Python.
    Коли є обидва види лапок, Python ще й екранує лапку-обмежувач — для даних цієї сторінки це не потрібно. */
 const pyStr  = (s) => { const q = s.includes('"') && !s.includes("'") ? "'" : '"';
   return q + s.replace(/\\/g, "\\\\").replace(/\n/g, "\\n") + q; };
@@ -88,6 +88,7 @@ createPlayer($id("files-w-modes"), {
         : `Тепер у файлі чотири імена. Запусти програму ще раз — буде п'ять: "a" дописує при кожному запуску.`});
     return {code, frames};
   },
+  sizeVariants:()=>["w","a","r"].map(mode=>({mode})),
   extra:(f)=> notepad(f.file)
 });
 
@@ -228,7 +229,7 @@ createPlayer($id("files-w-sort"), {
         note:`Беремо рядок ${pyStr(s)}.`});
       names.push(name);
       frames.push({line:3, vars:[L(), on, LN], out:[], names:[...names], add:names.length - 1, file:fl,
-        note: k === 0 ? `rstrip() відрізає \\n, і в список іде чисте ім'я. Без rstrip сортування й порівняння спотикались би об невидимий символ.`
+        note: k === 0 ? `rstrip() відрізає \\n, і в список іде чисте ім'я. Без rstrip у виводі й у порівняннях на кшталт "Оля" in names лишився б невидимий \\n, і вони б ламались.`
                       : `"${name}" — у список.`});
     });
     const sorted = [...names].sort();
@@ -316,6 +317,7 @@ createPlayer($id("files-w-missing"), {
     }
     return {code, frames};
   },
+  sizeVariants:({guard})=>[{have:true,guard},{have:false,guard}],
   extra:(f)=> notepad(f.file)
 });
 
@@ -371,11 +373,12 @@ createPlayer($id("files-w-path"), {
           : `Шлях відносний, тож рахується від папки запуску: project/ → data/ → names.txt. Файл є — exists() повертає True.`}
     ];
     if(fromData) frames.push({line:5, vars:[P], out:["файлу немає"], where, look:true, kind:"end",
-      note:`Звідси й «FileNotFoundError, хоча файл же є»: відносний шлях залежить від того, звідки запустили програму, а не від того, де лежить .py-файл.`});
+      note:`Без перевірки exists() тут було б FileNotFoundError — «хоча файл же є»: відносний шлях залежить від того, звідки запустили програму, а не від того, де лежить .py-файл.`});
     else frames.push({line:3, vars:[P], out:["Оля", "Іван", "Петро"], where, look:true, kind:"end",
       note:`read_text() відкриває, читає й закриває файл одним викликом — with тут не потрібен.`});
     return {code, frames};
   },
+  sizeVariants:()=>[{where:"proj"},{where:"data"}],
   extra:(f)=> pathTree(f.where, f.look)
 });
 
@@ -440,6 +443,7 @@ createPlayer($id("files-w-split"), {
         : `Досить одному значенню містити кому — і «таблиця» роз'їжджається. Тому CSV читають не split-ом, а модулем csv.`});
     return {code, frames};
   },
+  sizeVariants:()=>[{mode:"split"},{mode:"csv"}],
   extra:(f)=> stack(notepad(f.file), f.parts ? row("row", fields(f.parts, f.st)) : "")
 });
 
@@ -545,11 +549,11 @@ createPlayer($id("files-w-write"), {
         note:`Беремо наступний словник.`});
       m = put(`${name},${grade}\n`);
       frames.push({line:6, vars:[ST, on, WR, S], out:[], file:file("grades.csv", "w", text, text.length, m),
-        note: k === 0 ? `writerow бере значення зі словника в порядку fieldnames і сам ставить коми. Число 11 у файлі стало текстом.`
+        note: k === 0 ? `writerow бере значення зі словника в порядку fieldnames і сам ставить коми. Число 11 у файлі стало текстом. (Блокнот показує ↵, а csv насправді пише \\r\\n — див. зауваження під віджетом.)`
                       : `Ще один рядок таблиці.`});
     });
     frames.push({line:6, vars:[ST, off, WR, S], out:[], file:file("grades.csv", null, text, null), kind:"end",
-      note:`Блок with закрив файл. Такий CSV відкриється і в Python, і в Excel чи Google Таблицях.`});
+      note:`Блок with закрив файл. Такий CSV відкриється в Python і в Google Таблицях.`});
     return {code, frames};
   },
   extra:(f)=> notepad(f.file)

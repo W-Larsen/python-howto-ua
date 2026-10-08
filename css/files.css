@@ -59,6 +59,8 @@
   .ft-row.ft-ghost .ft-tag{background:var(--card); color:var(--stop)}
 
   /* ---------- hero ---------- */
-  #files-heroBox{max-width:420px; margin-bottom:14px}
+  /* min-height = найвищий стан блокнота (4 рядки: три імена й порожній четвертий),
+     щоб кнопка «ще раз» не їздила під час програвання */
+  #files-heroBox{max-width:420px; margin-bottom:14px; min-height:calc(4 * 1.312rem + 66px)}
 
   @media (prefers-reduced-motion:reduce){ .np-caret{animation:none} }

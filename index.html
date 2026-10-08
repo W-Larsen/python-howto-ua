@@ -16,13 +16,13 @@
 <!-- ?v=… — версія для кешу браузера: після змін у css/js підніми її тут і для скриптів унизу -->
 <link rel="stylesheet" href="css/base.css?v=20261006b">
 <link rel="stylesheet" href="css/topics.css?v=20260927a">
-<link rel="stylesheet" href="css/shell.css?v=20261006b">
+<link rel="stylesheet" href="css/shell.css?v=20261008a">
 <link rel="stylesheet" href="css/collections.css?v=20260926t24">
 <link rel="stylesheet" href="css/functions.css?v=20260926t4">
 <link rel="stylesheet" href="css/pyeditor.css?v=20260926t25">
 <link rel="stylesheet" href="css/shop.css?v=20260927a">
 <link rel="stylesheet" href="css/check.css?v=20260927c">
-<link rel="stylesheet" href="css/files.css?v=20261006b">
+<link rel="stylesheet" href="css/files.css?v=20261008a">
 </head>
 <body data-route="home">
 
@@ -1853,7 +1853,7 @@ b = list(dict.fromkeys(names))</pre>
   <div class="widget" id="files-w-sort" tabindex="0"></div>
 
   <h2>Коли файлу немає</h2>
-  <p>Відкрити на читання файл, якого немає, не вийде: <code>open</code> упаде з помилкою <code>FileNotFoundError</code>. Режими <code>"w"</code> і <code>"a"</code> такої проблеми не мають — вони просто створять новий файл.</p>
+  <p>Відкрити на читання файл, якого немає, не вийде: <code>open</code> упаде з помилкою <code>FileNotFoundError</code>. Режими <code>"w"</code> і <code>"a"</code> самі створюють <b>файл</b>, тож відсутній файл — не проблема. Але <b>папки</b> вони не створюють: якщо потрібної папки немає, <code>open</code> теж упаде з <code>FileNotFoundError</code>.</p>
   <p>Відсутній файл — звичайна ситуація: програму запустили вперше, файл видалили чи перейменували. Таку помилку ловлять знайомим з теми <a href="#/func">«Функції»</a> <code>try / except</code>. Спробуй обидва перемикачі.</p>
 
   <div class="widget" id="files-w-missing" tabindex="0"></div>
@@ -1935,7 +1935,7 @@ with open("a.txt", encoding="utf-8") as f:
     <pre>with open("new.txt", "w", encoding="utf-8") as f:
     pass</pre>
     <button class="ctl" data-answer="files-a5">Показати відповідь</button>
-    <div class="answer" id="files-a5"><p>Створить порожній файл <code>new.txt</code> — без жодної помилки. <code>FileNotFoundError</code> буває лише при читанні (<code>"r"</code>); <code>"w"</code> і <code>"a"</code> створюють файл самі.</p></div>
+    <div class="answer" id="files-a5"><p>Створить порожній файл <code>new.txt</code> — без жодної помилки: <code>"w"</code> і <code>"a"</code> створюють файл самі. <code>FileNotFoundError</code> при відкритті на запис буває лише тоді, коли немає <b>папки</b>, де цей файл має лежати.</p></div>
   </div>
 
   <div class="task">
@@ -1944,7 +1944,7 @@ with open("a.txt", encoding="utf-8") as f:
     names = f.readlines()
 print("Оля" in names)</pre>
     <button class="ctl" data-answer="files-a6">Показати відповідь</button>
-    <div class="answer" id="files-a6"><p>У списку лежить <code>"Оля\n"</code>, а не <code>"Оля"</code>: <code>readlines()</code> лишає <code>\n</code> у кожному рядку. Треба прибрати його: <code>names = [line.rstrip() for line in f]</code>.</p></div>
+    <div class="answer" id="files-a6"><p>У списку лежить <code>"Оля\n"</code>, а не <code>"Оля"</code>: <code>readlines()</code> лишає <code>\n</code> у кожному рядку. Треба прибрати його: усередині блоку <code>with</code> (поки <code>f</code> ще відкритий) замініть <code>names = f.readlines()</code> на <code>names = [line.rstrip() for line in f]</code>.</p></div>
   </div>
 
   <h2>Шпаргалка</h2>
@@ -2075,7 +2075,7 @@ print("Оля" in names)</pre>
 <!-- чисті помічники оболонки: «пройдено», номери розділів, стежка, пагінація -->
 <script src="js/book.js?v=20260927a"></script>
 <!-- оболонка: роутер, меню, анімації головної -->
-<script src="js/app.js?v=20261006b"></script>
+<script src="js/app.js?v=20261008a"></script>
 <!-- перемикач теми оформлення -->
 <script src="js/theme.js?v=20260927b"></script>
 <!-- рушій руху: FLIP-переїзди й твіни; має бути до collkit.js -->
@@ -2099,7 +2099,7 @@ print("Оля" in names)</pre>
 <script src="js/pages/shop.js?v=20260922f"></script>
 <script src="js/pages/dict.js?v=20260926t22"></script>
 <script src="js/pages/set.js?v=20260922f"></script>
-<script src="js/pages/files.js?v=20261006b"></script>
+<script src="js/pages/files.js?v=20261008a"></script>
 <!-- самостійні роботи: ядро, Python, рушій і дані тестів по класах -->
 <script src="js/checks/core.js?v=20260924g"></script>
 <script src="js/checks/harness.js?v=20260924a"></script>

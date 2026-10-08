@@ -490,7 +490,7 @@ function vizFiles(svg){
   const caretTo = (k) => { caret.style.transform = "translateY(" + (k * 24) + "px)"; };
   const steps = [{ d:700, run(){
     lines.forEach(l=>l.setAttribute("class", "vz-np-tx"));
-    setMode("відкрито: a", true);
+    setMode("відкрито: w", true);
     caret.setAttribute("class", "vz-caret");
     caretTo(0);
   }}];
@@ -501,6 +501,7 @@ function vizFiles(svg){
   steps.push({ d:1700, run(){
     setMode("закрито", false);
     caret.setAttribute("class", "vz-caret off");
+    caretTo(0);
   }});
   return cycler(steps);
 }

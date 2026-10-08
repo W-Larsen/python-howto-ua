@@ -324,6 +324,6 @@
   .vz-np-tx.on{opacity:1}
   .vz-np-tx .nl{fill:var(--faint); font-weight:400}
   .vz-caret{fill:var(--i); transition:transform .35s var(--ease), opacity .2s}
-  .vz-caret.off{opacity:0}
+  .vz-caret.off{opacity:0; transition:opacity .2s}
 
   @media (prefers-reduced-motion:reduce){ .reveal{opacity:1; transform:none} }
