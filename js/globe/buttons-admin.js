@@ -24,9 +24,9 @@ function mount(el, opts){
       країну; якщо поставлять іншу, код усе одно працюватиме, але перевірка їх попередить.</p>
     <form class="gt-bform" autocomplete="off">
       <div class="gt-scroll gt-bscroll" data-role="grid"></div>
-      <div class="gt-cmsg" data-role="bmsg" aria-live="polite"></div>
       <div class="gt-actions">
         <button type="submit" class="ctl primary" data-role="bsave">Зберегти кнопки</button>
+        <div class="gt-cmsg" data-role="bmsg" aria-live="polite"></div>
       </div>
     </form>
   </section>`;
