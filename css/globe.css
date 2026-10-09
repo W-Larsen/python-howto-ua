@@ -212,8 +212,15 @@
   .gt-btable td{vertical-align:middle}
   .gt-btable td.gt-name{width:5.5em; font-weight:700}
   .gt-btable td:last-child{padding-right:14px}
+  /* своя стрілка: рідна липне до правого краю; тут вона з відступом і в кольорі теми */
   .gt-bform select{width:100%; min-width:12em; font:inherit; font-size:.95rem; color:var(--ink);
-    padding:7px 10px; border-radius:9px; border:1px solid var(--rule); background:var(--card)}
+    padding:7px 36px 7px 10px; border-radius:9px; border:1px solid var(--rule); cursor:pointer;
+    -webkit-appearance:none; appearance:none; background-color:var(--card);
+    background-image:linear-gradient(45deg, transparent 50%, var(--muted) 50%),
+      linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+    background-position:calc(100% - 19px) 50%, calc(100% - 14px) 50%;
+    background-size:5px 5px; background-repeat:no-repeat}
+  .gt-bform select:focus{outline:none; border-color:var(--i); box-shadow:0 0 0 3px var(--i-soft)}
   /* «Зберегти» і результат в одному рядку; довге повідомлення переноситься поруч, а не під кнопкою */
   .gt-bform .gt-actions{align-items:center; margin:14px 0 0}
   .gt-bform .gt-cmsg{flex:1 1 20em; max-width:var(--measure); margin:0; line-height:1.5}
