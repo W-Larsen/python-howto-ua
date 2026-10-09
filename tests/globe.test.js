@@ -236,6 +236,55 @@ T.test("globe bundle: скетч з помилками — без архіву, 
   T.ok(r.problems.some(p => p.level === "error" && p.line === 2));
 });
 
+/* ---------------- архіви з країнами вчителя ---------------- */
+const FR_C = { id:"FR", has_audio:true, updated:"2026-10-09T10:00:00Z",
+  fields:{ name:"Франція", capital:"Париж", continent:"Європа", lcd_name:"France", lcd_capital:"Paris", text:"Сир." } };
+async function withCountries(list, fn){
+  GlobeStore._endpoint = "https://example.invalid/exec";
+  GlobeStore._fetch = (url, o) => {
+    const b = JSON.parse(o.body);
+    const reply = b.action === "countries" ? { ok:true, countries:list } : b.action === "audio" ? { ok:true, audio:"SUQz" } : { ok:false };
+    return Promise.resolve({ ok:true, json:() => Promise.resolve(reply) });
+  };
+  GlobeRuntime.base = "../";
+  await GlobeRuntime.boot();
+  await GlobeRuntime.loadCountries();
+  try { await fn(); }
+  finally { GlobeStore._endpoint = ""; GlobeRuntime.setCountries([]); }
+}
+
+T.test("globe bundle: країни вчителя потрапляють у проєкт — файл, mp3 і countries.h", () => withCountries([FR_C], async () => {
+  const z = await JSZip.loadAsync(await GlobeBundle.project({}));
+  const root = "Touch_The_Globe/";
+  T.eq(await z.file(root + "content/countries/FR.txt").async("string"), GlobeRuntime.countryFile(FR_C.fields));
+  T.eq([...await z.file(root + "content/audio/FR.mp3").async("uint8array")], [73, 68, 51]);
+  T.eq(await z.file(root + "arduino/TouchTheGlobe/countries.h").async("string"), GlobeRuntime.countriesHeader().header);
+}));
+
+T.test("globe bundle: скетч з новим countries.h", () => withCountries([FR_C], async () => {
+  const r = await GlobeBundle.sketch({});
+  const z = await JSZip.loadAsync(r.blob);
+  T.ok((await z.file("TouchTheGlobe/countries.h").async("string")).includes('"France"'));
+}));
+
+T.test("globe bundle: SD-картка — 01/NNN.mp3 за номерами треків каталогу", () => withCountries([FR_C], async () => {
+  const r = await GlobeBundle.sdcard();
+  const z = await JSZip.loadAsync(r.blob);
+  const cat = GlobeRuntime.countries();
+  T.eq(Object.keys(z.files).filter(n => !z.files[n].dir).sort(),
+       cat.map(c => "01/" + String(c.track).padStart(3, "0") + ".mp3").sort());
+  const fr = cat.find(c => c.id === "FR");
+  T.eq([...await z.file("01/" + String(fr.track).padStart(3, "0") + ".mp3").async("uint8array")], [73, 68, 51]);
+  T.eq(r.missing, []);
+}));
+
+T.test("globe bundle: SD-картка — країна без mp3 у списку «missing»", () =>
+  withCountries([Object.assign({}, FR_C, { id:"DE", has_audio:false,
+    fields:Object.assign({}, FR_C.fields, { name:"Німеччина", lcd_name:"Germany", lcd_capital:"Berlin" }) })], async () => {
+  const r = await GlobeBundle.sdcard();
+  T.eq(r.missing.map(c => c.id), ["DE"]);
+}));
+
 /* ---------------- сторінка учня цілком: iframe + сервер із логікою Code.gs ---------------- */
 const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 function clearGlobeStorage(){
