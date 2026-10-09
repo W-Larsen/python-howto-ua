@@ -8,6 +8,7 @@ import json
 import pathlib
 import sys
 import tempfile
+import time
 import unittest
 import zipfile
 
@@ -121,6 +122,34 @@ class Runner(unittest.TestCase):
         W.live_press("g", 0)
         r = json.loads(W.live_tick(60000))
         self.assertTrue(any(e["kind"] == "frame" and e["rows"][3] == "No" for e in r["events"]))
+
+    def test_live_game_measures_real_reaction_time(self):
+        t2 = (
+            "def next_target(round):\n"
+            '    target("JP", "Tokyo!")\n\n'
+            "def on_hit(correct, ms):\n"
+            "    show_text(3, str(ms))\n"
+        )
+        W.live_start(src(task1_py=T1, task2_py=t2), 0)
+        W.live_press("g", 0)  # відлік 3-2-1 = 1,5 с: раунд починається о 1500 мс
+        r = json.loads(W.live_press("2", 1800))
+        self.assertIn("300", [f["rows"][3] for f in frames(r)])
+
+    def test_huge_for_loop_is_stopped_not_hanging(self):
+        code = "def loading():\n    x = 0\n    for i in range(1000000000):\n        x = x + 1\n"
+        started = time.time()
+        r = json.loads(W.run_script(src(task5_py=code), ""))
+        self.assertLess(time.time() - started, 15)
+        self.assertTrue(
+            any(e["kind"] == "warn" and "2 000 000 разів - симулятор зупинив функцію, щоб" in e["text"]
+                for e in r["events"]),
+            r["events"],
+        )
+
+    def test_normal_loops_are_not_limited(self):
+        code = "def loading():\n    x = 0\n    for i in range(200):\n        for j in range(200):\n            x = x + 1\n    show_text(3, str(x))\n    wait(10)\n"
+        r = json.loads(W.run_script(src(task5_py=code), ""))
+        self.assertIn("40000", [f["rows"][3] for f in frames(r)])
 
     def test_live_press_shows_country(self):
         W.live_start(src(task1_py=T1), 0)

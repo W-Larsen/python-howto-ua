@@ -46,4 +46,7 @@ assert.equal(h({ action:"get", cls:"9A", name:"ОЛЕНА", teacherKey:"k" }).ta
 assert.equal(h({ action:"get", cls:"9A", name:"Олена", teacherKey:"x" }).error, "bad_key");
 assert.equal(h({ action:"nope" }).error, "bad_action");
 assert.equal(ctx.normName("  Олена   Петренко "), "Олена Петренко");
+/* ключ за замовчуванням із setup() опубліковано в репозиторії — він не має працювати */
+const fresh = mem(); fresh.teacherKey = "змініть-мене";
+assert.equal(ctx.handle({ action:"list", cls:"9A", teacherKey:"змініть-мене" }, fresh).error, "bad_key");
 console.log("ok");

@@ -124,6 +124,8 @@ const hhmm = (iso) => {
 async function saveAll(){
   if(!ready) return;
   const src = sources();
+  /* кількість помилок для вчителя — з цього коду, а не з минулої перевірки */
+  showProblems(GlobeRuntime.check(src).problems);
   TASKS.forEach(t => GlobeStore.setDraft(t, src[t]));
   if(!GlobeStore.who()){ setSave("Збережено лише в цьому браузері — увійди, щоб учитель побачив код.", "warn"); return; }
   const dirty = TASKS.filter((t, i) => src[t] !== saved[t] && src[t] !== GlobeRuntime.template(i + 1));
@@ -144,13 +146,11 @@ async function saveAll(){
 /* ---------------- перевірка й запуск ---------------- */
 function check(){
   if(!ready) return;
-  const r = GlobeRuntime.check(sources());
-  showProblems(r.problems);
-  if(!r.problems.length){
+  saveAll();                      /* сама перевіряє код і показує проблеми */
+  if(!problems.length){
     problemsEl.hidden = false;
     problemsEl.innerHTML = `<p class="globe-problems-t ok">Помилок немає — код можна переносити на глобус.</p>`;
   }
-  saveAll();
 }
 
 /* перший показ екрана після завантаження — без збереження */
@@ -225,30 +225,39 @@ function showWho(){
   }
 }
 
-/* код учня в редактор: чернетка з цього браузера, а якщо в таблиці новіший — він.
-   carry — код, написаний до входу: дістається учневі, якщо своєї чернетки ще немає. */
+/* Код учня в редактор: чернетка з цього браузера, а якщо в таблиці новіший — він.
+   carry — код, написаний до входу: дістається учневі лише для задач, яких
+   у нього ще немає ні в чернетках, ні в таблиці (інакше він перебив би
+   збережене). Відповідь таблиці, що прийшла, коли за комп'ютером уже
+   інший учень, відкидається. */
 async function loadCode(carry){
-  TASKS.forEach((t, i) => {
-    const tpl = GlobeRuntime.template(i + 1);
-    const mine = GlobeStore.draft(t);
-    if(mine === null && carry && carry[t] && carry[t] !== tpl){
-      codes[t] = carry[t];
-      GlobeStore.setDraft(t, carry[t]);
-    }else codes[t] = mine ?? tpl;
-    delete saved[t];
-  });
-  ta.value = codes[TASKS[current]];
-  sync();
-  renderTabs();
-  if(!GlobeStore.who() || !GlobeStore.configured()) return;
+  const me = GlobeStore.who();
+  const myKey = me ? me.key : "";
+  const tpl = (t) => GlobeRuntime.template(TASKS.indexOf(t) + 1);
+  TASKS.forEach(t => { codes[t] = GlobeStore.draft(t) ?? tpl(t); delete saved[t]; });
+  const adopt = (t) => {
+    if(!carry || !carry[t] || carry[t] === tpl(t) || GlobeStore.draft(t) !== null) return;
+    codes[t] = carry[t];
+    GlobeStore.setDraft(t, carry[t]);
+  };
+  const show = () => { ta.value = codes[TASKS[current]]; sync(); renderTabs(); };
+  show();
+  if(!me) return null;
+  if(!GlobeStore.configured()){ TASKS.forEach(adopt); show(); return null; }
+
   setSave("Завантажую збережений код…");
   const r = await GlobeStore.load();
+  const now = GlobeStore.who();
+  if(!now || now.key !== myKey) return { ok:false, error:"stale" };
   if(!r.ok){
+    if(r.error !== "bad_class") TASKS.forEach(adopt);
+    show();
     setSave(GlobeStore.errorText(r.error), "warn");
     return r;
   }
   let taken = 0;
-  Object.entries(r.tasks || {}).forEach(([t, v]) => {
+  const remote = r.tasks || {};
+  Object.entries(remote).forEach(([t, v]) => {
     if(!TASKS.includes(t)) return;
     saved[t] = v.code;
     const local = GlobeStore.draftTime(t);
@@ -258,9 +267,8 @@ async function loadCode(carry){
       GlobeStore.setDraft(t, v.code);
     }
   });
-  ta.value = codes[TASKS[current]];
-  sync();
-  renderTabs();
+  TASKS.filter(t => !(t in remote)).forEach(adopt);
+  show();
   setSave(taken ? "Завантажено збережений код (" + taken + " " + (taken === 1 ? "задача" : "задачі") + ")." : "Код з таблиці вже тут.", "ok");
   return r;
 }
@@ -270,7 +278,11 @@ loginForm.addEventListener("submit", async (e) => {
   const f = new FormData(loginForm);
   const w = GlobeStore.normWho({ name: f.get("name"), cls: f.get("cls") });
   if(!w.name || !w.cls){ loginMsg.hidden = false; loginMsg.textContent = "Впиши ім'я та код класу."; return; }
+  /* код, написаний без входу, переходить до учня, а не лишається на цьому
+     комп'ютері для наступного */
+  const anon = !GlobeStore.who();
   const before = ready ? sources() : null;
+  if(anon && before) TASKS.forEach(t => GlobeStore.clearDraft(t));
   GlobeStore.setWho(w);
   loginMsg.hidden = true;
   showWho();
@@ -280,7 +292,9 @@ loginForm.addEventListener("submit", async (e) => {
   const r = await loadCode(before);
   if(r && r.error === "bad_class"){
     GlobeStore.clearWho();
+    if(anon && before) TASKS.forEach(t => GlobeStore.setDraft(t, before[t]));
     showWho();
+    loadCode();
     loginMsg.hidden = false;
     loginMsg.textContent = GlobeStore.errorText("bad_class");
   }

@@ -12,7 +12,7 @@ window.GlobeRuntime = (function(){
 
 const JSZIP_URL = "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js";
 /* версія знімка для кешу браузера: після tools/sync_globe.sh підніми її */
-const SNAPSHOT_V = "20261009a";
+const SNAPSHOT_V = "20261009b";
 const PREFIX = "Touch_The_Globe/";
 const BOOT_ERROR = "Не вдалося завантажити проєкт глобуса. Відкрий сайт через інтернет " +
   "(не як файл з диска) і онови сторінку.";

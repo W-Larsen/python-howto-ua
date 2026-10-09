@@ -189,4 +189,91 @@ T.test("globe bundle: скетч з помилками — без архіву, 
   T.ok(r.problems.some(p => p.level === "error" && p.line === 2));
 });
 
+/* ---------------- сторінка учня цілком: iframe + сервер із логікою Code.gs ---------------- */
+const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+function clearGlobeStorage(){
+  Object.keys(localStorage).filter(k => k.startsWith("pgsb.globe")).forEach(k => localStorage.removeItem(k));
+}
+/* сторінка в iframe; delay(body) — затримка відповіді сервера для цього запиту */
+async function openGlobePage(sheetRows, delay){
+  clearGlobeStorage();
+  const gs = await (await fetch("../globe/apps-script/Code.gs")).text();
+  const handle = new Function(gs + "\nreturn handle;")();
+  const rows = sheetRows.slice();
+  const sheet = { classes:["9A"], teacherKey:"k", rows,
+    upsert(r){ const i = rows.findIndex(x => x.cls === r.cls && x.key === r.key && x.task === r.task); if(i < 0) rows.push(r); else rows[i] = r; },
+    append(){} };
+  const box = document.getElementById("sandbox");
+  box.innerHTML = "";
+  const frame = document.createElement("iframe");
+  frame.style.cssText = "width:1200px;height:700px;border:1px solid #ccc";
+  frame.src = "../index.html#/globe";
+  await new Promise(r => { frame.onload = r; box.appendChild(frame); });
+  const w = frame.contentWindow;
+  w.GlobeStore._endpoint = "https://fake/exec";
+  w.GlobeStore._fetch = (url, o) => {
+    const body = JSON.parse(o.body);
+    return sleep(delay ? delay(body) : 20).then(() => ({ ok:true,
+      json: async () => JSON.parse(JSON.stringify(handle(body, sheet))) }));
+  };
+  await T.until(() => w.GlobeRuntime.isReady() && !w.document.getElementById("globe-ta").disabled, 90000);
+  await sleep(300);
+  const d = w.document;
+  const page = {
+    w, d, rows,
+    ta: d.getElementById("globe-ta"),
+    tab(i){ d.querySelector(`.globe-tab[data-i="${i}"]`).click(); },
+    type(code){ page.ta.value = code; page.ta.dispatchEvent(new w.Event("input")); },
+    async login(name, cls){
+      const f = d.getElementById("globe-login");
+      f.name.value = name; f.cls.value = cls; f.requestSubmit();
+    },
+    logout(){ d.querySelector('[data-act="logout"]').click(); },
+    async run(){ d.querySelector("#globe-sim .gsim-run").click(); }
+  };
+  return page;
+}
+const sheetRow = (name, task, code) => ({ cls:"9A", key:name.toLowerCase(), name, task, code, problems:0,
+  updated:"2026-10-01T10:00:00.000Z" });
+
+T.test("globe page: код до входу не перебиває збережене в таблиці й не лишається наступному учневі", async () => {
+  const p = await openGlobePage([sheetRow("Олена Петренко", "task1.py", "# SHEET 1\n")]);
+  p.tab(0); p.type("# ANON 1\n");
+  p.tab(4); p.type("# ANON 5\n");
+  await p.login("Олена Петренко", "9A");
+  await sleep(600);
+  p.tab(0);
+  T.eq(p.ta.value, "# SHEET 1\n", "задача, яка є в таблиці, — з таблиці");
+  p.tab(4);
+  T.eq(p.ta.value, "# ANON 5\n", "задача, якої в таблиці нема, — та, що написали до входу");
+  p.logout();
+  await sleep(300);
+  p.tab(0);
+  T.ok(!p.ta.value.includes("ANON") && !p.ta.value.includes("SHEET"), "після виходу — заготовка: " + p.ta.value.slice(0, 40));
+});
+
+T.test("globe page: у таблицю йде свіжа кількість помилок, а не з минулої перевірки", async () => {
+  const p = await openGlobePage([]);
+  await p.login("Іван Коваль", "9A");
+  await sleep(400);
+  p.tab(0);
+  p.type('def hello_screen():\n    show_text(9, "x")\n');
+  await p.run();
+  await T.until(() => p.rows.some(r => r.task === "task1.py"), 5000);
+  T.eq(p.rows.find(r => r.task === "task1.py").problems, 1);
+});
+
+T.test("globe page: повільна відповідь таблиці не потрапляє до іншого учня", async () => {
+  const p = await openGlobePage([sheetRow("Олена Петренко", "task1.py", "# SHEET OLENA\n")],
+    (body) => body.action === "load" ? 1500 : 20);
+  await p.login("Олена Петренко", "9A");
+  await sleep(100);
+  p.logout();
+  await sleep(2000);
+  p.tab(0);
+  T.ok(!p.ta.value.includes("SHEET OLENA"), "у редакторі анонімного учня: " + p.ta.value.slice(0, 40));
+  T.ok(!(p.w.GlobeStore.draft("task1.py") || "").includes("SHEET OLENA"), "у чернетках анонімного учня");
+  clearGlobeStorage();
+});
+
 })();

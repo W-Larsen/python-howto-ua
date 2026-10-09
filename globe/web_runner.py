@@ -12,6 +12,7 @@ JS програє цю стрічку з тими самими паузами, �
 Тести: python3 -m unittest tests/test_globe_runner.py -v
 """
 
+import ast
 import json
 import os
 import random
@@ -23,7 +24,15 @@ from globe_core.engine import GAME, GlobeEngine
 from globe_core.language import Context, analyze_all
 from globe_core.problems import has_errors
 from globe_core.settings import load_settings
-from globe_core.student_loader import compile_task, hook_defaults
+from globe_core.student_loader import (
+    GUARD_FUNCTION,
+    SAFE_BUILTINS,
+    _add_defaults,
+    _located,
+    _LoopGuard,
+    hook_defaults,
+)
+from globe_core.language import is_api_import
 
 # Ті самі правила, що й у pc/cli.py (parse_token, DEFAULT_MS). Сам pc.cli
 # не імпортуємо: він тягне за собою звук і ctypes, яких у браузері немає.
@@ -34,8 +43,50 @@ BAD_TOKEN = (
     "g - гра, а в грі можна вказати час: 2:600"
 )
 
+# Python у браузері працює в тому ж потоці, що й сторінка: цикл на мільярд
+# повторів (на платі - просто довга пауза) повісив би вкладку, а після
+# перезавантаження сторінка знову ввімкнула б глобус і знову зависла.
+# Тому кожен повтор for і while рахується, і після STEP_LIMIT повторів за
+# одну команду функція учня зупиняється.
+STEP_LIMIT = 2000000
+STEP_FUNCTION = "__globe_step__"
+
 _project = {}
 _live = {}
+
+
+class LoopBudget(Exception):
+    """Забагато повторів циклів за одну команду."""
+
+
+class _StepCounter(ast.NodeTransformer):
+    """Першим рядком кожного циклу - виклик лічильника повторів."""
+
+    def _count(self, node):
+        self.generic_visit(node)
+        node.body = _located(ast.parse(STEP_FUNCTION + "()").body, node.lineno) + node.body
+        return node
+
+    visit_For = _count
+    visit_While = _count
+
+
+def _compile(file, source, api, on_loop_stuck, defaults, step):
+    """Як student_loader.compile_task, але ще з лічильником повторів."""
+    tree = ast.parse(source, filename=file)
+    tree.body = [node for node in tree.body if not is_api_import(node)]
+    if defaults:
+        _add_defaults(tree, defaults)
+    tree = _LoopGuard(file).visit(tree)
+    tree = _StepCounter().visit(tree)
+    ast.fix_missing_locations(tree)
+
+    namespace = {"__builtins__": SAFE_BUILTINS, "__name__": file[:-3]}
+    namespace.update(api)
+    namespace[GUARD_FUNCTION] = on_loop_stuck
+    namespace[STEP_FUNCTION] = step
+    exec(compile(tree, file, "exec"), namespace)
+    return namespace
 
 
 def setup(root):
@@ -151,6 +202,7 @@ class _Globe:
 
     def __init__(self, sources, seed=None):
         self.clock = _Clock()
+        self.steps = 0
         self.tape = _Tape(self.clock)
         self.engine = GlobeEngine(
             _project["catalog"],
@@ -173,22 +225,38 @@ class _Globe:
         api["print"] = self.tape.say
         hooks = {}
         for file, info in infos.items():
-            functions = compile_task(
-                file, sources[file], api, self.engine.loop_stuck, defaults=hook_defaults(info)
+            functions = _compile(
+                file, sources[file], api, self.engine.loop_stuck, hook_defaults(info), self.step
             )
             for name in info.functions:
                 hooks[name] = functions[name]
         self.engine.set_hooks(hooks)
+
+    def step(self):
+        self.steps += 1
+        if self.steps > STEP_LIMIT:
+            # щоб і вкладені виклики (show_country -> show_fact) теж зупинились
+            self.steps = 0
+            raise LoopBudget(
+                "цикли повторилися понад {} разів - симулятор зупинив функцію, "
+                "щоб сторінка не зависла. Зменш кількість повторів".format(
+                    "{:,}".format(STEP_LIMIT).replace(",", " ")
+                )
+            )
 
     def begin(self, now_ms=None):
         """Нова стрічка. now_ms - справжній час браузера (живий режим)."""
         if now_ms is not None:
             self.clock.now = max(self.clock.now, now_ms / 1000.0)
         self.clock.start = self.clock.now
+        self.steps = 0
         self.tape.reset()
 
-    def press(self, token):
-        """Одна команда в синтаксисі globe press. Повертає текст помилки або ''."""
+    def press(self, token, live=False):
+        """Одна команда в синтаксисі globe press. Повертає текст помилки або ''.
+
+        live - натискання справжньої кнопки: тоді час відповіді в грі глобус
+        міряє сам, а 1000 мс за замовчуванням - лише для команд-скриптів."""
         word = token.strip().lower()
         if word == "q":
             self.engine.touch_quiz()
@@ -200,7 +268,7 @@ class _Globe:
         if match is None:
             return BAD_TOKEN.format(token)
         ms = int(match.group(2)) if match.group(2) else None
-        if ms is None and self.engine.mode == GAME:
+        if ms is None and self.engine.mode == GAME and not live:
             ms = DEFAULT_MS
         self.engine.touch_button(int(match.group(1)), ms)
         return ""
@@ -280,7 +348,7 @@ def _live_call(now_ms, action):
 
 
 def live_press(token, now_ms):
-    return _live_call(now_ms, lambda globe: globe.press(str(token)))
+    return _live_call(now_ms, lambda globe: globe.press(str(token), live=True))
 
 
 def live_tick(now_ms):

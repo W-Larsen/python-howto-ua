@@ -22,6 +22,8 @@
 
 var TASKS = ["task1.py", "task2.py", "task3.py", "task4.py", "task5.py"];
 var MAX_CODE = 20000;   /* у клітинці таблиці вміщається 50 000 символів */
+/* ключ, який ставить setup(): він є в репозиторії, тож не відкриває нічого */
+var DEFAULT_KEY = "змініть-мене";
 
 function normName(name){
   return String(name || "").replace(/\s+/g, " ").trim();
@@ -52,7 +54,8 @@ function handle(req, sheets){
 
   if(["save", "load", "list", "get"].indexOf(req.action) < 0) return { ok: false, error: "bad_action" };
   if(teacher){
-    if(!sheets.teacherKey || String(req.teacherKey) !== String(sheets.teacherKey))
+    if(!sheets.teacherKey || String(sheets.teacherKey) === DEFAULT_KEY ||
+       String(req.teacherKey) !== String(sheets.teacherKey))
       return { ok: false, error: "bad_key" };
   }
   var known = sheets.classes.map(normClass);
@@ -169,6 +172,6 @@ function setup(){
   var settings = sheet(book, "settings");
   if(!settings.getRange("A1").getValue()){
     settings.getRange("A1").setValue("Ключ учителя:");
-    settings.getRange("B1").setValue("змініть-мене");
+    settings.getRange("B1").setValue(DEFAULT_KEY);
   }
 }
