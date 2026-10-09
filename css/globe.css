@@ -151,6 +151,7 @@
   .gt-empty{color:var(--faint)}
   .gt-pick{accent-color:var(--tc-globe); width:16px; height:16px}
 
+  .gt-hint{font-size:.85rem; color:var(--muted); margin:.6em 0 0}
   .gt-actions{display:flex; flex-wrap:wrap; gap:10px; margin:14px 0}
   .gt-build{margin:0 0 1.2em}
   .gt-build ul{margin:.4em 0 0; padding-left:1.2em; font-family:var(--mono); font-size:.8rem}
