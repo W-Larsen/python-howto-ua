@@ -119,3 +119,11 @@ The globe repo itself **does not change**.
   quiz `q 2 3 1`, the loading bar (task5) animates, downloads, dark theme, 375px width.
 - Manually after deploying Apps Script: save from one browser → see the code on `#/globe-teacher` from another
   (incognito). The downloaded class sketch → `arduino-cli compile --profile uno` (as `make compile`).
+
+## Refreshing the globe snapshot (after implementation)
+After changes in `Touch_The_Globe_v2` (commit them there first — `make student-zip` takes only what is committed):
+
+    tools/sync_globe.sh
+
+then bump `SNAPSHOT_V` in `js/globe/runtime.js` (browser cache) and commit `globe/touch-the-globe.zip`.
+Setting up storage is in `globe/apps-script/README.md`.
