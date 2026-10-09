@@ -12,7 +12,7 @@ window.GlobeRuntime = (function(){
 
 const JSZIP_URL = "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js";
 /* версія знімка для кешу браузера: після tools/sync_globe.sh підніми її */
-const SNAPSHOT_V = "20261010a";
+const SNAPSHOT_V = "20261010b";
 const PREFIX = "Touch_The_Globe/";
 const BOOT_ERROR = "Не вдалося завантажити проєкт глобуса. Відкрий сайт через інтернет " +
   "(не як файл з диска) і онови сторінку.";
@@ -30,6 +30,8 @@ async function fetchOk(url, kind){
 }
 
 async function load(){
+  /* країни вчителя — паралельно з Pyodide, а не після нього */
+  const countriesPromise = fetchCountries();
   if(!window.JSZip) await PyEditor.loadScript(JSZIP_URL);
   const [buf, runner, pyodide] = await Promise.all([
     fetchOk(rt.base + "globe/touch-the-globe.zip?v=" + SNAPSHOT_V),
@@ -55,7 +57,7 @@ async function load(){
   zip = z;
   snapshot = buf;
   /* країни, які вчитель додав на сайті; без сховища — лише країни проєкту */
-  await rt.loadCountries().catch(err => console.warn("Touch The Globe: країни вчителя", err));
+  applyCountries(await countriesPromise);
 }
 
 /* Один запуск на вкладку; якщо не вийшло — наступний boot() спробує знову. */
@@ -91,16 +93,29 @@ rt.header = (sources) => js(mod.build_header(src(sources)));
 /* ---------------- країни вчителя ---------------- */
 /* Сховище (Google Таблиця + Drive) → файли content/countries/<ID>.txt поверх
    знімка в Pyodide. Повертає {skipped, ids}; неправильні країни пропускаються. */
-rt.loadCountries = async function(){
+async function fetchCountries(){
   const store = window.GlobeStore;
-  let list = [];
-  if(store && store.configured()){
+  if(!store || !store.configured()) return { ok:true, list:[] };
+  try {
     const r = await store.countries();
-    if(r.ok) list = r.countries || [];
-    else if(r.error !== "bad_action") console.warn("Touch The Globe: країни вчителя —", r.error);
+    /* стара версія Code.gs ще не знає про країни — працюємо з країнами проєкту */
+    if(r.ok || r.error === "bad_action") return { ok:true, list: r.countries || [] };
+    return { ok:false, error: r.error };
+  } catch(e){ return { ok:false, error:"network" }; }
+}
+/* Збій сховища не стирає вже завантажені країни: інакше скетч і проєкт
+   тихо зібралися б без них, і номери треків розійшлися б із SD-карткою. */
+function applyCountries(r){
+  if(!r.ok){
+    rt.countriesError = window.GlobeStore ? GlobeStore.errorText(r.error) : r.error;
+    console.warn("Touch The Globe: країни вчителя —", r.error);
+    return { ok:false, error:r.error, skipped: rt.skipped || [], ids: [] };
   }
-  return rt.setCountries(list);
-};
+  rt.countriesError = "";
+  return Object.assign({ ok:true }, rt.setCountries(r.list));
+}
+rt.countriesError = "";
+rt.loadCountries = async function(){ return applyCountries(await fetchCountries()); };
 rt.setCountries = function(list){
   const r = js(mod.set_extra_countries(JSON.stringify((list || []).map(c =>
     ({ id: c.id, fields: c.fields, has_audio: !!c.has_audio })))));
@@ -117,16 +132,19 @@ rt.countriesHeader = () => js(mod.countries_header());
 
 const extraBytes = {};
 /* mp3, який учитель завантажив для країни (Uint8Array), або null */
+/* Невдале завантаження не запам'ятовується — наступна спроба піде знову. */
 rt.extraAudio = async function(id){
   if(id in extraBytes) return extraBytes[id];
   const c = rt.countries().find(x => x.id === id);
-  let bytes = null;
-  if(c && c.extra && c.has_audio && window.GlobeStore){
+  if(!(c && c.extra && c.has_audio && window.GlobeStore)) return (extraBytes[id] = null);
+  try {
     const r = await GlobeStore.audio(id);
-    if(r.ok && r.audio) bytes = Uint8Array.from(atob(r.audio), ch => ch.charCodeAt(0));
-  }
-  return (extraBytes[id] = bytes);
+    if(r.ok && r.audio) return (extraBytes[id] = Uint8Array.from(atob(r.audio), ch => ch.charCodeAt(0)));
+  } catch(e){}
+  return null;
 };
+/* запис учителя мав бути, але не завантажився */
+rt.teacherAudioMissing = (c, bytes) => !!(c && c.extra && c.has_audio && !bytes);
 /* mp3 зі знімка (Uint8Array) або null */
 rt.snapshotAudio = async function(id){
   const f = zip && zip.file(PREFIX + "content/audio/" + id + ".mp3");
@@ -137,7 +155,9 @@ rt.snapshotAudio = async function(id){
 rt.audioUrl = async function(id){
   const key = String(id || "").toUpperCase();
   if(key in audio) return audio[key];
-  const bytes = (await rt.extraAudio(key)) || (await rt.snapshotAudio(key));
+  const extra = await rt.extraAudio(key);
+  if(rt.teacherAudioMissing(rt.countries().find(c => c.id === key), extra)) return null;
+  const bytes = extra || (await rt.snapshotAudio(key));
   audio[key] = bytes ? URL.createObjectURL(new Blob([bytes], { type: "audio/mpeg" })) : null;
   return audio[key];
 };

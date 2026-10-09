@@ -207,6 +207,8 @@ async function download(b){
     const blob = await GlobeBundle.project(sources());
     const w = GlobeStore.who();
     GlobeBundle.download(blob, "touch-the-globe" + (w ? "-" + w.cls.toLowerCase() : "") + ".zip");
+  } catch(e){
+    setSave(e.message || String(e), "warn");
   } finally { b.disabled = false; }
 }
 
@@ -329,6 +331,9 @@ GlobeRuntime.boot().then(async () => {
   quiet = true;
   await sim.run("");
   quiet = false;
+  if(GlobeRuntime.countriesError)
+    sim.log("warn", "Не вдалося завантажити країни вчителя (" + GlobeRuntime.countriesError +
+      ") — зараз видно лише країни проєкту. Онови сторінку за хвилину.");
 }).catch(err => {
   ta.placeholder = err.message;
   setSave(err.message, "warn");

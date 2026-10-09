@@ -175,6 +175,28 @@ function sheet(book, name, header){
   return sh;
 }
 
+function countryRows(countrySh){
+  return countrySh.getDataRange().getValues().slice(1).map(function(v){
+    var r = {};
+    COUNTRY_COLUMNS.forEach(function(c, i){ r[c] = String(v[i]); });
+    return r;
+  });
+}
+
+/* Для публічного читання (countries, audio) — лише аркуш countries і Drive:
+   без блокування й без аркушів із кодом учнів. Їх щоранку відкриває весь
+   клас разом, і вони не мають ставати в чергу за збереженнями. */
+function countriesOnly(){
+  var book = SpreadsheetApp.getActiveSpreadsheet();
+  var sh = book.getSheetByName("countries");
+  return {
+    countries: sh ? countryRows(sh) : [],
+    readAudio: function(fileId){
+      return Utilities.base64Encode(DriveApp.getFileById(fileId).getBlob().getBytes());
+    }
+  };
+}
+
 function sheetsFromSpreadsheet(){
   var book = SpreadsheetApp.getActiveSpreadsheet();
   var codeSh = sheet(book, "code", CODE_COLUMNS);
@@ -192,11 +214,7 @@ function sheetsFromSpreadsheet(){
     .map(function(v){ return String(v[0]); }).filter(function(c){ return c.trim(); });
 
   var countrySh = sheet(book, "countries", COUNTRY_COLUMNS);
-  var countries = countrySh.getDataRange().getValues().slice(1).map(function(v){
-    var r = {};
-    COUNTRY_COLUMNS.forEach(function(c, i){ r[c] = String(v[i]); });
-    return r;
-  });
+  var countries = countryRows(countrySh);
 
   return {
     countries: countries,
@@ -253,15 +271,20 @@ function sheetsFromSpreadsheet(){
 }
 
 function doPost(e){
-  var lock = LockService.getScriptLock();
-  var out;
+  var out, lock = null;
   try {
-    lock.waitLock(15000);
-    out = handle(JSON.parse(e.postData.contents), sheetsFromSpreadsheet());
+    var req = JSON.parse(e.postData.contents);
+    if(req && (req.action === "countries" || req.action === "audio")){
+      out = handleCountry(req, countriesOnly());
+    } else {
+      lock = LockService.getScriptLock();
+      lock.waitLock(15000);
+      out = handle(req, sheetsFromSpreadsheet());
+    }
   } catch(err){
     out = { ok: false, error: "server", detail: String(err) };
   } finally {
-    try { lock.releaseLock(); } catch(_){}
+    if(lock) try { lock.releaseLock(); } catch(_){}
   }
   return ContentService.createTextOutput(JSON.stringify(out))
     .setMimeType(ContentService.MimeType.JSON);

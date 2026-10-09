@@ -285,6 +285,76 @@ T.test("globe bundle: SD-картка — країна без mp3 у списк�
   T.eq(r.missing.map(c => c.id), ["DE"]);
 }));
 
+/* ---------------- збої сховища не губять країн учителя ---------------- */
+const UA_OVER = { id:"UA", has_audio:true, updated:"2026-10-09T10:00:00Z",
+  fields:{ name:"Україна", capital:"Київ", continent:"Європа", lcd_name:"Ukraina", lcd_capital:"Kyiv", text:"Наш запис." } };
+function fakeStore(state){
+  GlobeStore._endpoint = "https://example.invalid/exec";
+  GlobeStore._fetch = (url, o) => {
+    const b = JSON.parse(o.body);
+    if(state.down) return Promise.reject(new Error("net"));
+    if(b.action === "audio" && state.audioDown) return Promise.resolve({ ok:true, json:() => Promise.resolve({ ok:false, error:"server" }) });
+    const reply = b.action === "countries" ? { ok:true, countries:state.list } : b.action === "audio" ? { ok:true, audio:"QUJD" } : { ok:false };
+    return Promise.resolve({ ok:true, json:() => Promise.resolve(reply) });
+  };
+}
+
+T.test("globe runtime: збій сховища не стирає вже завантажені країни вчителя", async () => {
+  const state = { list:[FR_C] };
+  fakeStore(state);
+  GlobeRuntime.base = "../";
+  await GlobeRuntime.boot();
+  await GlobeRuntime.loadCountries();
+  state.down = true;
+  const r = await GlobeRuntime.loadCountries();
+  T.eq(r.ok, false);
+  T.ok(GlobeRuntime.countries().some(c => c.id === "FR"), "FR лишилась");
+  T.ok(GlobeRuntime.countriesError, "помилку видно сторінці");
+  state.down = false;
+  await GlobeRuntime.loadCountries();
+  T.eq(GlobeRuntime.countriesError, "");
+  GlobeStore._endpoint = ""; GlobeRuntime.setCountries([]);
+});
+
+T.test("globe runtime: невдале завантаження mp3 не запам'ятовується", async () => {
+  const state = { list:[FR_C], audioDown:true };
+  fakeStore(state);
+  await GlobeRuntime.loadCountries();
+  T.eq(await GlobeRuntime.extraAudio("FR"), null);
+  state.audioDown = false;
+  T.eq([...await GlobeRuntime.extraAudio("FR")], [65, 66, 67]);
+  GlobeStore._endpoint = ""; GlobeRuntime.setCountries([]);
+});
+
+T.test("globe bundle: замінений учителем UA — його запис на SD-картці й у проєкті; без запису — помилка, а не проєктний mp3", async () => {
+  const state = { list:[UA_OVER] };
+  fakeStore(state);
+  await GlobeRuntime.loadCountries();
+  const ua = GlobeRuntime.countries().find(c => c.id === "UA");
+  const sd = await JSZip.loadAsync((await GlobeBundle.sdcard()).blob);
+  T.eq([...await sd.file("01/" + String(ua.track).padStart(3, "0") + ".mp3").async("uint8array")], [65, 66, 67]);
+  const pz = await JSZip.loadAsync(await GlobeBundle.project({}));
+  T.eq([...await pz.file("Touch_The_Globe/content/audio/UA.mp3").async("uint8array")], [65, 66, 67]);
+  /* сховище не віддало запис — картку не збираємо, щоб не підкласти старий UA.mp3 */
+  state.list = [UA_OVER];
+  await GlobeRuntime.loadCountries();
+  state.audioDown = true;
+  let err = "";
+  try { await GlobeBundle.sdcard(); } catch(e){ err = e.message; }
+  T.ok(/UA/.test(err), err);
+  err = "";
+  try { await GlobeBundle.project({}); } catch(e){ err = e.message; }
+  T.ok(/UA/.test(err), err);
+  /* «Прибрати» заміну — повертається проєктний UA */
+  state.audioDown = false; state.list = [];
+  await GlobeRuntime.loadCountries();
+  T.eq(GlobeRuntime.countries().find(c => c.id === "UA").lcd_name, "Ukraine");
+  const sd2 = await JSZip.loadAsync((await GlobeBundle.sdcard()).blob);
+  const snap = await GlobeRuntime.snapshotAudio("UA");
+  T.eq((await sd2.file("01/" + String(ua.track).padStart(3, "0") + ".mp3").async("uint8array")).length, snap.length);
+  GlobeStore._endpoint = ""; GlobeRuntime.setCountries([]);
+});
+
 /* ---------------- сторінка учня цілком: iframe + сервер із логікою Code.gs ---------------- */
 const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 function clearGlobeStorage(){

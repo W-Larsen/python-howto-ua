@@ -92,4 +92,31 @@ assert.equal(C({ action:"delete_country", teacherKey:"x", id:"FR" }).error, "bad
 assert.equal(C({ action:"delete_country", teacherKey:"k", id:"FR" }).ok, true);
 assert.equal(C({ action:"countries" }).countries.length, 0);
 assert.equal(Object.keys(d.files).length, 0);
+/* ---------- doPost: публічне читання країн — без блокування й без аркуша з кодом учнів ---------- */
+{
+  const calls = { lock:0, sheetsRead:[] };
+  const range = (vals) => ({ getValues:() => vals, setValues(){}, setNumberFormat(){}, getValue:() => "k", setValue(){} });
+  const sheetObj = (name, vals) => ({ getDataRange(){ calls.sheetsRead.push(name); return range(vals); },
+    getRange:() => range(vals), appendRow(){}, deleteRow(){}, getLastRow:() => vals.length });
+  const book = { getSheetByName:(n) => sheetObj(n, n === "countries"
+      ? [["id"], ["FR", "Франція", "", "", "France", "Paris", "Сир.", "f1", "2026"]] : [["h"]]),
+    insertSheet:(n) => sheetObj(n, [["h"]]) };
+  const g = {
+    SpreadsheetApp:{ getActiveSpreadsheet:() => book },
+    LockService:{ getScriptLock:() => { calls.lock++; return { waitLock(){}, releaseLock(){} }; } },
+    ContentService:{ MimeType:{ JSON:"json" }, createTextOutput:(t) => ({ setMimeType(){ return t; } }) },
+    DriveApp:{ getFileById:() => ({ getBlob:() => ({ getBytes:() => [73, 68, 51] }) }) },
+    Utilities:{ base64Encode:() => "SUQz" }
+  };
+  const c2 = Object.assign({}, g); vm.createContext(c2);
+  vm.runInContext(fs.readFileSync(new URL("../globe/apps-script/Code.gs", import.meta.url), "utf8"), c2);
+  const out = JSON.parse(c2.doPost({ postData:{ contents: JSON.stringify({ action:"countries" }) } }));
+  assert.equal(out.ok, true);
+  assert.equal(out.countries[0].id, "FR");
+  assert.equal(calls.lock, 0, "читання країн не чекає на блокування");
+  assert.deepEqual(calls.sheetsRead, ["countries"], "читається лише аркуш countries");
+  const a = JSON.parse(c2.doPost({ postData:{ contents: JSON.stringify({ action:"audio", id:"FR" }) } }));
+  assert.equal(a.audio, "SUQz");
+  assert.equal(calls.lock, 0);
+}
 console.log("ok");

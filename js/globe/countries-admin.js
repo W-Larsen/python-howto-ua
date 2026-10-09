@@ -144,9 +144,10 @@ function mount(el, opts){
       const b64 = file ? await readBase64(file) : "";
       const r = await GlobeStore.addCountry(key, id, fields, b64);
       if(!r.ok){ say(esc(GlobeStore.errorText(r.error)), "bad"); return; }
-      await GlobeRuntime.loadCountries();
+      const fresh = await GlobeRuntime.loadCountries();
       render();
       form.hidden = true;
+      if(!stale(fresh)) return;
       const warn = check.warnings.length ? `<br><small>${check.warnings.map(esc).join("<br>")}</small>` : "";
       sdmsg.hidden = false;
       sdmsg.innerHTML = `<div class="callout"><p><b>${esc(id)}</b> збережено${isNew && !file ? ", але без аудіо — на глобусі вона буде мовчати" : ""}.
@@ -173,8 +174,18 @@ function mount(el, opts){
       sdmsg.innerHTML = `<div class="callout warn"><p>${esc(GlobeStore.errorText(r.error))}</p></div>`;
       return;
     }
-    await GlobeRuntime.loadCountries();
+    stale(await GlobeRuntime.loadCountries());
     render();
+  }
+
+  function note(html, warn){
+    sdmsg.hidden = false;
+    sdmsg.innerHTML = `<div class="callout${warn ? " warn" : ""}"><p>${html}</p></div>`;
+  }
+  /* список не оновився (сховище не відповіло) — кажемо прямо, а не мовчки */
+  function stale(r){
+    if(r && r.ok === false) note(`Не вдалося оновити список країн: ${esc(GlobeRuntime.countriesError)} Оновіть сторінку.`, true);
+    return r && r.ok !== false;
   }
 
   async function sdcard(btn){
@@ -187,6 +198,8 @@ function mount(el, opts){
       sdmsg.innerHTML = `<div class="callout"><p>Розпакуйте архів і скопіюйте папку <code>01</code> у корінь microSD
         (FAT32), щоб на картці було <code>01/001.mp3</code>, <code>01/002.mp3</code>… Скетч скачайте з цієї ж сторінки — номери
         треків у ньому ті самі.</p>${miss}</div>`;
+    } catch(e){
+      note(esc(e.message || String(e)), true);
     } finally { btn.disabled = false; }
   }
 
@@ -212,6 +225,7 @@ function mount(el, opts){
   form.addEventListener("submit", (e) => { e.preventDefault(); save(); });
 
   render();
+  if(GlobeRuntime.countriesError) stale({ ok:false });
   return { render };
 }
 

@@ -33,6 +33,7 @@ function full(sources){
 const pack = (z) => z.generateAsync({ type: "blob", compression: "DEFLATE" });
 const COUNTRY_FIELDS = ["name", "capital", "continent", "lcd_name", "lcd_capital", "text"];
 const trackFile = (track) => "01/" + String(track).padStart(3, "0") + ".mp3";
+const audioFailed = (id) => "Не вдалося завантажити запис " + id + " зі сховища — спробуйте ще раз за хвилину.";
 
 /* Країни, які вчитель додав на сайті, — у проєкт як звичайні файли:
    content/countries/<ID>.txt і content/audio/<ID>.mp3. */
@@ -42,6 +43,7 @@ async function addCountries(z, root){
     COUNTRY_FIELDS.forEach(f => { fields[f] = c[f]; });
     z.file(root + "content/countries/" + c.id + ".txt", GlobeRuntime.countryFile(fields));
     const bytes = c.has_audio ? await GlobeRuntime.extraAudio(c.id) : null;
+    if(GlobeRuntime.teacherAudioMissing(c, bytes)) throw new Error(audioFailed(c.id));
     if(bytes) z.file(root + "content/audio/" + c.id + ".mp3", bytes);
   }
 }
@@ -84,7 +86,10 @@ async function sdcard(){
   const out = new JSZip();
   const missing = [];
   for(const c of GlobeRuntime.countries()){
-    const bytes = (await GlobeRuntime.extraAudio(c.id)) || (await GlobeRuntime.snapshotAudio(c.id));
+    const extra = await GlobeRuntime.extraAudio(c.id);
+    /* без запису вчителя не підкладаємо проєктний mp3 — на картці був би не той голос */
+    if(GlobeRuntime.teacherAudioMissing(c, extra)) throw new Error(audioFailed(c.id));
+    const bytes = extra || (await GlobeRuntime.snapshotAudio(c.id));
     if(bytes) out.file(trackFile(c.track), bytes);
     else missing.push(c);
   }
