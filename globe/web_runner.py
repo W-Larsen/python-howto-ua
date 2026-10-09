@@ -22,7 +22,7 @@ from globe_core.catalog import Country, ContentError, load_catalog, parse_countr
 from globe_core.cpp_codegen import generate_header
 from globe_core.engine import GAME, GlobeEngine
 from globe_core.language import Context, analyze_all
-from globe_core.problems import has_errors
+from globe_core.problems import WARNING, Problem, has_errors
 from globe_core.settings import load_settings
 from globe_core.student_loader import (
     GUARD_FUNCTION,
@@ -231,6 +231,18 @@ class _Globe:
             for name in info.functions:
                 hooks[name] = functions[name]
         self.engine.set_hooks(hooks)
+        self.problems = problems + self._button_problems()
+
+    def _button_problems(self):
+        """task1 проти таблиці вчителя: розбіжність - попередження, не помилка."""
+        found = []
+        warn = self.engine._on_warning
+        self.engine._on_warning = found.append
+        try:
+            self.engine.check_buttons()
+        finally:
+            self.engine._on_warning = warn
+        return [Problem(text, "task1.py", None, WARNING) for text in found]
 
     def step(self):
         self.steps += 1
@@ -292,8 +304,13 @@ def _crash(exc):
 # Те, що викликає сторінка
 # ---------------------------------------------------------------------------
 def check(sources_json):
-    """globe test: проблеми в коді учня."""
-    _, problems = _analyze(json.loads(sources_json))
+    """globe test: проблеми в коді учня, разом зі звіркою task1 із таблицею вчителя."""
+    sources = json.loads(sources_json)
+    try:
+        problems = _Globe(sources).problems
+    except Exception:
+        # код учня не завантажився - лишаємо хоча б перевірку тексту
+        _, problems = _analyze(sources)
     return json.dumps({"problems": [_problem(p) for p in problems]}, ensure_ascii=False)
 
 
@@ -497,3 +514,55 @@ def countries_header():
     except BuildError as exc:
         header, error = None, str(exc)
     return json.dumps({"header": header, "error": error}, ensure_ascii=False)
+
+
+# ---------------------------------------------------------------------------
+# Країни кнопок: однакова відповідність «кнопка -> країна» для всіх учнів
+# ---------------------------------------------------------------------------
+# Вчитель задає її на сторінці вчителя. Вона записується в settings.py
+# (BUTTON_COUNTRIES) у Pyodide - так само, як її записав би вчитель у своєму
+# проєкті, - і далі рушій, перекладач у C++ та архіви бачать її як звичайне
+# налаштування.
+BUTTON_COUNTRIES_LINE = re.compile(r"^BUTTON_COUNTRIES\s*=.*$", re.M)
+
+
+def _settings_path():
+    return os.path.join(_project["root"], "settings.py")
+
+
+def settings_text():
+    """Поточний settings.py (з країнами кнопок) - для архіву проєкту."""
+    with open(_settings_path(), encoding="utf-8") as handle:
+        return handle.read()
+
+
+def button_countries():
+    return json.dumps(_project["settings"].button_countries)
+
+
+def button_count():
+    return _project["settings"].button_count
+
+
+def set_button_countries(list_json):
+    """Країни кнопок: ["UA", "AU", ...], "" - кнопку не закріплено.
+
+    Усе, що не схоже на ID країни, стає порожнім місцем. Рушій перевіряє
+    ще й те, що така країна є в каталозі.
+    """
+    clean = []
+    for item in json.loads(list_json):
+        value = item.strip().upper() if isinstance(item, str) else ""
+        clean.append(value if COUNTRY_ID.match(value) else "")
+    while clean and not clean[-1]:
+        clean.pop()
+    line = "BUTTON_COUNTRIES = " + json.dumps(clean, ensure_ascii=False)
+    text = settings_text()
+    if BUTTON_COUNTRIES_LINE.search(text):
+        text = BUTTON_COUNTRIES_LINE.sub(lambda _: line, text, count=1)
+    else:
+        text = text.rstrip("\n") + "\n" + line + "\n"
+    with open(_settings_path(), "w", encoding="utf-8") as handle:
+        handle.write(text)
+    setup(_project["root"])
+    return json.dumps({"countries": clean}, ensure_ascii=False)

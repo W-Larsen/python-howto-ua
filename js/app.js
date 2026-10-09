@@ -26,8 +26,9 @@ const ROUTES = [
   { slug:"files", id:"page-files", num:"06",
     nav:"Файли",                 title:"Файли в Python — open, with, читання, запис і CSV" },
   /* проєкт для 9 класу: код для глобуса, симулятор дисплея, збереження для
-     вчителя. Сторінка вчителя — лише за прямим посиланням (hidden). */
-  { slug:"globe", id:"page-globe", num:"🌍", practice:true, toc:false,
+     вчителя. У бічному меню його немає (hidden): відкривається з вкладки
+     «Практика» на головній. Сторінка вчителя — лише за прямим посиланням. */
+  { slug:"globe", id:"page-globe", num:"🌍", practice:true, hidden:true, toc:false,
     nav:"Touch The Globe · 9 клас", title:"Touch The Globe — код для глобуса, 9 клас",
     kids:[
       { slug:"globe-teacher", id:"page-globe-teacher", num:"🌍", hidden:true, cls:"globe", toc:false,
@@ -101,7 +102,7 @@ const sidebar = $("#sidebar"), scrim = $("#scrim"), burger = $("#burger"),
    піднімається карткою; колір кружка — колір теми (--tc інлайном). */
 /* розділ, у якого всі підсторінки приховані (globe), у меню — звичайний пункт */
 const shownKids = (r) => (r.kids || []).filter(c => !c.hidden);
-navList.innerHTML = ROUTES.map(r => `
+navList.innerHTML = ROUTES.filter(r => !r.hidden).map(r => `
   <div class="nav-group" data-group="${r.slug}" style="--tc:var(--tc-${r.slug})">
   <a class="nav-item${shownKids(r).length ? " has-kids" : ""}" href="#/${r.slug}" data-slug="${r.slug}">
     <span class="num">${r.num}</span><span class="t">${r.nav}</span>

@@ -29,6 +29,7 @@ const ERRORS = {
   bad_key: "Неправильний ключ учителя.",
   server: "Сховище відповіло помилкою — код збережено лише в цьому браузері.",
   bad_id: "ID країни — 2–3 великі латинські літери, наприклад FR.",
+  bad_buttons: "Країни кнопок: потрібен список із 1–8 елементів.",
   bad_country: "Заповни назву, назву латиницею й текст розповіді.",
   too_big: "Аудіофайл завеликий: потрібно до 5 МБ.",
   no_audio: "Для цієї країни ще немає аудіо.",
@@ -67,12 +68,17 @@ function setDraft(task, code){
 function draftTime(task){ return ls.get(draftKey(task) + ".t"); }
 function clearDraft(task){ ls.del(draftKey(task)); ls.del(draftKey(task) + ".t"); }
 
+/* Що скрипт написав про помилку (поле detail відповіді {error:"server"}): без цього
+   «Сховище відповіло помилкою» не підказує, що саме зламалося. */
+let lastDetail = "";
+
 const api = {
   _endpoint: (window.GLOBE_CONFIG && window.GLOBE_CONFIG.endpoint) || "",
   _fetch: (url, o) => window.fetch(url, o)
 };
 
 async function post(body){
+  lastDetail = "";
   if(!api._endpoint) return { ok:false, error:"offline" };
   let res;
   try {
@@ -85,7 +91,11 @@ async function post(body){
   if(!res || !res.ok) return { ok:false, error:"network" };
   try {
     const data = await res.json();
-    return data && typeof data === "object" ? data : { ok:false, error:"server" };
+    if(data && typeof data === "object"){
+      if(data.error === "server" && data.detail) lastDetail = String(data.detail).slice(0, 300);
+      return data;
+    }
+    return { ok:false, error:"server" };
   } catch(e){ return { ok:false, error:"server" }; }
 }
 
@@ -117,12 +127,23 @@ function addCountry(teacherKey, id, country, audioB64){
 }
 const deleteCountry = (teacherKey, id) => post({ action:"delete_country", teacherKey, id });
 
-const errorText = (code) => ERRORS[code] || ERRORS.server;
+/* ---------- яка країна на якій кнопці (однаково для всіх учнів) ---------- */
+const buttons = () => post({ action:"buttons" });
+const setButtons = (teacherKey, list) => post({ action:"set_buttons", teacherKey, buttons: list });
+
+/* Доступ до Drive зазвичай не дозволений, бо в редакторі Apps Script не запускали setup */
+const DRIVE_HINT = /drive|authoriz|permission|доступ|дозвол/i;
+function errorText(code){
+  const text = ERRORS[code] || ERRORS.server;
+  if(!lastDetail || (ERRORS[code] && code !== "server")) return text;
+  return text + " Скрипт пише: " + lastDetail +
+    (DRIVE_HINT.test(lastDetail) ? " — запустіть функцію setup у редакторі Apps Script й дозвольте доступ до Google Drive (globe/apps-script/README.md)." : "");
+}
 const configured = () => !!api._endpoint;
 
 return Object.assign(api, {
   normWho, who, setWho, clearWho, draft, setDraft, draftTime, clearDraft,
   save, load, teacherList, teacherGet, errorText, configured,
-  countries, audio, addCountry, deleteCountry
+  countries, audio, addCountry, deleteCountry, buttons, setButtons
 });
 })();

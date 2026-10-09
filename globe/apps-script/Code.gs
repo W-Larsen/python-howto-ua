@@ -11,6 +11,7 @@
      аркуш history  — кожне збереження окремим рядком (на випадок «я все стер»)
      аркуш countries — країни, які вчитель додав на сайті; їхні mp3 лежать
                       на Google Drive у теці «Touch The Globe — аудіо»
+     settings!B2    — країни кнопок: ID через кому («UA,AU,JP»), однакові для всіх учнів
 
    Сторінка надсилає POST з JSON {action, ...}:
      save — {cls, name, task, code, problems}    зберегти свою задачу
@@ -21,6 +22,8 @@
      audio     — {id}                            mp3 країни (base64)
      add_country    — {teacherKey, id, country, audio?}   додати / замінити країну
      delete_country — {teacherKey, id}                    прибрати країну
+     buttons        — {}                                  яка країна на кнопці 1, 2, … (ID або "")
+     set_buttons    — {teacherKey, buttons}               закріпити країни за кнопками
 
    handle() — лише логіка, без Google: її перевіряє
    tests/test_globe_appscript.mjs.
@@ -54,6 +57,7 @@ function tasksOf(rows, cls, key){
 
 var COUNTRY_FIELDS = ["name", "capital", "continent", "lcd_name", "lcd_capital", "text"];
 var MAX_AUDIO = 7000000;   /* base64 від mp3 ~5 МБ */
+var MAX_BUTTONS = 8;       /* стільки кнопок витягне плата (MAX_BUTTONS у settings.py проєкту) */
 
 function keyOk(req, sheets){
   return !!sheets.teacherKey && String(sheets.teacherKey) !== DEFAULT_KEY &&
@@ -81,7 +85,19 @@ function handleCountry(req, sheets){
     if(!found || !found.audio_file) return { ok: false, error: "no_audio" };
     return { ok: true, audio: sheets.readAudio(found.audio_file) };
   }
+  if(req.action === "buttons") return { ok: true, buttons: sheets.buttons || [] };
   if(!keyOk(req, sheets)) return { ok: false, error: "bad_key" };
+  if(req.action === "set_buttons"){
+    if(!Array.isArray(req.buttons) || req.buttons.length > MAX_BUTTONS) return { ok: false, error: "bad_buttons" };
+    var buttons = [];
+    for(var b = 0; b < req.buttons.length; b++){
+      var one = String(req.buttons[b] || "").trim().toUpperCase();
+      if(one && !/^[A-Z]{2,3}$/.test(one)) return { ok: false, error: "bad_id" };
+      buttons.push(one);
+    }
+    sheets.saveButtons(buttons);
+    return { ok: true, buttons: buttons };
+  }
   var id = String(req.id || "");
   if(!/^[A-Z]{2,3}$/.test(id)) return { ok: false, error: "bad_id" };
   var old = findCountry(sheets, id);
@@ -108,7 +124,7 @@ function handleCountry(req, sheets){
 
 function handle(req, sheets){
   req = req || {};
-  if(["countries", "audio", "add_country", "delete_country"].indexOf(req.action) >= 0)
+  if(["countries", "audio", "add_country", "delete_country", "buttons", "set_buttons"].indexOf(req.action) >= 0)
     return handleCountry(req, sheets);
   var cls = normClass(req.cls);
   var name = normName(req.name);
@@ -197,6 +213,19 @@ function countriesOnly(){
   };
 }
 
+/* Країни кнопок: у клітинці settings!B2 через кому, "" — кнопку не закріплено. */
+function readButtons(setSh){
+  var v = String(setSh.getRange("B2").getValue() || "");
+  return v ? v.split(",").map(function(x){ return x.trim().toUpperCase(); }) : [];
+}
+
+/* Публічне читання кнопок — як і країн: лише одна клітинка, без блокування. */
+function buttonsOnly(){
+  var book = SpreadsheetApp.getActiveSpreadsheet();
+  var sh = book.getSheetByName("settings");
+  return { buttons: sh ? readButtons(sh) : [] };
+}
+
 function sheetsFromSpreadsheet(){
   var book = SpreadsheetApp.getActiveSpreadsheet();
   var codeSh = sheet(book, "code", CODE_COLUMNS);
@@ -217,6 +246,13 @@ function sheetsFromSpreadsheet(){
   var countries = countryRows(countrySh);
 
   return {
+    buttons: readButtons(setSh),
+    saveButtons: function(list){
+      setSh.getRange("A2").setValue("Країни кнопок:");
+      var cell = setSh.getRange("B2");
+      cell.setNumberFormat("@");
+      cell.setValue(list.join(","));
+    },
     countries: countries,
     upsertCountry: function(r){
       var values = [COUNTRY_COLUMNS.map(function(c){ return asText(r[c] || ""); })];
@@ -274,7 +310,9 @@ function doPost(e){
   var out, lock = null;
   try {
     var req = JSON.parse(e.postData.contents);
-    if(req && (req.action === "countries" || req.action === "audio")){
+    if(req && req.action === "buttons"){
+      out = handleCountry(req, buttonsOnly());
+    } else if(req && (req.action === "countries" || req.action === "audio")){
       out = handleCountry(req, countriesOnly());
     } else {
       lock = LockService.getScriptLock();
@@ -303,5 +341,9 @@ function setup(){
   if(!settings.getRange("A1").getValue()){
     settings.getRange("A1").setValue("Ключ учителя:");
     settings.getRange("B1").setValue(DEFAULT_KEY);
+  }
+  if(!settings.getRange("A2").getValue()){
+    settings.getRange("A2").setValue("Країни кнопок:");
+    settings.getRange("B2").setNumberFormat("@");
   }
 }

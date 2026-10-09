@@ -14,6 +14,15 @@
 
   /* ==================== хто учень ==================== */
   .globe-who{margin:1.4em 0}
+  .globe-map p{margin:0 0 .4em}
+  .globe-map-scroll{overflow-x:auto; margin:.6em 0 0}
+  .globe-map-table{border-collapse:collapse; background:var(--card); border:1px solid var(--rule); border-radius:10px; font-size:.86rem}
+  .globe-map-table td{min-width:5.5em}
+  .globe-map-table th, .globe-map-table td{padding:6px 14px; text-align:center; border:1px solid var(--rule-soft)}
+  .globe-map-table thead th{background:var(--panel-2); color:var(--muted); font-weight:600}
+  .globe-map-table th[scope="row"]{text-align:left; color:var(--muted); font-weight:600}
+  .globe-map-table small{display:block; color:var(--muted); font-size:.74rem}
+  .globe-map-table .none{color:var(--muted)}
   /* display:flex нижче перебив би атрибут hidden */
   #page-globe [hidden], #page-globe-teacher [hidden]{display:none !important}
   .globe-login{display:flex; flex-wrap:wrap; align-items:flex-end; gap:10px 14px; padding:16px 18px;
@@ -180,15 +189,24 @@
 
   /* ---------- країни глобуса (js/globe/countries-admin.js) ---------- */
   .gt-countries{margin:2.4em 0 1em}
-  .gt-ctable code{font-size:.78rem}
+  .gt-ctable td{vertical-align:middle; padding-top:10px; padding-bottom:10px}
+  .gt-ctable code{font-size:.78rem; line-height:1.3}
+  /* дві плашки «на екрані» одна під одною, а не злиплі */
+  .gt-lcd code{display:block; width:max-content; max-width:100%; margin:3px 0}
+  .gt-ctable td small{display:block; margin-top:2px; color:var(--muted)}
   .gt-track{font-family:var(--mono); font-weight:700; color:var(--ink)}
   .gt-tag{font-family:var(--mono); font-size:.7rem; padding:2px 8px; border-radius:999px;
     border:1px solid var(--rule); background:var(--panel); color:var(--muted)}
   .gt-tag.new{border-color:var(--j-line); background:var(--j-soft); color:var(--j)}
   .gt-tag.over{border-color:var(--n-line); background:var(--n-soft); color:var(--n)}
   .gt-skipped td{color:var(--stop); background:var(--stop-soft)}
-  .gt-cform{margin:1.2em 0; padding:16px 18px; border:1px solid var(--rule); border-radius:14px; background:var(--panel)}
+  .gt-cform, .gt-bform{margin:1.2em 0; padding:16px 18px; border:1px solid var(--rule); border-radius:14px; background:var(--panel)}
   .gt-cform h3{margin:0 0 .6em}
+  .gt-bscroll{margin-bottom:12px; max-width:30em}
+  .gt-btable td{vertical-align:middle}
+  .gt-btable td.gt-name{width:5.5em; font-weight:700}
+  .gt-bform select{width:100%; min-width:12em; max-width:20em;font:inherit; font-size:.95rem; color:var(--ink); padding:7px 10px; border-radius:9px;
+    border:1px solid var(--rule); background:var(--card)}
   .gt-cgrid{display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:10px 14px}
   .gt-cgrid label{display:flex; flex-direction:column; gap:4px; font-size:.82rem; color:var(--muted)}
   .gt-cgrid .gt-cwide{grid-column:1 / -1}

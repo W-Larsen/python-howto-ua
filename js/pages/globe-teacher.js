@@ -39,6 +39,7 @@ root.innerHTML = `
       <div data-role="sim"></div>
     </div>
   </div>
+  <div data-role="buttons-admin"></div>
   <div data-role="countries-admin"></div>`;
 
 const $ = (s) => root.querySelector(s);
@@ -208,6 +209,7 @@ try {
 } catch(e){}
 GlobeRuntime.boot().then(() => {
   /* країни глобуса: список публічний, а додати чи прибрати — з ключем учителя */
+  GlobeButtonsAdmin.mount($('[data-role="buttons-admin"]'), { key: () => form.key.value });
   GlobeCountriesAdmin.mount($('[data-role="countries-admin"]'), { key: () => form.key.value });
 }).catch(err => say(err.message));
 

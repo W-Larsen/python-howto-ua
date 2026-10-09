@@ -311,6 +311,27 @@ function logout(){
   loginForm.querySelector("input").focus();
 }
 
+/* ---------------- країни кнопок: що вирішив вчитель ---------------- */
+function renderMap(){
+  const box = $("#globe-map");
+  const names = Object.fromEntries(GlobeRuntime.countries().map(c => [c.id, c.lcd_name]));
+  const ids = GlobeRuntime.buttons();
+  const count = Math.max(GlobeRuntime.buttonCount(), ids.length);
+  box.hidden = !ids.some(Boolean);
+  if(box.hidden) return;
+  const cells = Array.from({ length: count }, (_, i) => ids[i]
+    ? `<td><code>"${esc(ids[i])}"</code><small>${esc(names[ids[i]] || "такої країни немає")}</small></td>`
+    : `<td class="none">—</td>`).join("");
+  box.innerHTML = `<p><b>Яка країна на якій кнопці</b> — так вирішив вчитель. У задачі 1 постав на кнопку саме її:
+    ігри (задачі 2 і 3) беруть правильну відповідь із цієї таблиці. Якщо поставиш іншу, код запуститься, але перевірка попередить.</p>
+    <div class="globe-map-scroll"><table class="globe-map-table">
+      <thead><tr><th scope="row">Кнопка</th>${Array.from({ length: count }, (_, i) => `<th scope="col">${i + 1}</th>`).join("")}</tr></thead>
+      <tbody><tr><th scope="row">Країна</th>${cells}</tr></tbody></table></div>`;
+  if(window.InlineCode) InlineCode.paint(box);
+}
+
+window.addEventListener("globe:buttons", () => { if(ready && page.isConnected) renderMap(); });
+
 /* ---------------- старт ---------------- */
 showWho();
 renderTabs();
@@ -323,6 +344,7 @@ GlobeRuntime.boot().then(async () => {
   ta.disabled = false;
   ta.placeholder = "";
   page.querySelectorAll('[data-act="check"], [data-act="download"]').forEach(b => { b.disabled = false; });
+  renderMap();
   /* у довідці — країни, які глобус знає зараз (разом із доданими вчителем) */
   const ids = $('[data-role="country-ids"]');
   ids.innerHTML = GlobeRuntime.countries().map(c => `<code>"${esc(c.id)}"</code> ${esc(c.lcd_name)}`).join(", ");
@@ -331,6 +353,9 @@ GlobeRuntime.boot().then(async () => {
   quiet = true;
   await sim.run("");
   quiet = false;
+  if(GlobeRuntime.buttonsError)
+    sim.log("warn", "Не вдалося завантажити країни кнопок (" + GlobeRuntime.buttonsError +
+      ") — ігри зараз питатимуть задачу 1. Онови сторінку за хвилину.");
   if(GlobeRuntime.countriesError)
     sim.log("warn", "Не вдалося завантажити країни вчителя (" + GlobeRuntime.countriesError +
       ") — зараз видно лише країни проєкту. Онови сторінку за хвилину.");

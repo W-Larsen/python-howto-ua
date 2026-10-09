@@ -26,7 +26,7 @@ function mount(el, opts){
   el.innerHTML = `
   <section class="gt-countries" data-role="countries">
     <h2>Країни глобуса</h2>
-    <p>Тут усі країни, які знає глобус: шість із проєкту і ті, що ви додали. Нова країна з аудіо учнів одразу з'являється в усіх:
+    <p>Тут усі країни, які знає глобус: Україна з проєкту (як приклад) і ті, що ви додали. Нова країна з аудіо учнів одразу з'являється в усіх:
       перевірка коду її приймає, симулятор грає її mp3, а архіви для плати її містять.</p>
     <div class="callout warn"><p><b>Після зміни списку країн скачайте заново і скетч, і SD-картку.</b> Номери треків
       розставляються за абеткою ID, тож нова країна зсуває номери інших — старий скетч зі старою карткою
@@ -79,7 +79,7 @@ function mount(el, opts){
       return `<tr data-id="${esc(c.id)}">
         <td class="gt-name">${esc(c.id)}</td>
         <td>${esc(c.name)}${c.capital ? `<br><small>${esc(c.capital)}</small>` : ""}</td>
-        <td><code>${esc(c.lcd_name)}</code><br><code>${esc(c.lcd_capital)}</code></td>
+        <td class="gt-lcd"><code>${esc(c.lcd_name)}</code><code>${esc(c.lcd_capital)}</code></td>
         <td class="gt-track">${c.track}</td>
         <td><button type="button" class="gt-open" data-act="play" aria-label="Слухати ${esc(c.id)}">▶</button></td>
         <td><span class="gt-cell">${tag} ${actions}</span></td></tr>`;
@@ -224,6 +224,8 @@ function mount(el, opts){
   });
   form.addEventListener("submit", (e) => { e.preventDefault(); save(); });
 
+  /* каталог оновився деінде (наприклад, перечитали зі сховища) — список перемальовується */
+  window.addEventListener("globe:countries", () => { if(el.isConnected) render(); });
   render();
   if(GlobeRuntime.countriesError) stale({ ok:false });
   return { render };

@@ -119,4 +119,40 @@ assert.equal(Object.keys(d.files).length, 0);
   assert.equal(a.audio, "SUQz");
   assert.equal(calls.lock, 0);
 }
+/* ---------- країни кнопок: однакова відповідність для всіх учнів ---------- */
+/* об'єкти з vm-контексту мають інші прототипи — порівнюємо як JSON */
+const same = (a, b) => assert.equal(JSON.stringify(a), JSON.stringify(b));
+{
+  const b = Object.assign(mem(), { buttons: [], saveButtons(list){ this.buttons = list; } });
+  const B = (req) => ctx.handle(req, b);
+  same(B({ action:"buttons" }), { ok:true, buttons:[] }, "читання публічне й без ключа");
+  assert.equal(B({ action:"set_buttons", teacherKey:"bad", buttons:["UA"] }).error, "bad_key");
+  assert.equal(B({ action:"set_buttons", buttons:["UA"] }).error, "bad_key");
+  assert.equal(B({ action:"set_buttons", teacherKey:"k", buttons:["u1"] }).error, "bad_id");
+  assert.equal(B({ action:"set_buttons", teacherKey:"k", buttons:"UA" }).error, "bad_buttons");
+  assert.equal(B({ action:"set_buttons", teacherKey:"k", buttons:Array(9).fill("UA") }).error, "bad_buttons");
+  const saved = B({ action:"set_buttons", teacherKey:"k", buttons:[" ua ", "AU", "", "JP"] });
+  same(saved, { ok:true, buttons:["UA", "AU", "", "JP"] });
+  same(b.buttons, ["UA", "AU", "", "JP"]);
+  same(B({ action:"buttons" }).buttons, ["UA", "AU", "", "JP"]);
+}
+/* ---------- doPost: читання кнопок — без блокування, лише аркуш settings ---------- */
+{
+  const calls = { lock:0, read:[], wrote:null };
+  const cell = (name) => ({ getValue:() => name === "settings" ? "UA,AU,,JP" : "", setValue(v){ calls.wrote = v; },
+    setNumberFormat(){} });
+  const sheetObj = (name) => ({ getRange:(a) => { calls.read.push(name + "!" + a); return cell(name); },
+    getDataRange:() => { calls.read.push(name); return { getValues:() => [["h"]] }; }, getLastRow:() => 1 });
+  const g = {
+    SpreadsheetApp:{ getActiveSpreadsheet:() => ({ getSheetByName:(n) => sheetObj(n), insertSheet:(n) => sheetObj(n) }) },
+    LockService:{ getScriptLock:() => { calls.lock++; return { waitLock(){}, releaseLock(){} }; } },
+    ContentService:{ MimeType:{ JSON:"json" }, createTextOutput:(t) => ({ setMimeType(){ return t; } }) }
+  };
+  const c3 = Object.assign({}, g); vm.createContext(c3);
+  vm.runInContext(fs.readFileSync(new URL("../globe/apps-script/Code.gs", import.meta.url), "utf8"), c3);
+  const out = JSON.parse(c3.doPost({ postData:{ contents: JSON.stringify({ action:"buttons" }) } }));
+  same(out, { ok:true, buttons:["UA", "AU", "", "JP"] });
+  assert.equal(calls.lock, 0);
+  same(calls.read, ["settings!B2"], "читається лише клітинка з країнами кнопок");
+}
 console.log("ok");

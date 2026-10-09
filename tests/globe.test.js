@@ -121,6 +121,36 @@ T.test("globe store: країни вчителя — список, mp3, дода
   T.ok(/5 МБ/.test(GlobeStore.errorText("too_big")));
 });
 
+T.test("globe store: помилка скрипта показує, що саме він написав", async () => {
+  GlobeStore._endpoint = "https://example.invalid/exec";
+  GlobeStore._fetch = okFetch({ ok:false, error:"server", detail:"Exception: Authorization is required to perform that action." });
+  const r = await GlobeStore.addCountry("k", "FR", { name:"Франція" });
+  T.eq(r.error, "server");
+  const text = GlobeStore.errorText(r.error);
+  T.ok(/Authorization is required/.test(text) && /setup/.test(text), text);
+  GlobeStore._fetch = okFetch({ ok:false, error:"server" });
+  await GlobeStore.addCountry("k", "FR", { name:"Франція" });
+  T.ok(!/Скрипт пише/.test(GlobeStore.errorText("server")), "без detail — як раніше");
+  GlobeStore._fetch = okFetch({ ok:false, error:"bad_key" });
+  await GlobeStore.deleteCountry("k", "FR");
+  T.eq(GlobeStore.errorText("bad_key"), "Неправильний ключ учителя.");
+  GlobeStore._endpoint = "";
+});
+
+T.test("globe store: країни кнопок — прочитати й закріпити", async () => {
+  const log = [];
+  GlobeStore._endpoint = "https://example.invalid/exec";
+  GlobeStore._fetch = okFetch({ ok:true, buttons:["UA"] }, log);
+  T.eq(await GlobeStore.buttons(), { ok:true, buttons:["UA"] });
+  await GlobeStore.setButtons("k", ["UA", "AU", ""]);
+  T.eq(log.map(x => x.body), [
+    { action:"buttons" },
+    { action:"set_buttons", teacherKey:"k", buttons:["UA", "AU", ""] }
+  ]);
+  T.ok(/1–8/.test(GlobeStore.errorText("bad_buttons")));
+  GlobeStore._endpoint = "";
+});
+
 /* ---------------- рушій: знімок проєкту + Pyodide ---------------- */
 const T1 = 'def on_button(number):\n    if number == 1:\n        play_sound("UA")\n        show_country("UA")\n';
 
@@ -235,6 +265,65 @@ T.test("globe bundle: скетч з помилками — без архіву, 
   T.eq(r.blob, undefined);
   T.ok(r.problems.some(p => p.level === "error" && p.line === 2));
 });
+
+/* ---------------- країни кнопок: ігри не залежать від task1 ---------------- */
+/* У проєкті лишилась лише Україна: Японія — демо-країна, яку вчитель «додав» на сайті */
+const JP_FIELDS = { name:"Японія", capital:"Токіо", continent:"Азія", lcd_name:"Japan", lcd_capital:"Tokyo", text:"Суші й аніме." };
+const JP_C = { id:"JP", has_audio:false, updated:"2026-10-09T10:00:00Z", fields:JP_FIELDS };
+const JP_ROW = Object.assign({ id:"JP", audio_file:"", updated:"2026-10-09T10:00:00Z" }, JP_FIELDS);
+
+async function withButtons(list, fn){
+  GlobeStore._endpoint = "https://example.invalid/exec";
+  GlobeStore._fetch = (url, o) => {
+    const b = JSON.parse(o.body);
+    const reply = b.action === "buttons" ? { ok:true, buttons:list } : { ok:false, error:"bad_action" };
+    return Promise.resolve({ ok:true, json:() => Promise.resolve(reply) });
+  };
+  GlobeRuntime.base = "../";
+  await GlobeRuntime.boot();
+  GlobeRuntime.setCountries([JP_C]);
+  await GlobeRuntime.loadButtons();
+  try { await fn(); }
+  finally { GlobeStore._endpoint = ""; GlobeRuntime.setButtons([]); GlobeRuntime.setCountries([]); }
+}
+const T2G = 'def next_target(round):\n    target("JP", "Tokyo!")\n\ndef on_hit(correct, ms):\n    if correct:\n        show_text(3, "Yes")\n    else:\n        show_text(3, "No")\n';
+
+T.test("globe runtime: таблиця кнопок від вчителя — гра працює без task1", () => withButtons(["UA", "JP"], async () => {
+  T.eq(GlobeRuntime.buttons(), ["UA", "JP"]);
+  T.eq(GlobeRuntime.buttonCount(), 5);
+  const r = GlobeRuntime.run({ "task2.py": T2G }, "g 2:600 1:3000");
+  const rows = r.events.filter(e => e.kind === "frame").map(f => f.rows[3]);
+  T.ok(rows.includes("Yes") && rows.includes("No"), JSON.stringify(rows));
+  T.ok(r.events.some(e => e.kind === "note" && /кнопка 2/.test(e.text)));
+}));
+
+T.test("globe runtime: task1 з іншою країною на кнопці — попередження, але код працює", () => withButtons(["JP", "UA"], async () => {
+  const p = GlobeRuntime.check({ "task1.py": T1 }).problems;
+  const mine = p.filter(x => x.file === "task1.py");
+  /* кнопка 1 показує UA замість JP; кнопка 2 в цьому task1 не показує нічого */
+  T.eq(mine.map(x => x.level), ["warning", "warning"]);
+  T.ok(/кнопка 1 за таблицею вчителя - JP/.test(mine[0].text), mine[0].text);
+  T.ok(/кнопка 2 за таблицею вчителя - UA/.test(mine[1].text), mine[1].text);
+  const r = GlobeRuntime.run({ "task1.py": T1 }, "1");
+  T.eq(r.events.filter(e => e.kind === "frame").pop().rows[0], "Ukraine");
+}));
+
+T.test("globe runtime: збій сховища не стирає таблицю кнопок", () => withButtons(["UA", "JP"], async () => {
+  GlobeStore._fetch = () => Promise.resolve({ ok:false });
+  const r = await GlobeRuntime.loadButtons();
+  T.eq(r.ok, false);
+  T.eq(GlobeRuntime.buttons(), ["UA", "JP"]);
+  T.ok(GlobeRuntime.buttonsError);
+}));
+
+T.test("globe bundle: таблиця кнопок — у settings.py проєкту й у student_code.h скетча", () => withButtons(["UA", "JP"], async () => {
+  const z = await JSZip.loadAsync(await GlobeBundle.project({}));
+  T.ok((await z.file("Touch_The_Globe/settings.py").async("string")).includes('BUTTON_COUNTRIES = ["UA", "JP"]'));
+  T.ok((await z.file("Touch_The_Globe/arduino/TouchTheGlobe/student_code.h").async("string"))
+    .includes('if (number == 1) {\n    show_country("UA");\n  } else if (number == 2) {\n    show_country("JP");'));
+  const sk = await JSZip.loadAsync((await GlobeBundle.sketch({})).blob);
+  T.ok((await sk.file("TouchTheGlobe/student_code.h").async("string")).includes('show_country("JP");'));
+}));
 
 /* ---------------- архіви з країнами вчителя ---------------- */
 const FR_C = { id:"FR", has_audio:true, updated:"2026-10-09T10:00:00Z",
@@ -429,6 +518,36 @@ T.test("globe page: у таблицю йде свіжа кількість по�
   T.eq(p.rows.find(r => r.task === "task1.py").problems, 1);
 });
 
+T.test("globe page: у бічному меню Touch The Globe немає, а з вкладки «Практика» він відкривається", async () => {
+  const p = await openGlobePage([]);
+  T.ok(!p.d.querySelector('.nav-item[data-slug="globe"], .nav-sub[data-slug="globe"]'), "у меню зліва його немає");
+  T.ok(!p.d.getElementById("page-globe").hidden, "за прямим посиланням сторінка відкривається");
+  T.ok(p.d.querySelector('#home-p-practice a.card[href="#/globe"]'), "картка на вкладці «Практика» головної");
+  T.ok(p.d.querySelector('.nav-item[data-slug="shop"], .nav-sub[data-slug="shop"]'), "решта меню на місці");
+  document.getElementById("sandbox").innerHTML = "";
+});
+
+T.test("globe page: таблиця «кнопка → країна» від вчителя видна над редактором", async () => {
+  const p = await openGlobePage([]);
+  const map = p.d.getElementById("globe-map");
+  p.w.GlobeRuntime.setCountries([JP_C]);
+  p.w.GlobeStore._fetch = (url, o) => Promise.resolve({ ok:true,
+    json: async () => (JSON.parse(o.body).action === "buttons" ? { ok:true, buttons:["UA", "", "JP", "XX"] } : { ok:false }) });
+  await p.w.GlobeRuntime.loadButtons();
+  T.ok(!map.hidden);
+  const head = [...map.querySelectorAll("thead th[scope=col]")].map(th => th.textContent);
+  const row = [...map.querySelectorAll("tbody td")].map(td => td.textContent.replace(/\s+/g, " ").trim());
+  T.eq(head, ["1", "2", "3", "4", "5"], "стовпчик на кожну кнопку");
+  T.ok(/^"UA"\s*Ukraine$/.test(row[0]), row[0]);
+  T.eq(row[1], "—", "не закріплено");
+  T.ok(/^"JP"\s*Japan$/.test(row[2]), row[2]);
+  T.ok(/такої країни немає/.test(row[3]), row[3]);
+  p.w.GlobeRuntime.setButtons([]);
+  p.w.dispatchEvent(new p.w.Event("globe:buttons"));
+  T.ok(map.hidden, "без таблиці блок прихований");
+  document.getElementById("sandbox").innerHTML = "";
+});
+
 T.test("globe page: повільна відповідь таблиці не потрапляє до іншого учня", async () => {
   const p = await openGlobePage([sheetRow("Олена Петренко", "task1.py", "# SHEET OLENA\n")],
     (body) => body.action === "load" ? 1500 : 20);
@@ -475,7 +594,8 @@ async function openTeacherPage(){
   const gs = await (await fetch("../globe/apps-script/Code.gs")).text();
   const handle = new Function(gs + "\nreturn handle;")();
   const files = {}; let n = 0;
-  const sheet = { classes:["9A"], teacherKey:"k", rows:[], upsert(){}, append(){}, countries:[],
+  const sheet = { classes:["9A"], teacherKey:"k", rows:[], upsert(){}, append(){}, countries:[Object.assign({}, JP_ROW)],
+    buttons:[], saveButtons(list){ this.buttons = list; },
     upsertCountry(r){ const i = this.countries.findIndex(x => x.id === r.id); if(i < 0) this.countries.push(r); else this.countries[i] = r; },
     deleteCountry(id){ this.countries = this.countries.filter(x => x.id !== id); },
     saveAudio(id, b64){ const f = "f" + (++n); files[f] = b64; return f; },
@@ -496,6 +616,10 @@ async function openTeacherPage(){
   };
   const d = w.document;
   await T.until(() => w.GlobeRuntime.isReady() && d.querySelector('[data-role="countries"] tbody tr'), 90000);
+  /* сторінка при завантаженні вже встигла спитати справжнє сховище (адреса з globe-config.js):
+     перечитуємо країни й кнопки з тестового, щоб тест не залежав від реальних даних */
+  await w.GlobeRuntime.loadCountries();
+  await w.GlobeRuntime.loadButtons();
   const form = () => d.querySelector(".gt-cform");
   return {
     w, d, sheet, requests, files,
@@ -521,7 +645,7 @@ async function openTeacherPage(){
 T.test("globe teacher: додати країну з mp3 — вона в списку з треком; кирилиця в lcd_name — без запиту", async () => {
   const p = await openTeacherPage();
   p.d.querySelector('.gt-login input[name="key"]').value = "k";
-  T.ok(p.ids().includes("UA") && !p.ids().includes("FR"));
+  T.ok(p.ids().includes("UA") && !p.ids().includes("FR"), "на старті: " + p.ids());
   const before = p.requests.length;
   await p.add("FR", Object.assign({}, FR_C.fields, { lcd_name:"Франція" }), [73, 68, 51]);
   T.ok(/lcd_name/.test(p.msg()), p.msg());
@@ -529,13 +653,57 @@ T.test("globe teacher: додати країну з mp3 — вона в спис
   p.d.querySelector('.gt-cform').elements.lcd_name.value = "France";
   p.d.querySelector('.gt-cform').requestSubmit();
   await T.until(() => p.ids().includes("FR"), 10000);
+  const opts0 = () => [...p.d.querySelectorAll(".gt-bform select")[0].options].map(o => o.value);
+  T.ok(opts0().includes("FR"), "нова країна одразу є у списках кнопок");
   T.eq(Object.values(p.files), ["SUQz"], "mp3 пішов на Drive у base64");
-  T.ok(/France/.test(p.row("FR").innerText));
-  T.ok(/\b4\b/.test(p.row("FR").querySelector(".gt-track").innerText), "FR — 4-й трек за абеткою");
+  T.ok(/France/.test(p.row("FR").innerText), p.row("FR").innerText);
+  T.ok(/\b1\b/.test(p.row("FR").querySelector(".gt-track").innerText), "FR — 1-й трек за абеткою (FR, JP, UA)");
   p.row("FR").querySelector('[data-act="delete-country"]').click();
   p.row("FR").querySelector('[data-act="delete-country"]').click();   /* підтвердження */
   await T.until(() => !p.ids().includes("FR"), 10000);
-  T.eq(p.sheet.countries.length, 0);
+  T.eq(p.sheet.countries.map(c => c.id), ["JP"], "лишилась лише «додана» раніше Японія");
+  T.ok(!opts0().includes("FR"), "прибрана країна зникає зі списків кнопок: " + opts0());
+  document.getElementById("sandbox").innerHTML = "";
+});
+
+T.test("globe teacher: країна, вибрана на одній кнопці (ще не збережена), зникає з решти списків", async () => {
+  const p = await openTeacherPage();
+  const sels = () => [...p.d.querySelectorAll(".gt-bform select")];
+  const has = (i, id) => [...sels()[i].options].some(o => o.value === id);
+  const pick = (i, id) => { sels()[i].value = id; sels()[i].dispatchEvent(new p.w.Event("change", { bubbles:true })); };
+  [0, 1, 2, 3, 4].forEach(i => pick(i, ""));
+  T.ok([0, 1, 2, 3, 4].every(i => has(i, "UA")), "поки ніхто не вибрав, UA є скрізь");
+  pick(0, "UA");
+  T.ok(has(0, "UA") && sels()[0].value === "UA", "на своїй кнопці вона лишається");
+  T.ok([1, 2, 3, 4].every(i => !has(i, "UA")), "на інших кнопках UA зникла");
+  pick(1, "JP");
+  T.ok(!has(0, "JP") && !has(2, "JP") && has(1, "JP"));
+  T.ok(!has(1, "UA") && has(0, "UA"), "вибір на кнопці 1 не зачепив кнопку 2");
+  pick(0, "");
+  T.ok([0, 2, 3, 4].every(i => has(i, "UA")), "зняли вибір — країна повернулась у списки");
+  T.eq(sels().map(s => s.value), ["", "JP", "", "", ""], "вибране не збилось");
+  document.getElementById("sandbox").innerHTML = "";
+});
+
+T.test("globe teacher: країни кнопок — закріпити, зберегти, і вони одразу діють у грі", async () => {
+  const p = await openTeacherPage();
+  p.d.querySelector('.gt-login input[name="key"]').value = "k";
+  const form = p.d.querySelector(".gt-bform");
+  T.eq(form.querySelectorAll("select").length, 5, "по селекту на кнопку");
+  T.eq(p.d.querySelectorAll(".gt-cform").length, 1, "форма країн не зачеплена");
+  /* сторінка при завантаженні читає справжній endpoint, тож усі кнопки задаємо явно:
+     спершу знімаємо вибір (інакше зайняті країни не було б у списку), потім обираємо */
+  const pick = (i, id) => { form.elements["b" + i].value = id; form.elements["b" + i].dispatchEvent(new p.w.Event("change", { bubbles:true })); };
+  [0, 1, 2, 3, 4].forEach(i => pick(i, ""));
+  pick(0, "UA");
+  pick(1, "JP");
+  form.requestSubmit();
+  await T.until(() => p.sheet.buttons.length === 5, 10000);
+  T.eq(p.sheet.buttons, ["UA", "JP", "", "", ""]);
+  await T.until(() => p.w.GlobeRuntime.buttons().length === 2, 10000);
+  T.ok(/Збережено/.test(p.d.querySelector('[data-role="bmsg"]').innerText));
+  const r = p.w.GlobeRuntime.run({ "task2.py": T2G }, "g 2:600");
+  T.ok(r.events.filter(e => e.kind === "frame").some(f => f.rows[3] === "Yes"));
   document.getElementById("sandbox").innerHTML = "";
 });
 

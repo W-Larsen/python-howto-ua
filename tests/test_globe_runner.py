@@ -65,6 +65,22 @@ T5 = (
 BAD = 'def hello_screen():\n    show_text(9, "x")\n'
 
 
+# У проєкті лишається лише Україна; Японія - демо-країна, яку тести додають так само,
+# як її додав би вчитель на сайті.
+JP = {
+    "name": "Японія", "capital": "Токіо", "continent": "Азія",
+    "lcd_name": "Japan", "lcd_capital": "Tokyo", "text": "Японія - країна суші й аніме.",
+}
+
+
+class WithJapan(unittest.TestCase):
+    def setUp(self):
+        W.set_extra_countries(json.dumps([{"id": "JP", "fields": JP, "has_audio": False}]))
+
+    def tearDown(self):
+        W.set_extra_countries("[]")
+
+
 def src(**tasks):
     return json.dumps({name.replace("_", ".") : code for name, code in tasks.items()})
 
@@ -73,7 +89,7 @@ def frames(result):
     return [e for e in result["events"] if e["kind"] == "frame"]
 
 
-class Runner(unittest.TestCase):
+class Runner(WithJapan):
     def test_press_1_shows_ukraine_and_plays_sound(self):
         r = json.loads(W.run_script(src(task1_py=T1), "1"))
         last = frames(r)[-1]
@@ -223,13 +239,13 @@ class Countries(unittest.TestCase):
         self.assertEqual(json.loads(W.check_country("FR", json.dumps(FR)))["errors"], [])
 
     def test_added_country_is_known_and_shifts_tracks(self):
-        before = catalog()["JP"]["track"]
+        before = catalog()["UA"]["track"]
         r = json.loads(W.set_extra_countries(json.dumps([extra("FR", FR)])))
         self.assertEqual(r["skipped"], [])
         now = catalog()
         self.assertTrue(now["FR"]["extra"])
         self.assertFalse(now["FR"]["override"])
-        self.assertEqual(now["JP"]["track"], before + 1)
+        self.assertEqual(now["UA"]["track"], before + 1)
         code = 'def on_button(number):\n    show_country("FR")\n'
         self.assertEqual([p for p in json.loads(W.check(src(task1_py=code)))["problems"] if p["level"] == "error"], [])
         r = json.loads(W.run_script(src(task1_py=code), "1"))
@@ -261,6 +277,79 @@ class Countries(unittest.TestCase):
         expected = render_header(load_catalog(str(ROOT / "content" / "countries")))
         self.assertEqual(got["header"], expected)
         self.assertIn('"France"', got["header"])
+
+
+class ButtonCountries(WithJapan):
+    """Таблиця «кнопка -> країна» від вчителя: ігри не залежать від task1."""
+
+    def tearDown(self):
+        W.set_button_countries("[]")
+        WithJapan.tearDown(self)
+
+    def test_table_is_applied_and_written_to_settings_py(self):
+        r = json.loads(W.set_button_countries('["UA", "JP"]'))
+        self.assertEqual(r["countries"], ["UA", "JP"])
+        self.assertEqual(json.loads(W.button_countries()), ["UA", "JP"])
+        self.assertIn('BUTTON_COUNTRIES = ["UA", "JP"]', W.settings_text())
+        W.set_button_countries("[]")
+        self.assertEqual(json.loads(W.button_countries()), [])
+        self.assertIn("BUTTON_COUNTRIES = []", W.settings_text())
+
+    def test_bad_ids_are_dropped_not_written(self):
+        r = json.loads(W.set_button_countries('["ua", "U1", 5, "", "JP"]'))
+        self.assertEqual(r["countries"], ["UA", "", "", "", "JP"])
+
+    def test_settings_py_without_the_line_gets_it(self):
+        path = ROOT / "settings.py"
+        original = path.read_text(encoding="utf-8")
+        try:
+            path.write_text(original.replace("BUTTON_COUNTRIES = []\n", ""), encoding="utf-8")
+            W.setup(str(ROOT))
+            W.set_button_countries('["JP"]')
+            self.assertIn('BUTTON_COUNTRIES = ["JP"]', W.settings_text())
+            self.assertEqual(json.loads(W.button_countries()), ["JP"])
+        finally:
+            path.write_text(original, encoding="utf-8")
+            W.setup(str(ROOT))
+
+    def test_game_runs_without_task1(self):
+        W.set_button_countries('["UA", "JP"]')
+        r = json.loads(W.run_script(src(task2_py=T2), "g 2:600 1:3000"))
+        rows3 = [f["rows"][3] for f in frames(r)]
+        self.assertIn("Yes", rows3)
+        self.assertIn("No", rows3)
+        self.assertTrue(any(e["kind"] == "note" and "кнопка 2" in e["text"] for e in r["events"]))
+
+    def test_check_warns_when_task1_disagrees_but_does_not_block(self):
+        W.set_button_countries('["JP", "UA"]')
+        problems = json.loads(W.check(src(task1_py=T1)))["problems"]
+        mine = [p for p in problems if p["file"] == "task1.py"]
+        self.assertEqual({p["level"] for p in mine}, {"warning"}, problems)
+        self.assertEqual(len(mine), 2)
+        self.assertIn("кнопка 1 за таблицею вчителя - JP", mine[0]["text"])
+        r = json.loads(W.run_script(src(task1_py=T1), "1"))
+        self.assertEqual(frames(r)[-1]["rows"][0], "Ukraine")
+        self.assertTrue(any(p["level"] == "warning" and p["file"] == "task1.py" for p in r["problems"]))
+
+    def test_check_is_quiet_when_task1_matches_or_no_table(self):
+        self.assertEqual(json.loads(W.check(src(task1_py=T1)))["problems"], [])
+        W.set_button_countries('["UA", "JP"]')
+        self.assertEqual(json.loads(W.check(src(task1_py=T1)))["problems"], [])
+
+    def test_header_carries_the_table_to_the_board(self):
+        W.set_button_countries('["UA", "JP"]')
+        got = json.loads(W.build_header(src(task1_py=T1)))
+        self.assertIn(
+            "void student_button_answer(long number) {\n"
+            "  if (number == 1) {\n"
+            '    show_country("UA");\n'
+            "  } else if (number == 2) {\n"
+            '    show_country("JP");\n'
+            "  }\n"
+            "}",
+            got["header"],
+        )
+        self.assertNotIn("BUTTON_COUNTRIES[]", got["header"])
 
 
 if __name__ == "__main__":

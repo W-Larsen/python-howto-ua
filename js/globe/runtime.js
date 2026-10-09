@@ -12,7 +12,7 @@ window.GlobeRuntime = (function(){
 
 const JSZIP_URL = "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js";
 /* версія знімка для кешу браузера: після tools/sync_globe.sh підніми її */
-const SNAPSHOT_V = "20261010b";
+const SNAPSHOT_V = "20261011a";
 const PREFIX = "Touch_The_Globe/";
 const BOOT_ERROR = "Не вдалося завантажити проєкт глобуса. Відкрий сайт через інтернет " +
   "(не як файл з диска) і онови сторінку.";
@@ -32,6 +32,7 @@ async function fetchOk(url, kind){
 async function load(){
   /* країни вчителя — паралельно з Pyodide, а не після нього */
   const countriesPromise = fetchCountries();
+  const buttonsPromise = fetchButtons();
   if(!window.JSZip) await PyEditor.loadScript(JSZIP_URL);
   const [buf, runner, pyodide] = await Promise.all([
     fetchOk(rt.base + "globe/touch-the-globe.zip?v=" + SNAPSHOT_V),
@@ -58,6 +59,7 @@ async function load(){
   snapshot = buf;
   /* країни, які вчитель додав на сайті; без сховища — лише країни проєкту */
   applyCountries(await countriesPromise);
+  applyButtons(await buttonsPromise);
 }
 
 /* Один запуск на вкладку; якщо не вийшло — наступний boot() спробує знову. */
@@ -123,8 +125,45 @@ rt.setCountries = function(list){
   Object.keys(extraBytes).forEach(k => delete extraBytes[k]);
   if(r.skipped.length) console.warn("Touch The Globe: пропущено країни", r.skipped);
   rt.skipped = r.skipped;
+  /* списки на сторінці вчителя (країни кнопок) підхоплюють нові країни */
+  try { window.dispatchEvent(new Event("globe:countries")); } catch(e){}
   return r;
 };
+/* ---------------- країни кнопок ---------------- */
+/* Вчитель закріплює країну за кнопкою (сторінка вчителя); таблиця одна для
+   всіх учнів, лежить у тому самому сховищі й потрапляє в settings.py проєкту,
+   тож ігри (task2, task3) беруть відповідь звідти, а не з task1. */
+async function fetchButtons(){
+  const store = window.GlobeStore;
+  if(!store || !store.configured()) return { ok:true, list:[] };
+  try {
+    const r = await store.buttons();
+    /* стара версія Code.gs ще не знає про кнопки — працюємо без таблиці */
+    if(r.ok || r.error === "bad_action") return { ok:true, list: r.buttons || [] };
+    return { ok:false, error: r.error };
+  } catch(e){ return { ok:false, error:"network" }; }
+}
+function applyButtons(r){
+  if(!r.ok){
+    rt.buttonsError = window.GlobeStore ? GlobeStore.errorText(r.error) : r.error;
+    console.warn("Touch The Globe: країни кнопок —", r.error);
+    return { ok:false, error:r.error };
+  }
+  rt.buttonsError = "";
+  const countries = rt.setButtons(r.list);
+  /* сторінка учня перемальовує таблицю «кнопка → країна» */
+  try { window.dispatchEvent(new Event("globe:buttons")); } catch(e){}
+  return { ok:true, countries };
+}
+rt.buttonsError = "";
+rt.loadButtons = async function(){ return applyButtons(await fetchButtons()); };
+rt.setButtons = (list) => js(mod.set_button_countries(JSON.stringify(list || []))).countries;
+/* [“UA”, “AU”, …] — ID країни на кнопці 1, 2, …; "" — не закріплено */
+rt.buttons = () => js(mod.button_countries());
+/* кнопок на платі — стільки, скільки пінів у settings.py знімка */
+rt.buttonCount = () => js(mod.button_count());
+rt.settingsText = () => mod.settings_text();
+
 rt.countries = () => js(mod.catalog_list());
 rt.checkCountry = (id, fields) => js(mod.check_country(String(id), JSON.stringify(fields || {})));
 rt.countryFile = (fields) => mod.country_file(JSON.stringify(fields || {}));

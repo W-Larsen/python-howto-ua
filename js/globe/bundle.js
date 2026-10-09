@@ -53,6 +53,9 @@ async function project(sources){
   const z = await JSZip.loadAsync(GlobeRuntime.snapshot());
   const root = GlobeRuntime.prefix;
   TASKS.forEach(t => z.file(root + "students/" + t, all[t]));
+  /* settings.py із країнами кнопок: make press / make build на комп'ютері учня
+     читають ту саму таблицю, що й сайт */
+  z.file(root + "settings.py", GlobeRuntime.settingsText());
   await addCountries(z, root);
   /* countries.h — з того самого каталогу, що й номери треків на SD-картці */
   const ch = GlobeRuntime.countriesHeader();
