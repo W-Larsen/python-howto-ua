@@ -102,6 +102,25 @@ T.test("globe store: відповіді вчителя й помилки сер�
   T.eq(GlobeStore.who(), null);
 });
 
+T.test("globe store: країни вчителя — список, mp3, додати, прибрати", async () => {
+  const log = [];
+  GlobeStore._endpoint = "https://example.invalid/exec";
+  GlobeStore._fetch = okFetch({ ok:true, countries:[] }, log);
+  T.eq(await GlobeStore.countries(), { ok:true, countries:[] });
+  await GlobeStore.audio("FR");
+  await GlobeStore.addCountry("k", "FR", { name:"Франція" }, "AAAA");
+  await GlobeStore.addCountry("k", "FR", { name:"Франція" });
+  await GlobeStore.deleteCountry("k", "FR");
+  T.eq(log.map(x => x.body), [
+    { action:"countries" },
+    { action:"audio", id:"FR" },
+    { action:"add_country", teacherKey:"k", id:"FR", country:{ name:"Франція" }, audio:"AAAA" },
+    { action:"add_country", teacherKey:"k", id:"FR", country:{ name:"Франція" } },
+    { action:"delete_country", teacherKey:"k", id:"FR" }
+  ]);
+  T.ok(/5 МБ/.test(GlobeStore.errorText("too_big")));
+});
+
 /* ---------------- рушій: знімок проєкту + Pyodide ---------------- */
 const T1 = 'def on_button(number):\n    if number == 1:\n        play_sound("UA")\n        show_country("UA")\n';
 

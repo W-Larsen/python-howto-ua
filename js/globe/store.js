@@ -27,7 +27,12 @@ const ERRORS = {
   bad_task: "Невідома задача.",
   too_long: "Код задовгий (понад 20 000 символів) — не збережено.",
   bad_key: "Неправильний ключ учителя.",
-  server: "Сховище відповіло помилкою — код збережено лише в цьому браузері."
+  server: "Сховище відповіло помилкою — код збережено лише в цьому браузері.",
+  bad_id: "ID країни — 2–3 великі латинські літери, наприклад FR.",
+  bad_country: "Заповни назву, назву латиницею й текст розповіді.",
+  too_big: "Аудіофайл завеликий: потрібно до 5 МБ.",
+  no_audio: "Для цієї країни ще немає аудіо.",
+  bad_action: "Сховище не знає цієї дії — онови Code.gs і опублікуй нову версію (globe/apps-script/README.md)."
 };
 
 const normText = (s) => String(s || "").replace(/\s+/g, " ").trim();
@@ -102,11 +107,22 @@ function teacherGet(teacherKey, cls, name){
   return post({ action:"get", cls:n.cls, name:n.name, teacherKey });
 }
 
+/* ---------- країни, які вчитель додав на сайті ---------- */
+const countries = () => post({ action:"countries" });
+const audio = (id) => post({ action:"audio", id });
+function addCountry(teacherKey, id, country, audioB64){
+  const body = { action:"add_country", teacherKey, id, country };
+  if(audioB64) body.audio = audioB64;
+  return post(body);
+}
+const deleteCountry = (teacherKey, id) => post({ action:"delete_country", teacherKey, id });
+
 const errorText = (code) => ERRORS[code] || ERRORS.server;
 const configured = () => !!api._endpoint;
 
 return Object.assign(api, {
   normWho, who, setWho, clearWho, draft, setDraft, draftTime, clearDraft,
-  save, load, teacherList, teacherGet, errorText, configured
+  save, load, teacherList, teacherGet, errorText, configured,
+  countries, audio, addCountry, deleteCountry
 });
 })();
