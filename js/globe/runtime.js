@@ -19,7 +19,7 @@ const BOOT_ERROR = "Не вдалося завантажити проєкт гл
 
 const rt = { base: "" };
 let booting = null;
-let py = null, mod = null, zip = null;
+let py = null, mod = null, zip = null, snapshot = null;
 const texts = {};
 const audio = {};
 
@@ -53,6 +53,7 @@ async function load(){
   py = pyodide;
   mod = pyodide.pyimport("web_runner");
   zip = z;
+  snapshot = buf;
 }
 
 /* Один запуск на вкладку; якщо не вийшло — наступний boot() спробує знову. */
@@ -67,6 +68,8 @@ rt.boot = function(){
 
 rt.isReady = () => !!mod;
 rt.zip = () => zip;
+/* сам знімок (ArrayBuffer): з нього bundle.js збирає нові архіви, не чіпаючи zip() */
+rt.snapshot = () => snapshot;
 rt.prefix = PREFIX;
 rt.template = (n) => texts["task" + n] || "";
 rt.apiDoc = () => texts.api || "";

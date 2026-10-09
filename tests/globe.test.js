@@ -142,4 +142,42 @@ T.test("globe runtime: mp3 країни з архіву", async () => {
   T.eq(await GlobeRuntime.audioUrl("ZZ"), null);
 });
 
+/* ---------------- архіви для скачування ---------------- */
+T.test("globe bundle: проєкт — код учня замість заготовок, решта як у знімку", async () => {
+  GlobeRuntime.base = "../";
+  await GlobeRuntime.boot();
+  const blob = await GlobeBundle.project({ "task1.py": T1 });
+  const z = await JSZip.loadAsync(blob);
+  T.eq(await z.file("Touch_The_Globe/students/task1.py").async("string"), T1);
+  T.eq(await z.file("Touch_The_Globe/students/task2.py").async("string"), GlobeRuntime.template(2));
+  T.ok(z.file("Touch_The_Globe/globe_core/engine.py"));
+  const h = await z.file("Touch_The_Globe/arduino/TouchTheGlobe/student_code.h").async("string");
+  T.eq(h, GlobeRuntime.header({ "task1.py": T1, "task2.py": GlobeRuntime.template(2),
+    "task3.py": GlobeRuntime.template(3), "task4.py": GlobeRuntime.template(4),
+    "task5.py": GlobeRuntime.template(5) }).header);
+});
+
+T.test("globe bundle: проєкт з помилкою все одно скачується (student_code.h — зі знімка)", async () => {
+  const bad = 'def hello_screen():\n    show_text(9, "x")\n';
+  const z = await JSZip.loadAsync(await GlobeBundle.project({ "task1.py": bad }));
+  T.eq(await z.file("Touch_The_Globe/students/task1.py").async("string"), bad);
+  T.ok(z.file("Touch_The_Globe/arduino/TouchTheGlobe/student_code.h"));
+});
+
+T.test("globe bundle: скетч — лише TouchTheGlobe/ з новим student_code.h", async () => {
+  const r = await GlobeBundle.sketch({ "task1.py": T1 });
+  T.eq(r.problems.filter(p => p.level === "error"), []);
+  const z = await JSZip.loadAsync(r.blob);
+  T.ok((await z.file("TouchTheGlobe/student_code.h").async("string")).includes("s_number"));
+  T.ok(z.file("TouchTheGlobe/TouchTheGlobe.ino"));
+  T.ok(z.file("TouchTheGlobe/countries.h"));
+  T.eq(Object.keys(z.files).filter(n => !n.startsWith("TouchTheGlobe/")), []);
+});
+
+T.test("globe bundle: скетч з помилками — без архіву, зі списком проблем", async () => {
+  const r = await GlobeBundle.sketch({ "task1.py": 'def hello_screen():\n    show_text(9, "x")\n' });
+  T.eq(r.blob, undefined);
+  T.ok(r.problems.some(p => p.level === "error" && p.line === 2));
+});
+
 })();
