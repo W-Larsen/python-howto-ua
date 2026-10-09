@@ -187,5 +187,81 @@ class Runner(unittest.TestCase):
         self.assertTrue(got["problems"])
 
 
+FR = {
+    "name": "Франція", "capital": "Париж", "continent": "Європа",
+    "lcd_name": "France", "lcd_capital": "Paris", "text": "Франція - країна сиру й Ейфелевої вежі.",
+}
+
+
+def extra(cid, fields, has_audio=True):
+    return {"id": cid, "fields": fields, "has_audio": has_audio}
+
+
+def catalog():
+    return {c["id"]: c for c in json.loads(W.catalog_list())}
+
+
+class Countries(unittest.TestCase):
+    """Країни, які вчитель додав на сайті поверх знімка проєкту."""
+
+    def tearDown(self):
+        W.set_extra_countries("[]")
+
+    def test_country_file_round_trips_through_the_parser(self):
+        from globe_core.catalog import parse_country_file
+
+        fields, texts = parse_country_file("FR", W.country_file(json.dumps(FR)))
+        self.assertEqual(fields["lcd_name"], "France")
+        self.assertEqual(texts[0], FR["text"])
+
+    def test_check_country_rejects_cyrillic_and_bad_id(self):
+        bad = dict(FR, lcd_name="Франція")
+        r = json.loads(W.check_country("FR", json.dumps(bad)))
+        self.assertTrue(any("lcd_name" in e for e in r["errors"]), r)
+        r = json.loads(W.check_country("fr1x", json.dumps(FR)))
+        self.assertTrue(r["errors"])
+        self.assertEqual(json.loads(W.check_country("FR", json.dumps(FR)))["errors"], [])
+
+    def test_added_country_is_known_and_shifts_tracks(self):
+        before = catalog()["JP"]["track"]
+        r = json.loads(W.set_extra_countries(json.dumps([extra("FR", FR)])))
+        self.assertEqual(r["skipped"], [])
+        now = catalog()
+        self.assertTrue(now["FR"]["extra"])
+        self.assertFalse(now["FR"]["override"])
+        self.assertEqual(now["JP"]["track"], before + 1)
+        code = 'def on_button(number):\n    show_country("FR")\n'
+        self.assertEqual([p for p in json.loads(W.check(src(task1_py=code)))["problems"] if p["level"] == "error"], [])
+        r = json.loads(W.run_script(src(task1_py=code), "1"))
+        self.assertEqual(frames(r)[-1]["rows"][0], "France")
+
+    def test_override_and_restore_of_a_project_country(self):
+        mine = dict(FR, name="Україна", lcd_name="Ukraina", lcd_capital="Kyiv")
+        W.set_extra_countries(json.dumps([extra("UA", mine)]))
+        self.assertEqual(catalog()["UA"]["lcd_name"], "Ukraina")
+        self.assertTrue(catalog()["UA"]["override"])
+        W.set_extra_countries("[]")
+        self.assertEqual(catalog()["UA"]["lcd_name"], "Ukraine")
+        self.assertFalse(catalog()["UA"]["extra"])
+        self.assertNotIn("FR", catalog())
+
+    def test_invalid_country_is_skipped_the_rest_added(self):
+        bad = dict(FR, lcd_name="Дуже довга назва країни")
+        r = json.loads(W.set_extra_countries(json.dumps([extra("XX", bad), extra("FR", FR)])))
+        self.assertEqual([s["id"] for s in r["skipped"]], ["XX"])
+        self.assertIn("FR", catalog())
+        self.assertNotIn("XX", catalog())
+
+    def test_countries_header_matches_build_arduino_data(self):
+        from globe_core.catalog import load_catalog
+        from tools.build_arduino_data import render_header
+
+        W.set_extra_countries(json.dumps([extra("FR", FR)]))
+        got = json.loads(W.countries_header())
+        expected = render_header(load_catalog(str(ROOT / "content" / "countries")))
+        self.assertEqual(got["header"], expected)
+        self.assertIn('"France"', got["header"])
+
+
 if __name__ == "__main__":
     unittest.main()

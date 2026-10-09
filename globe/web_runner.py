@@ -18,7 +18,7 @@ import os
 import random
 import re
 
-from globe_core.catalog import load_catalog
+from globe_core.catalog import Country, ContentError, load_catalog, parse_country_file
 from globe_core.cpp_codegen import generate_header
 from globe_core.engine import GAME, GlobeEngine
 from globe_core.language import Context, analyze_all
@@ -369,3 +369,131 @@ def build_header(sources_json):
     return json.dumps(
         {"header": header, "problems": [_problem(p) for p in problems]}, ensure_ascii=False
     )
+
+
+# ---------------------------------------------------------------------------
+# Країни, які вчитель додав на сайті (сторінка #/globe-teacher)
+# ---------------------------------------------------------------------------
+# Вони записуються файлами content/countries/<ID>.txt поверх знімка проєкту -
+# так само, як учень додав би країну на своєму комп'ютері, - і далі все
+# (перевірка коду, симулятор, countries.h) бачить їх як звичайні країни.
+COUNTRY_ID = re.compile(r"^[A-Z]{2,3}$")
+HEADER_FIELDS = ("name", "capital", "continent", "lcd_name", "lcd_capital")
+
+_base_files = {}     # ID -> текст файлу країни зі знімка (щоб повернути)
+_extra = {}          # ID -> чи є в учителя mp3
+
+
+def _countries_dir():
+    return os.path.join(_project["root"], "content", "countries")
+
+
+def _file_text(fields):
+    lines = []
+    for key in HEADER_FIELDS:
+        value = " ".join(str(fields.get(key, "")).split())
+        if value:
+            lines.append("{}: {}".format(key, value))
+    lines.append("---")
+    lines.append(str(fields.get("text", "")).strip())
+    return "\n".join(lines) + "\n"
+
+
+def country_file(fields_json):
+    """Текст файлу <ID>.txt з полів форми."""
+    return _file_text(json.loads(fields_json))
+
+
+def _check(country_id, fields):
+    from tools.validate_content import check as validate
+
+    errors, warnings = [], []
+    if not COUNTRY_ID.match(country_id or ""):
+        errors.append(
+            "ID '{}': потрібно 2-3 великі латинські літери, наприклад FR".format(country_id)
+        )
+        return errors, warnings
+    try:
+        parsed, texts = parse_country_file(country_id, _file_text(fields))
+    except ContentError as exc:
+        return [str(exc)], warnings
+    found_errors, found_warnings = validate(Country(country_id, parsed, texts))
+    return errors + found_errors, warnings + found_warnings
+
+
+def check_country(country_id, fields_json):
+    """Ті самі правила, що й tools/validate_content.py."""
+    errors, warnings = _check(country_id, json.loads(fields_json))
+    return json.dumps({"errors": errors, "warnings": warnings}, ensure_ascii=False)
+
+
+def set_extra_countries(list_json):
+    """Країни вчителя поверх знімка: [{id, fields, has_audio}].
+
+    Попередні країни вчителя прибираються (країни проєкту, які він
+    перевизначав, повертаються як були), нові записуються, каталог
+    читається заново. Неправильні країни пропускаються з поясненням.
+    """
+    folder = _countries_dir()
+    if not _base_files:
+        for name in os.listdir(folder):
+            if name.endswith(".txt") and not name.startswith(("_", ".")):
+                with open(os.path.join(folder, name), encoding="utf-8") as handle:
+                    _base_files[name[:-4]] = handle.read()
+    for country_id in list(_extra):
+        path = os.path.join(folder, country_id + ".txt")
+        if country_id in _base_files:
+            with open(path, "w", encoding="utf-8") as handle:
+                handle.write(_base_files[country_id])
+        elif os.path.exists(path):
+            os.remove(path)
+    _extra.clear()
+
+    skipped = []
+    for item in json.loads(list_json):
+        country_id = str(item.get("id", ""))
+        fields = item.get("fields") or {}
+        errors, _ = _check(country_id, fields)
+        if errors:
+            skipped.append({"id": country_id, "errors": errors})
+            continue
+        with open(os.path.join(folder, country_id + ".txt"), "w", encoding="utf-8") as handle:
+            handle.write(_file_text(fields))
+        _extra[country_id] = bool(item.get("has_audio"))
+
+    setup(_project["root"])
+    return json.dumps({"skipped": skipped, "ids": sorted(_extra)}, ensure_ascii=False)
+
+
+def catalog_list():
+    """Усі країни глобуса з номерами треків і позначкою «додав учитель»."""
+    return json.dumps(
+        [
+            {
+                "id": c.id,
+                "name": c.name,
+                "capital": c.capital,
+                "continent": c.continent,
+                "lcd_name": c.lcd_name,
+                "lcd_capital": c.lcd_capital,
+                "text": c.text,
+                "track": c.track,
+                "extra": c.id in _extra,
+                "override": c.id in _extra and c.id in _base_files,
+                "has_audio": _extra.get(c.id, False),
+            }
+            for c in _project["catalog"].all()
+        ],
+        ensure_ascii=False,
+    )
+
+
+def countries_header():
+    """countries.h для скетча - як tools/build_arduino_data.py."""
+    from tools.build_arduino_data import BuildError, render_header
+
+    try:
+        header, error = render_header(_project["catalog"]), ""
+    except BuildError as exc:
+        header, error = None, str(exc)
+    return json.dumps({"header": header, "error": error}, ensure_ascii=False)
