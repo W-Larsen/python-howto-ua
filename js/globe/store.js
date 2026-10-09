@@ -53,7 +53,13 @@ function clearWho(){ ls.del(WHO); }
 
 const draftKey = (task) => DRAFT + ((who() || {}).key || "anon") + "." + task;
 function draft(task){ return ls.get(draftKey(task)); }
-function setDraft(task, code){ ls.set(draftKey(task), code); }
+function setDraft(task, code){
+  ls.set(draftKey(task), code);
+  ls.set(draftKey(task) + ".t", new Date().toISOString());
+}
+/* коли чернетку востаннє змінили: при вході на іншому комп'ютері новіша
+   версія — та, що в таблиці, лише якщо її збережено пізніше */
+function draftTime(task){ return ls.get(draftKey(task) + ".t"); }
 
 const api = {
   _endpoint: (window.GLOBE_CONFIG && window.GLOBE_CONFIG.endpoint) || "",
@@ -99,7 +105,7 @@ const errorText = (code) => ERRORS[code] || ERRORS.server;
 const configured = () => !!api._endpoint;
 
 return Object.assign(api, {
-  normWho, who, setWho, clearWho, draft, setDraft,
+  normWho, who, setWho, clearWho, draft, setDraft, draftTime,
   save, load, teacherList, teacherGet, errorText, configured
 });
 })();

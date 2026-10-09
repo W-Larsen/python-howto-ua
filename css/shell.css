@@ -15,6 +15,7 @@
   body[data-topic="func"]{--tc:var(--tc-func)}
   body[data-topic="coll"]{--tc:var(--tc-coll)}
   body[data-topic="files"]{--tc:var(--tc-files)}
+  body[data-topic="globe"]{--tc:var(--tc-globe)}
   body[data-topic="tests"]{--tc:var(--tc-tests)}
 
   /* ---------- бічне меню ---------- */

@@ -1,0 +1,164 @@
+/* ==========================================================================
+   Touch The Globe: сторінка учня (#/globe), сторінка вчителя
+   (#/globe-teacher), симулятор (js/globe/sim.js) і картка на головній.
+   Кольори — лише токени з css/base.css (--lcd-*, --device*, --tc-globe).
+   ========================================================================== */
+
+  /* ==================== картка на головній ==================== */
+  .viz-globe .vz-device{fill:var(--device)}
+  .viz-globe .vz-lcd{fill:var(--lcd-bg)}
+  .viz-globe .vz-lcd-inv{fill:var(--lcd-on)}
+  .viz-globe .vz-lcd-t{font-family:var(--mono); font-size:14px; font-weight:700; fill:var(--lcd-on)}
+  .viz-globe .vz-lcd-t.inv{fill:var(--lcd-bg)}
+  .viz-globe .vz-keys circle{fill:var(--tc-globe); stroke:var(--device-ink); stroke-width:1.5}
+
+  /* ==================== хто учень ==================== */
+  .globe-who{margin:1.4em 0}
+  /* display:flex нижче перебив би атрибут hidden */
+  #page-globe [hidden], #page-globe-teacher [hidden]{display:none !important}
+  .globe-login{display:flex; flex-wrap:wrap; align-items:flex-end; gap:10px 14px; padding:16px 18px;
+    border:1px solid var(--rule); border-radius:14px; background:var(--panel)}
+  .globe-login-t{flex-basis:100%; margin:0; font-size:.95rem}
+  .globe-login label{display:flex; flex-direction:column; gap:4px; font-size:.82rem; color:var(--muted);
+    flex:1 1 200px}
+  .globe-login label:nth-of-type(2){flex:0 1 120px}
+  .globe-login input{font:inherit; font-size:1rem; color:var(--ink); padding:7px 10px; border-radius:9px;
+    border:1px solid var(--rule); background:var(--card)}
+  .globe-login input:focus{outline:none; border-color:var(--i); box-shadow:0 0 0 3px var(--i-soft)}
+  .globe-login-msg{flex-basis:100%; margin:0; color:var(--stop); font-size:.9rem}
+  .globe-me{display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px 14px;
+    padding:10px 16px; border:1px solid var(--rule); border-radius:12px; background:var(--panel);
+    font-size:.95rem}
+
+  /* ==================== робоче місце: код + симулятор ==================== */
+  .globe-work{display:grid; grid-template-columns:minmax(0,1.3fr) minmax(0,1fr); gap:18px;
+    align-items:start; margin:1.2em 0 2em}
+  @media (max-width:1080px){ .globe-work{grid-template-columns:minmax(0,1fr)} }
+  .globe-code{min-width:0; border:1px solid var(--rule); border-radius:16px; background:var(--card);
+    box-shadow:var(--shadow-1), var(--shadow-2); overflow:hidden}
+  .globe-side{min-width:0; position:sticky; top:16px}
+  @media (max-width:1080px){ .globe-side{position:static} }
+
+  .globe-tabs{display:flex; gap:4px; padding:8px 8px 0; background:var(--panel-2);
+    border-bottom:1px solid var(--rule); overflow-x:auto; scrollbar-width:thin}
+  .globe-tab{flex:1 0 auto; display:flex; flex-direction:column; align-items:flex-start; gap:1px;
+    padding:7px 12px 8px; border:1px solid transparent; border-bottom:0; border-radius:10px 10px 0 0;
+    background:none; color:var(--muted); font-family:var(--sans); font-size:.8rem; cursor:pointer;
+    line-height:1.3; text-align:left}
+  .globe-tab:hover{color:var(--ink)}
+  .globe-tab[aria-selected="true"]{background:var(--card); border-color:var(--rule); color:var(--ink);
+    margin-bottom:-1px; padding-bottom:9px}
+  .globe-tab-n{font-family:var(--mono); font-size:.68rem; letter-spacing:.04em; text-transform:uppercase}
+  .globe-tab-t{font-weight:600; font-size:.9rem}
+  .globe-tab-st{font-family:var(--mono); font-size:.66rem; color:var(--muted)}
+  .globe-tab-st.ok{color:var(--j); font-weight:700}
+  .globe-tab-st.bad{color:var(--stop); font-weight:700}
+
+  .globe-ed{margin:12px 14px}
+  .globe-ed .pyed-ta{min-height:24em}
+  .globe-ed .pyed-ta:disabled{cursor:progress}
+  .globe-controls{justify-content:flex-end}
+  .globe-save{flex:1 1 200px; font-size:.82rem; color:var(--muted); line-height:1.4}
+  .globe-save.ok{color:var(--j)}
+  .globe-save.warn{color:var(--n)}
+  .globe-kbd{margin:0; padding:6px 14px 10px; font-size:.75rem; color:var(--muted); background:var(--panel-2)}
+  @media (hover:none){ .globe-kbd{display:none} }
+
+  .globe-problems{border-top:1px solid var(--rule); padding:10px 14px 12px; background:var(--card)}
+  .globe-problems-t{margin:0 0 6px; font-size:.85rem; font-weight:600; color:var(--ink)}
+  .globe-problems-t.ok{color:var(--j); margin:0}
+  .globe-problems ul{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:4px}
+  .globe-problem{display:block; width:100%; text-align:left; font-family:var(--mono); font-size:.78rem;
+    line-height:1.5; padding:6px 10px; border-radius:8px; cursor:pointer; color:var(--ink);
+    border:1px solid var(--rule); background:var(--panel)}
+  .globe-problems li.bad .globe-problem{border-color:var(--stop-line); background:var(--stop-soft)}
+  .globe-problems li.warn .globe-problem{border-color:var(--n-line); background:var(--n-soft)}
+  .globe-problem:hover{border-color:var(--ink)}
+
+  .globe-api{margin:1.6em 0; border:1px solid var(--rule); border-radius:12px; background:var(--card)}
+  .globe-api summary{cursor:pointer; padding:12px 16px; font-weight:600}
+  .globe-api-code{margin:0; padding:12px 16px 16px; border-top:1px solid var(--rule); overflow-x:auto;
+    font-family:var(--mono); font-size:.8rem; line-height:1.6; background:var(--panel)}
+
+  /* ==================== симулятор ==================== */
+  .gsim{display:flex; flex-direction:column; gap:12px}
+  .gsim-device{background:var(--device); color:var(--device-ink); border-radius:22px; padding:18px 18px 16px;
+    box-shadow:var(--shadow-1), var(--shadow-2)}
+  .gsim-screen{padding:10px; border-radius:10px; background:var(--lcd-dim)}
+  .gsim-lcd{display:block; width:100%; height:auto; aspect-ratio:84 / 48; border-radius:3px;
+    image-rendering:pixelated; transition:filter 60ms linear}
+  /* підсвітку вимкнено (blink) */
+  .gsim-lcd.off{filter:brightness(.55) saturate(.6)}
+  .gsim-keys{display:flex; flex-wrap:wrap; justify-content:center; gap:10px; margin-top:16px}
+  .gsim-key{width:44px; height:44px; border-radius:50%; border:2px solid var(--device-ink);
+    background:var(--tc-globe); color:var(--on-tc); font-family:var(--mono); font-weight:700; font-size:1rem;
+    cursor:pointer; box-shadow:0 3px 0 var(--lcd-on);
+    transition:transform var(--t-fast) var(--ease), box-shadow var(--t-fast) var(--ease)}
+  .gsim-key.mode{background:var(--device-ink); color:var(--device)}
+  .gsim-key:active:not(:disabled){transform:translateY(3px); box-shadow:0 0 0 var(--lcd-on)}
+  .gsim-key:disabled{opacity:.4; cursor:progress}
+  .gsim-key:focus-visible{outline:3px solid var(--hl-bar); outline-offset:2px}
+
+  .gsim-cmd{border:1px solid var(--rule); border-radius:14px; background:var(--card); padding:12px 14px}
+  .gsim-cmd-l{display:block; font-size:.82rem; color:var(--muted); margin-bottom:6px}
+  .gsim-cmd-row{display:flex; gap:8px}
+  .gsim-cmd-in{flex:1; min-width:0; font-family:var(--mono); font-size:.95rem; color:var(--ink);
+    padding:7px 10px; border-radius:9px; border:1px solid var(--rule); background:var(--panel)}
+  .gsim-cmd-in:focus{outline:none; border-color:var(--i); box-shadow:0 0 0 3px var(--i-soft)}
+  .gsim-run{min-width:0 !important; white-space:nowrap}
+  .gsim-presets{display:flex; flex-wrap:wrap; gap:6px; margin-top:10px}
+  .gsim-chip{font-family:var(--mono); font-size:.75rem; padding:4px 10px; border-radius:999px; cursor:pointer;
+    border:1px solid var(--rule); background:var(--panel); color:var(--body)}
+  .gsim-chip:hover{border-color:var(--tc-globe); color:var(--ink)}
+
+  .gsim-log-h{display:flex; justify-content:space-between; align-items:center; font-size:.82rem;
+    color:var(--muted); margin-bottom:-6px}
+  .gsim-sound{display:flex; align-items:center; gap:6px; cursor:pointer}
+  .gsim-log{list-style:none; margin:0; padding:10px 12px; min-height:3.2em; max-height:240px; overflow-y:auto;
+    border:1px solid var(--rule); border-radius:12px; background:var(--card);
+    font-family:var(--mono); font-size:.76rem; line-height:1.55}
+  .gsim-log li{padding:1px 0; color:var(--body); overflow-wrap:anywhere}
+  .gsim-log b{font-weight:700}
+  .gsim-info{color:var(--i) !important}
+  .gsim-note{color:var(--muted) !important}
+  .gsim-warn b{color:var(--n)}
+  .gsim-error, .gsim-error b{color:var(--stop) !important}
+  .gsim-print b{color:var(--j)}
+
+  /* ==================== сторінка вчителя ==================== */
+  .gt-login{display:flex; flex-wrap:wrap; align-items:flex-end; gap:10px 14px; padding:16px 18px;
+    border:1px solid var(--rule); border-radius:14px; background:var(--panel); margin:1.4em 0}
+  .gt-login label{display:flex; flex-direction:column; gap:4px; font-size:.82rem; color:var(--muted); flex:1 1 180px}
+  .gt-login input{font:inherit; font-size:1rem; color:var(--ink); padding:7px 10px; border-radius:9px;
+    border:1px solid var(--rule); background:var(--card)}
+  .gt-msg{flex-basis:100%; margin:0; font-size:.9rem; color:var(--stop)}
+  .gt-msg.ok{color:var(--muted)}
+
+  .gt-scroll{overflow-x:auto; border:1px solid var(--rule); border-radius:14px; background:var(--card)}
+  .gt-table{width:100%; border-collapse:collapse; font-size:.86rem}
+  .gt-table th, .gt-table td{padding:8px 10px; border-bottom:1px solid var(--rule-soft); text-align:left;
+    vertical-align:top}
+  .gt-table thead th{background:var(--panel-2); font-size:.78rem; color:var(--muted); font-weight:600;
+    white-space:nowrap}
+  .gt-table th small{display:block; font-weight:400}
+  .gt-name{font-weight:600; color:var(--ink); white-space:nowrap}
+  .gt-cell{display:flex; align-items:center; gap:6px; white-space:nowrap}
+  .gt-open{font:inherit; font-size:.8rem; padding:3px 8px; border-radius:7px; cursor:pointer;
+    border:1px solid var(--rule); background:var(--panel); color:var(--ink)}
+  .gt-open.ok{border-color:var(--j-line); background:var(--j-soft); color:var(--j)}
+  .gt-open.bad{border-color:var(--stop-line); background:var(--stop-soft); color:var(--stop)}
+  .gt-open[aria-pressed="true"]{outline:2px solid var(--tc-globe); outline-offset:1px}
+  .gt-empty{color:var(--faint)}
+  .gt-pick{accent-color:var(--tc-globe); width:16px; height:16px}
+
+  .gt-actions{display:flex; flex-wrap:wrap; gap:10px; margin:14px 0}
+  .gt-build{margin:0 0 1.2em}
+  .gt-build ul{margin:.4em 0 0; padding-left:1.2em; font-family:var(--mono); font-size:.8rem}
+
+  .gt-view{display:grid; grid-template-columns:minmax(0,1.3fr) minmax(0,1fr); gap:18px; align-items:start;
+    margin:1.4em 0}
+  @media (max-width:1080px){ .gt-view{grid-template-columns:minmax(0,1fr)} }
+  .gt-code{border:1px solid var(--rule); border-radius:14px; background:var(--card); overflow:hidden}
+  .gt-code-h{padding:10px 14px; background:var(--panel-2); border-bottom:1px solid var(--rule); font-size:.9rem}
+  .gt-code pre{margin:0; padding:12px 14px; overflow:auto; max-height:560px; font-family:var(--mono);
+    font-size:.8rem; line-height:1.6}

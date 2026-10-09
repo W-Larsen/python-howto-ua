@@ -47,6 +47,15 @@ T.test("globe store: хто учень — пам'ятається, а черн�
   T.eq(GlobeStore.draft("task1.py"), "a = 1");
 });
 
+T.test("globe store: чернетка пам'ятає, коли її змінили", () => {
+  GlobeStore.setWho({ cls:"9A", name:"Тест Час" });
+  const before = Date.now();
+  GlobeStore.setDraft("task3.py", "x = 3");
+  const t = Date.parse(GlobeStore.draftTime("task3.py"));
+  T.ok(t >= before - 1000 && t <= Date.now() + 1000, String(GlobeStore.draftTime("task3.py")));
+  T.eq(GlobeStore.draftTime("task4.py"), null);
+});
+
 T.test("globe store: без адреси сховища — offline, без запитів", async () => {
   const log = [];
   GlobeStore._fetch = okFetch({ ok:true }, log);
