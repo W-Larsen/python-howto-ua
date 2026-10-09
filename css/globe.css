@@ -177,3 +177,26 @@
   .gt-code-h{padding:10px 14px; background:var(--panel-2); border-bottom:1px solid var(--rule); font-size:.9rem}
   .gt-code pre{margin:0; padding:12px 14px; overflow:auto; max-height:560px; font-family:var(--mono);
     font-size:.8rem; line-height:1.6}
+
+  /* ---------- країни глобуса (js/globe/countries-admin.js) ---------- */
+  .gt-countries{margin:2.4em 0 1em}
+  .gt-ctable code{font-size:.78rem}
+  .gt-track{font-family:var(--mono); font-weight:700; color:var(--ink)}
+  .gt-tag{font-family:var(--mono); font-size:.7rem; padding:2px 8px; border-radius:999px;
+    border:1px solid var(--rule); background:var(--panel); color:var(--muted)}
+  .gt-tag.new{border-color:var(--j-line); background:var(--j-soft); color:var(--j)}
+  .gt-tag.over{border-color:var(--n-line); background:var(--n-soft); color:var(--n)}
+  .gt-skipped td{color:var(--stop); background:var(--stop-soft)}
+  .gt-cform{margin:1.2em 0; padding:16px 18px; border:1px solid var(--rule); border-radius:14px; background:var(--panel)}
+  .gt-cform h3{margin:0 0 .6em}
+  .gt-cgrid{display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:10px 14px}
+  .gt-cgrid label{display:flex; flex-direction:column; gap:4px; font-size:.82rem; color:var(--muted)}
+  .gt-cgrid .gt-cwide{grid-column:1 / -1}
+  .gt-cgrid input, .gt-cgrid textarea{font:inherit; font-size:.95rem; color:var(--ink); padding:7px 10px; border-radius:9px;
+    border:1px solid var(--rule); background:var(--card)}
+  .gt-cgrid input[readonly]{background:var(--panel-2); color:var(--muted)}
+  .gt-cgrid textarea{resize:vertical; line-height:1.5}
+  .gt-cgrid small{font-size:.78rem; color:var(--muted)}
+  .gt-cmsg{margin-top:10px; font-size:.9rem}
+  .gt-cmsg.bad{color:var(--stop)}
+  .gt-cmsg ul{margin:.3em 0 0; padding-left:1.2em}

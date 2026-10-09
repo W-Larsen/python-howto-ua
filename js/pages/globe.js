@@ -321,6 +321,10 @@ GlobeRuntime.boot().then(async () => {
   ta.disabled = false;
   ta.placeholder = "";
   page.querySelectorAll('[data-act="check"], [data-act="download"]').forEach(b => { b.disabled = false; });
+  /* у довідці — країни, які глобус знає зараз (разом із доданими вчителем) */
+  const ids = $('[data-role="country-ids"]');
+  ids.innerHTML = GlobeRuntime.countries().map(c => `<code>"${esc(c.id)}"</code> ${esc(c.lcd_name)}`).join(", ");
+  if(window.InlineCode) InlineCode.paint(ids);
   await loadCode();
   quiet = true;
   await sim.run("");

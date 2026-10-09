@@ -38,7 +38,8 @@ root.innerHTML = `
       <div class="gt-code"><div class="gt-code-h" data-role="code-h"></div><pre data-role="code"></pre></div>
       <div data-role="sim"></div>
     </div>
-  </div>`;
+  </div>
+  <div data-role="countries-admin"></div>`;
 
 const $ = (s) => root.querySelector(s);
 const form = $(".gt-login");
@@ -205,6 +206,9 @@ try {
   const saved = JSON.parse(ss.get(KEY) || "null");
   if(saved){ form.key.value = saved.key; form.cls.value = saved.cls; }
 } catch(e){}
-GlobeRuntime.boot().catch(err => say(err.message));
+GlobeRuntime.boot().then(() => {
+  /* країни глобуса: список публічний, а додати чи прибрати — з ключем учителя */
+  GlobeCountriesAdmin.mount($('[data-role="countries-admin"]'), { key: () => form.key.value });
+}).catch(err => say(err.message));
 
 };

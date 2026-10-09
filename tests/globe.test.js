@@ -296,7 +296,7 @@ async function openGlobePage(sheetRows, delay){
   const gs = await (await fetch("../globe/apps-script/Code.gs")).text();
   const handle = new Function(gs + "\nreturn handle;")();
   const rows = sheetRows.slice();
-  const sheet = { classes:["9A"], teacherKey:"k", rows,
+  const sheet = { classes:["9A"], teacherKey:"k", rows, countries:[],
     upsert(r){ const i = rows.findIndex(x => x.cls === r.cls && x.key === r.key && x.task === r.task); if(i < 0) rows.push(r); else rows[i] = r; },
     append(){} };
   const box = document.getElementById("sandbox");
@@ -397,6 +397,76 @@ T.test("globe sim: «вимкнути» зупиняє гру — екран г�
   T.ok(/Глобус увімкнено/.test(box.querySelector(".gsim-log").innerText));
   sim.stop();
   box.innerHTML = "";
+});
+
+/* ---------------- сторінка вчителя: країни глобуса ---------------- */
+async function openTeacherPage(){
+  clearGlobeStorage();
+  const gs = await (await fetch("../globe/apps-script/Code.gs")).text();
+  const handle = new Function(gs + "\nreturn handle;")();
+  const files = {}; let n = 0;
+  const sheet = { classes:["9A"], teacherKey:"k", rows:[], upsert(){}, append(){}, countries:[],
+    upsertCountry(r){ const i = this.countries.findIndex(x => x.id === r.id); if(i < 0) this.countries.push(r); else this.countries[i] = r; },
+    deleteCountry(id){ this.countries = this.countries.filter(x => x.id !== id); },
+    saveAudio(id, b64){ const f = "f" + (++n); files[f] = b64; return f; },
+    readAudio(f){ return files[f]; }, dropAudio(f){ delete files[f]; } };
+  const requests = [];
+  const box = document.getElementById("sandbox");
+  box.innerHTML = "";
+  const frame = document.createElement("iframe");
+  frame.style.cssText = "width:1200px;height:700px;border:1px solid #ccc";
+  frame.src = "../index.html#/globe-teacher";
+  await new Promise(r => { frame.onload = r; box.appendChild(frame); });
+  const w = frame.contentWindow;
+  w.GlobeStore._endpoint = "https://fake/exec";
+  w.GlobeStore._fetch = (url, o) => {
+    const body = JSON.parse(o.body);
+    requests.push(body);
+    return sleep(20).then(() => ({ ok:true, json: async () => JSON.parse(JSON.stringify(handle(body, sheet))) }));
+  };
+  const d = w.document;
+  await T.until(() => w.GlobeRuntime.isReady() && d.querySelector('[data-role="countries"] tbody tr'), 90000);
+  const form = () => d.querySelector(".gt-cform");
+  return {
+    w, d, sheet, requests, files,
+    ids: () => [...d.querySelectorAll('[data-role="countries"] tbody tr')].map(tr => tr.dataset.id),
+    row: (id) => d.querySelector(`[data-role="countries"] tbody tr[data-id="${id}"]`),
+    async add(id, fields, bytes){
+      d.querySelector('[data-act="add-country"]').click();
+      const f = form();
+      f.elements.id.value = id;
+      Object.entries(fields).forEach(([k, v]) => { f.elements[k].value = v; });
+      if(bytes){
+        const dt = new w.DataTransfer();
+        dt.items.add(new w.File([new Uint8Array(bytes)], id + ".mp3", { type:"audio/mpeg" }));
+        f.elements.audio.files = dt.files;
+      }
+      f.requestSubmit();
+      await sleep(600);
+    },
+    msg: () => form().querySelector('[data-role="cmsg"]').innerText
+  };
+}
+
+T.test("globe teacher: додати країну з mp3 — вона в списку з треком; кирилиця в lcd_name — без запиту", async () => {
+  const p = await openTeacherPage();
+  p.d.querySelector('.gt-login input[name="key"]').value = "k";
+  T.ok(p.ids().includes("UA") && !p.ids().includes("FR"));
+  const before = p.requests.length;
+  await p.add("FR", Object.assign({}, FR_C.fields, { lcd_name:"Франція" }), [73, 68, 51]);
+  T.ok(/lcd_name/.test(p.msg()), p.msg());
+  T.eq(p.requests.length, before, "з помилкою нічого не надіслано");
+  p.d.querySelector('.gt-cform').elements.lcd_name.value = "France";
+  p.d.querySelector('.gt-cform').requestSubmit();
+  await T.until(() => p.ids().includes("FR"), 10000);
+  T.eq(Object.values(p.files), ["SUQz"], "mp3 пішов на Drive у base64");
+  T.ok(/France/.test(p.row("FR").innerText));
+  T.ok(/\b4\b/.test(p.row("FR").querySelector(".gt-track").innerText), "FR — 4-й трек за абеткою");
+  p.row("FR").querySelector('[data-act="delete-country"]').click();
+  p.row("FR").querySelector('[data-act="delete-country"]').click();   /* підтвердження */
+  await T.until(() => !p.ids().includes("FR"), 10000);
+  T.eq(p.sheet.countries.length, 0);
+  document.getElementById("sandbox").innerHTML = "";
 });
 
 })();
