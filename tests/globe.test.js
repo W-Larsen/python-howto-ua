@@ -165,6 +165,34 @@ T.test("globe runtime: student_code.h", () => {
   T.ok(h.header.includes("STUDENT_CODE_H"));
 });
 
+T.test("globe runtime: країни вчителя зі сховища — у каталозі, у симуляторі, зі своїм mp3", async () => {
+  const fr = { id:"FR", has_audio:true, updated:"2026-10-09T10:00:00Z",
+    fields:{ name:"Франція", capital:"Париж", continent:"Європа", lcd_name:"France", lcd_capital:"Paris", text:"Сир." } };
+  const bad = { id:"XX", has_audio:false, updated:"", fields:{ name:"X", lcd_name:"Ікс", lcd_capital:"X", text:"x" } };
+  let countries = [fr, bad];
+  GlobeStore._endpoint = "https://example.invalid/exec";
+  GlobeStore._fetch = (url, o) => {
+    const b = JSON.parse(o.body);
+    const reply = b.action === "countries" ? { ok:true, countries } : b.action === "audio" ? { ok:true, audio:"SUQz" } : { ok:false };
+    return Promise.resolve({ ok:true, json:() => Promise.resolve(reply) });
+  };
+  const r = await GlobeRuntime.loadCountries();
+  T.eq(r.skipped.map(s => s.id), ["XX"]);
+  const fr2 = GlobeRuntime.countries().find(c => c.id === "FR");
+  T.ok(fr2 && fr2.extra && fr2.has_audio);
+  const run = GlobeRuntime.run({ "task1.py": 'def on_button(number):\n    show_country("FR")\n' }, "1");
+  T.eq(run.events.filter(e => e.kind === "frame").pop().rows[0], "France");
+  const url = await GlobeRuntime.audioUrl("FR");
+  const bytes = new Uint8Array(await (await fetch(url)).arrayBuffer());
+  T.eq([...bytes], [73, 68, 51]);       /* "ID3" — те, що прийшло зі сховища */
+  T.eq(GlobeRuntime.checkCountry("FR", fr.fields).errors, []);
+  T.ok(GlobeRuntime.countriesHeader().header.includes('"France"'));
+  countries = [];
+  await GlobeRuntime.loadCountries();
+  T.ok(!GlobeRuntime.countries().some(c => c.id === "FR"));
+  GlobeStore._endpoint = "";
+});
+
 T.test("globe runtime: mp3 країни з архіву", async () => {
   T.ok(/^blob:/.test(await GlobeRuntime.audioUrl("UA")));
   T.eq(await GlobeRuntime.audioUrl("ZZ"), null);
