@@ -93,4 +93,53 @@ T.test("globe store: відповіді вчителя й помилки сер�
   T.eq(GlobeStore.who(), null);
 });
 
+/* ---------------- рушій: знімок проєкту + Pyodide ---------------- */
+const T1 = 'def on_button(number):\n    if number == 1:\n        play_sound("UA")\n        show_country("UA")\n';
+
+T.test("globe runtime: без знімка — зрозуміла помилка, а не вічне очікування", async () => {
+  GlobeRuntime.base = "../nope/";
+  let msg = "";
+  try { await GlobeRuntime.boot(); } catch(e){ msg = e.message; }
+  T.ok(/не вдалося завантажити проєкт глобуса/i.test(msg), msg);
+  T.ok(!GlobeRuntime.isReady());
+});
+
+T.test("globe runtime: boot, шаблон задачі і довідка API", async () => {
+  GlobeRuntime.base = "../";
+  await GlobeRuntime.boot();
+  T.ok(GlobeRuntime.isReady());
+  T.ok(GlobeRuntime.template(1).includes("def on_button(number):"));
+  T.ok(GlobeRuntime.template(5).includes("def loading():"));
+  T.ok(GlobeRuntime.apiDoc().includes("def show_text("));
+});
+
+T.test("globe runtime: press 1 — екран України і звук", () => {
+  const r = GlobeRuntime.run({ "task1.py": T1 }, "1");
+  const f = r.events.filter(e => e.kind === "frame").pop();
+  T.eq(f.rows[0], "Ukraine");
+  T.ok(r.events.some(e => e.kind === "sound" && e.id === "UA"));
+});
+
+T.test("globe runtime: check знаходить помилку з рядком", () => {
+  const p = GlobeRuntime.check({ "task1.py": 'def hello_screen():\n    show_text(9, "x")\n' }).problems;
+  T.ok(p.some(x => x.line === 2 && x.level === "error"), JSON.stringify(p));
+});
+
+T.test("globe runtime: живий режим — кнопка 1", () => {
+  GlobeRuntime.liveStart({ "task1.py": T1 });
+  const r = GlobeRuntime.livePress("1");
+  T.eq(r.events.filter(e => e.kind === "frame").pop().rows[0], "Ukraine");
+  T.eq(GlobeRuntime.liveMode(), "normal");
+});
+
+T.test("globe runtime: student_code.h", () => {
+  const h = GlobeRuntime.header({ "task1.py": T1 });
+  T.ok(h.header.includes("STUDENT_CODE_H"));
+});
+
+T.test("globe runtime: mp3 країни з архіву", async () => {
+  T.ok(/^blob:/.test(await GlobeRuntime.audioUrl("UA")));
+  T.eq(await GlobeRuntime.audioUrl("ZZ"), null);
+});
+
 })();
