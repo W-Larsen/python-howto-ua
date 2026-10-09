@@ -23,7 +23,9 @@ window.T = (function(){
   async function run(){
     const out = document.getElementById("out");
     let pass = 0, fail = 0;
-    for(const c of cases){
+    /* ?only=globe — лише тести, у назві яких є це слово */
+    const only = new URLSearchParams(location.search).get("only");
+    for(const c of cases.filter(c => !only || c.name.includes(only))){
       const li = document.createElement("li");
       try { await c.fn(); pass++; li.className = "pass"; li.textContent = "✓ " + c.name; }
       catch(err){

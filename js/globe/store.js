@@ -1,0 +1,149 @@
+/* ==========================================================================
+   Сховище сторінки Touch The Globe.
+
+   Хто учень і чернетки — у localStorage цього браузера (завжди, навіть без
+   мережі). Збережене для вчителя — у Google Таблиці через Apps Script
+   (globe/apps-script/Code.gs). Запити — POST з text/plain: такий запит
+   браузер шле без попереднього OPTIONS, і Apps Script його приймає.
+   ========================================================================== */
+"use strict";
+window.GlobeStore = (function(){
+
+const WHO = "pgsb.globe.who";
+const DRAFT = "pgsb.globe.draft.";
+
+/* У приватному режимі localStorage може кидати помилки — тоді просто не зберігаємо. */
+const ls = {
+  get(k){ try { return window.localStorage.getItem(k); } catch(e){ return null; } },
+  set(k, v){ try { window.localStorage.setItem(k, v); } catch(e){} },
+  del(k){ try { window.localStorage.removeItem(k); } catch(e){} }
+};
+
+const ERRORS = {
+  offline: "Сховище вчителя ще не налаштоване — код збережено лише в цьому браузері.",
+  network: "Немає зв'язку зі сховищем — код збережено лише в цьому браузері. Спробую ще раз під час наступного запуску.",
+  bad_class: "Такого коду класу немає — перевір його з учителем.",
+  bad_name: "Впиши ім'я та прізвище.",
+  bad_task: "Невідома задача.",
+  too_long: "Код задовгий (понад 20 000 символів) — не збережено.",
+  bad_key: "Неправильний ключ учителя.",
+  server: "Сховище відповіло помилкою — код збережено лише в цьому браузері.",
+  bad_id: "ID країни — 2–3 великі латинські літери, наприклад FR.",
+  bad_buttons: "Країни кнопок: потрібен список із 1–8 елементів.",
+  bad_country: "Заповни назву, назву латиницею й текст розповіді.",
+  too_big: "Аудіофайл завеликий: потрібно до 5 МБ.",
+  no_audio: "Для цієї країни ще немає аудіо.",
+  bad_action: "Сховище не знає цієї дії — онови Code.gs і опублікуй нову версію (globe/apps-script/README.md)."
+};
+
+const normText = (s) => String(s || "").replace(/\s+/g, " ").trim();
+
+function normWho(w){
+  const cls = normText(w && w.cls).toUpperCase();
+  const name = normText(w && w.name);
+  return { cls, name, key: cls + "|" + name.toLowerCase() };
+}
+
+function who(){
+  try {
+    const w = JSON.parse(ls.get(WHO) || "null");
+    return w && w.cls && w.name ? normWho(w) : null;
+  } catch(e){ return null; }
+}
+function setWho(w){
+  const n = normWho(w);
+  ls.set(WHO, JSON.stringify({ cls: n.cls, name: n.name }));
+  return n;
+}
+function clearWho(){ ls.del(WHO); }
+
+const draftKey = (task) => DRAFT + ((who() || {}).key || "anon") + "." + task;
+function draft(task){ return ls.get(draftKey(task)); }
+function setDraft(task, code){
+  ls.set(draftKey(task), code);
+  ls.set(draftKey(task) + ".t", new Date().toISOString());
+}
+/* коли чернетку востаннє змінили: при вході на іншому комп'ютері новіша
+   версія — та, що в таблиці, лише якщо її збережено пізніше */
+function draftTime(task){ return ls.get(draftKey(task) + ".t"); }
+function clearDraft(task){ ls.del(draftKey(task)); ls.del(draftKey(task) + ".t"); }
+
+/* Що скрипт написав про помилку (поле detail відповіді {error:"server"}): без цього
+   «Сховище відповіло помилкою» не підказує, що саме зламалося. */
+let lastDetail = "";
+
+const api = {
+  _endpoint: (window.GLOBE_CONFIG && window.GLOBE_CONFIG.endpoint) || "",
+  _fetch: (url, o) => window.fetch(url, o)
+};
+
+async function post(body){
+  lastDetail = "";
+  if(!api._endpoint) return { ok:false, error:"offline" };
+  let res;
+  try {
+    res = await api._fetch(api._endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(body)
+    });
+  } catch(e){ return { ok:false, error:"network" }; }
+  if(!res || !res.ok) return { ok:false, error:"network" };
+  try {
+    const data = await res.json();
+    if(data && typeof data === "object"){
+      if(data.error === "server" && data.detail) lastDetail = String(data.detail).slice(0, 300);
+      return data;
+    }
+    return { ok:false, error:"server" };
+  } catch(e){ return { ok:false, error:"server" }; }
+}
+
+function save(task, code, problems){
+  const w = who();
+  if(!w) return Promise.resolve({ ok:false, error:"bad_name" });
+  return post({ action:"save", cls:w.cls, name:w.name, task, code, problems: problems | 0 });
+}
+function load(){
+  const w = who();
+  if(!w) return Promise.resolve({ ok:false, error:"bad_name" });
+  return post({ action:"load", cls:w.cls, name:w.name });
+}
+function teacherList(teacherKey, cls){
+  return post({ action:"list", cls: normWho({ cls }).cls, teacherKey });
+}
+function teacherGet(teacherKey, cls, name){
+  const n = normWho({ cls, name });
+  return post({ action:"get", cls:n.cls, name:n.name, teacherKey });
+}
+
+/* ---------- країни, які вчитель додав на сайті ---------- */
+const countries = () => post({ action:"countries" });
+const audio = (id) => post({ action:"audio", id });
+function addCountry(teacherKey, id, country, audioB64){
+  const body = { action:"add_country", teacherKey, id, country };
+  if(audioB64) body.audio = audioB64;
+  return post(body);
+}
+const deleteCountry = (teacherKey, id) => post({ action:"delete_country", teacherKey, id });
+
+/* ---------- яка країна на якій кнопці (однаково для всіх учнів) ---------- */
+const buttons = () => post({ action:"buttons" });
+const setButtons = (teacherKey, list) => post({ action:"set_buttons", teacherKey, buttons: list });
+
+/* Доступ до Drive зазвичай не дозволений, бо в редакторі Apps Script не запускали setup */
+const DRIVE_HINT = /drive|authoriz|permission|доступ|дозвол/i;
+function errorText(code){
+  const text = ERRORS[code] || ERRORS.server;
+  if(!lastDetail || (ERRORS[code] && code !== "server")) return text;
+  return text + " Скрипт пише: " + lastDetail +
+    (DRIVE_HINT.test(lastDetail) ? " — запустіть функцію setup у редакторі Apps Script й дозвольте доступ до Google Drive (globe/apps-script/README.md)." : "");
+}
+const configured = () => !!api._endpoint;
+
+return Object.assign(api, {
+  normWho, who, setWho, clearWho, draft, setDraft, draftTime, clearDraft,
+  save, load, teacherList, teacherGet, errorText, configured,
+  countries, audio, addCountry, deleteCountry, buttons, setButtons
+});
+})();

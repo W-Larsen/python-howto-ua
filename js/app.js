@@ -25,6 +25,15 @@ const ROUTES = [
     ]},
   { slug:"files", id:"page-files", num:"06",
     nav:"Файли",                 title:"Файли в Python — open, with, читання, запис і CSV" },
+  /* проєкт для 9 класу: код для глобуса, симулятор дисплея, збереження для
+     вчителя. У бічному меню його немає (hidden): відкривається з вкладки
+     «Практика» на головній. Сторінка вчителя — лише за прямим посиланням. */
+  { slug:"globe", id:"page-globe", num:"🌍", practice:true, hidden:true, toc:false,
+    nav:"Touch The Globe · 9 клас", title:"Touch The Globe — код для глобуса, 9 клас",
+    kids:[
+      { slug:"globe-teacher", id:"page-globe-teacher", num:"🌍", hidden:true, cls:"globe", toc:false,
+        nav:"Touch The Globe: вчитель", title:"Touch The Globe — сторінка вчителя" }
+    ]},
   /* toc:false — без змісту-якорів під пунктом меню: сторінки й так лише картки.
      Самостійні: розділ → клас (grade) → робота. Роботи в меню не показуємо
      (hidden), а поки робота відкрита, підсвічуємо її клас (cls). */
@@ -91,13 +100,15 @@ const sidebar = $("#sidebar"), scrim = $("#scrim"), burger = $("#burger"),
 /* ============================ бічне меню ============================ */
 /* Кожна тема — група: пункт, зміст і під-сторінки. Група поточної теми
    піднімається карткою; колір кружка — колір теми (--tc інлайном). */
-navList.innerHTML = ROUTES.map(r => `
+/* розділ, у якого всі підсторінки приховані (globe), у меню — звичайний пункт */
+const shownKids = (r) => (r.kids || []).filter(c => !c.hidden);
+navList.innerHTML = ROUTES.filter(r => !r.hidden).map(r => `
   <div class="nav-group" data-group="${r.slug}" style="--tc:var(--tc-${r.slug})">
-  <a class="nav-item${r.kids ? " has-kids" : ""}" href="#/${r.slug}" data-slug="${r.slug}">
+  <a class="nav-item${shownKids(r).length ? " has-kids" : ""}" href="#/${r.slug}" data-slug="${r.slug}">
     <span class="num">${r.num}</span><span class="t">${r.nav}</span>
   </a>` +
   (r.toc === false ? "" : `<ul class="toc" data-toc="${r.slug}"></ul>`) +
-  (r.kids ? `<div class="subnav" data-sub="${r.slug}">` + r.kids.filter(c => !c.hidden).map(c => `
+  (shownKids(r).length ? `<div class="subnav" data-sub="${r.slug}">` + r.kids.filter(c => !c.hidden).map(c => `
     <a class="nav-sub${c.practice ? " practice" : ""}" href="#/${c.slug}" data-slug="${c.slug}">
       <span class="num">${c.num}</span><span class="t">${c.nav}</span>
     </a>` +
@@ -172,7 +183,7 @@ function buildToc(route){
    по темах немає, лише бічне меню. */
 function buildPager(route){
   if(!window.Book) return;      /* без Book нема ні pagerHtml, ні kindLabel — краще без пагінації, ніж крах */
-  if(topicOf(route) === "tests") return;
+  if(topicOf(route) === "tests" || route.hidden) return;
   const wrap = $(".wrap", document.getElementById(route.id));
   if(!wrap) return;
   const old = $(":scope > .pager", wrap);

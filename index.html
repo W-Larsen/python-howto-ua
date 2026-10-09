@@ -14,15 +14,16 @@
 <link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400..800;1,7..72,600..700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 
 <!-- ?v=… — версія для кешу браузера: після змін у css/js підніми її тут і для скриптів унизу -->
-<link rel="stylesheet" href="css/base.css?v=20261008a">
+<link rel="stylesheet" href="css/base.css?v=20261009a">
 <link rel="stylesheet" href="css/topics.css?v=20260927a">
-<link rel="stylesheet" href="css/shell.css?v=20261008a">
+<link rel="stylesheet" href="css/shell.css?v=20261009a">
 <link rel="stylesheet" href="css/collections.css?v=20260926t24">
 <link rel="stylesheet" href="css/functions.css?v=20260926t4">
 <link rel="stylesheet" href="css/pyeditor.css?v=20260926t25">
 <link rel="stylesheet" href="css/shop.css?v=20260927a">
 <link rel="stylesheet" href="css/check.css?v=20260927c">
 <link rel="stylesheet" href="css/files.css?v=20261008a">
+<link rel="stylesheet" href="css/globe.css?v=20261011e">
 </head>
 <body data-route="home">
 
@@ -258,6 +259,30 @@
             <p>Інтернет-магазин, у якому не працюють сортування, фільтри й статистика. Десять функцій на <code>len</code>, <code>min</code>, <code>max</code>, <code>sorted</code>, цикли й зрізи вмикають їх по черзі.</p>
             <div class="card-meta"><span>10 завдань</span><span>тести одразу</span><span>Python у браузері</span></div>
             <div class="card-go">Відкрити практику <em>→</em></div>
+          </div>
+        </a>
+
+        <a class="card practice reveal" href="#/globe" data-viz="globe" style="--tc:var(--tc-globe)">
+          <div class="card-viz">
+            <svg viewBox="0 0 320 152" class="viz viz-globe" aria-hidden="true">
+              <rect class="vz-device" x="70" y="10" width="180" height="132" rx="16"/>
+              <rect class="vz-lcd" x="88" y="24" width="144" height="82" rx="4"/>
+              <rect class="vz-lcd-inv" x="92" y="30" width="136" height="16"/>
+              <text class="vz-lcd-t inv" x="96" y="42">Ukraine</text>
+              <text class="vz-lcd-t" x="96" y="60">Kyiv</text>
+              <text class="vz-lcd-t" x="96" y="96">x1</text>
+              <g class="vz-keys">
+                <circle cx="104" cy="124" r="8"/><circle cx="128" cy="124" r="8"/><circle cx="152" cy="124" r="8"/>
+                <circle cx="176" cy="124" r="8"/><circle cx="200" cy="124" r="8"/>
+              </g>
+            </svg>
+          </div>
+          <div class="card-body">
+            <span class="card-tag">проєкт · 9 клас</span>
+            <h3>Touch The Globe</h3>
+            <p>Код для глобуса, що розповідає про країни: п'ять задач, симулятор дисплея Nokia 5110 і справжній Python у браузері. Код зберігається для вчителя, а звідси — на Arduino.</p>
+            <div class="card-meta"><span>5 задач</span><span>симулятор дисплея</span><span>Arduino</span></div>
+            <div class="card-go">Відкрити проєкт <em>→</em></div>
           </div>
         </a>
 
@@ -1973,6 +1998,149 @@ print("Оля" in names)</pre>
   </div>
   </section>
 
+  <!-- ================= Touch The Globe: сторінка учня (js/pages/globe.js) ================= -->
+  <section class="page" id="page-globe" hidden>
+  <div class="wrap wide">
+
+  <header class="top">
+    <h1>Touch The Globe</h1>
+    <p class="lede">Глобус, який розповідає про країни: торкнулися кнопки біля країни — на дисплеї з'являється текст, а з динаміка звучить розповідь. <b>Серце глобуса — твій код.</b> Тут п'ять задач, справжній Python у браузері й симулятор дисплея Nokia 5110: пиши, запускай і дивись, що покаже глобус. Код зберігається, а вчитель перенесе його на плату.</p>
+  </header>
+
+  <div class="globe-who" id="globe-who">
+    <form class="globe-login" id="globe-login" autocomplete="on">
+      <p class="globe-login-t"><b>Хто ти?</b> Ім'я та код класу потрібні, щоб учитель побачив твій код.</p>
+      <label>Ім'я та прізвище<input name="name" type="text" required autocomplete="name" placeholder="Олена Петренко"></label>
+      <label>Код класу<input name="cls" type="text" required autocapitalize="characters" placeholder="9A"></label>
+      <button type="submit" class="ctl primary">Увійти</button>
+      <p class="globe-login-msg" data-role="login-msg" hidden></p>
+    </form>
+    <div class="globe-me" id="globe-me" hidden>
+      <span>Учень: <b data-role="me-name"></b> · клас <b data-role="me-cls"></b></span>
+      <button type="button" class="ctl" data-act="logout">Змінити учня</button>
+    </div>
+  </div>
+
+  <div class="callout globe-map" id="globe-map" hidden></div>
+
+  <div class="globe-work">
+    <div class="globe-code">
+      <div class="globe-tabs" role="tablist" aria-label="Задачі" id="globe-tabs"></div>
+      <div class="pyed globe-ed">
+        <pre class="pyed-hl" id="globe-hl" aria-hidden="true"></pre>
+        <textarea class="pyed-ta" id="globe-ta" spellcheck="false" autocapitalize="off"
+          autocomplete="off" autocorrect="off" data-gramm="false" aria-label="Код задачі"></textarea>
+      </div>
+      <div class="controls globe-controls">
+        <span class="globe-save" id="globe-save" aria-live="polite"></span>
+        <button type="button" class="ctl" data-act="reset">↺ Заготовка</button>
+        <button type="button" class="ctl" data-act="check" disabled>Перевірити</button>
+        <button type="button" class="ctl" data-act="save">Зберегти</button>
+      </div>
+      <p class="globe-kbd"><kbd>Ctrl</kbd>+<kbd>Enter</kbd> — запустити команди праворуч, <kbd>Ctrl</kbd>+<kbd>S</kbd> — зберегти</p>
+      <div class="globe-problems" id="globe-problems" hidden></div>
+    </div>
+    <div class="globe-side" id="globe-sim"></div>
+  </div>
+
+  <h2 id="globe-ref">Довідка: функції глобуса</h2>
+  <p>Екран глобуса — <b>6 рядків</b> (номери від <code>0</code> до <code>5</code>) по <b>14 символів</b>. Літери лише латинські: українські екран покаже як <code>??</code>. ID країн: <span data-role="country-ids"><code>"UA"</code>, <code>"JP"</code>, <code>"US"</code>, <code>"BR"</code>, <code>"EG"</code>, <code>"AU"</code></span>.</p>
+
+  <div class="globe-ref-scroll">
+  <table class="globe-ref">
+    <thead><tr><th>Функція</th><th>Що робить</th><th>Приклад</th></tr></thead>
+    <tbody>
+      <tr><td><code>show_text(row, text)</code></td>
+        <td>Пише свій текст у рядок <code>row</code> (0–5). Довший за 14 символів текст обріжеться.</td>
+        <td><code>show_text(2, "Hello!")</code></td></tr>
+      <tr><td><code>show_country(country_id)</code></td>
+        <td>Екран країни: назва (білим по чорному) у рядку 0, столиця в рядку 1, скільки разів торкнулися — у рядку 5. Потім сам викликає твою <code>show_fact</code>.
+          <span class="globe-ref-only">не можна всередині <code>show_fact</code></span></td>
+        <td><code>show_country("UA")</code></td></tr>
+      <tr><td><code>play_sound(country_id)</code></td>
+        <td>Вмикає розповідь про країну з динаміка. Під час гри й вікторини мовчить.</td>
+        <td><code>play_sound("UA")</code></td></tr>
+      <tr><td><code>clear_screen()</code></td>
+        <td>Стирає весь екран.</td>
+        <td><code>clear_screen()</code></td></tr>
+      <tr><td><code>wait(ms)</code></td>
+        <td>Пауза в мілісекундах (1000 мс = 1 секунда). Без неї кадри змінюються миттєво — анімацію не видно.</td>
+        <td><code>wait(500)</code></td></tr>
+      <tr><td><code>blink(times)</code></td>
+        <td>Мигає підсвіткою екрана <code>times</code> разів.</td>
+        <td><code>blink(3)</code></td></tr>
+      <tr><td><code>random_number(low, high)</code></td>
+        <td>Випадкове ціле число від <code>low</code> до <code>high</code> — обидва входять.</td>
+        <td><code>n = random_number(1, 5)</code></td></tr>
+      <tr><td><code>target(country_id, hint)</code></td>
+        <td>Гра: загадує країну й показує підказку (до 14 символів) у рядку 1.
+          <span class="globe-ref-only">лише в <code>next_target</code></span></td>
+        <td><code>target("JP", "Tokyo!")</code></td></tr>
+      <tr><td><code>ask(text, country_id)</code></td>
+        <td>Вікторина: питання (до 42 символів, переноситься на рядки 0–2) і країна з правильною відповіддю.
+          <span class="globe-ref-only">лише в <code>question</code></span></td>
+        <td><code>ask("Where is Kyiv?", "UA")</code></td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p>З Python можна користуватися ще трьома функціями: <code>str(x)</code> — число в текст (<code>"Score " + str(score)</code>), <code>range(n)</code> — для циклу <code>for</code>, <code>print(...)</code> — вивести щось у журнал під дисплеєм (на екран глобуса не потрапляє). А в <code>show_fact(country)</code> у змінної <code>country</code> є поля <code>country.id</code> (<code>"UA"</code>), <code>country.lcd_name</code> (<code>"Ukraine"</code>) і <code>country.lcd_capital</code> (<code>"Kyiv"</code>).</p>
+
+  <h3>Що пишеш ти: функції, які викликає глобус</h3>
+  <div class="globe-ref-scroll">
+  <table class="globe-ref globe-ref-hooks">
+    <thead><tr><th>Задача</th><th>Функція</th><th>Коли глобус її викликає</th></tr></thead>
+    <tbody>
+      <tr><td class="globe-ref-task" rowspan="2">1 · Монтажник</td><td class="globe-ref-fn"><code>on_button(number)</code></td>
+        <td>Торкнулися кнопки країни; <code>number</code> — її номер (1–5). У грі й вікторині глобус теж її викликає, але тоді <code>show_country</code> нічого не малює, а лише каже, яку країну вибрав гравець.</td></tr>
+      <tr><td class="globe-ref-fn"><code>hello_screen()</code></td><td>Один раз, коли глобус вмикається.</td></tr>
+      <tr><td class="globe-ref-task" rowspan="3">2 · Блискавка</td><td class="globe-ref-fn"><code>next_target(round)</code></td>
+        <td>На початку кожного раунду гри (кнопка <b>G</b>); <code>round</code> — номер раунду. Тут викликай <code>target</code>.</td></tr>
+      <tr><td class="globe-ref-fn"><code>on_hit(correct, ms)</code></td>
+        <td>Гравець відповів: <code>correct</code> — <code>True</code> або <code>False</code>, <code>ms</code> — за скільки мілісекунд. Реакцію пиши в рядки 3–4.</td></tr>
+      <tr><td class="globe-ref-fn"><code>game_over(score, rounds)</code></td><td>Гра скінчилася: фінальний напис у рядку 2.</td></tr>
+      <tr><td class="globe-ref-task" rowspan="3">3 · Квізмейкер</td><td class="globe-ref-fn"><code>question(number)</code></td>
+        <td>Глобусу потрібне питання номер <code>number</code> (кнопка <b>Q</b>). Тут викликай <code>ask</code>; якщо для цього номера не викличеш — вікторина закінчується.</td></tr>
+      <tr><td class="globe-ref-fn"><code>on_answer(correct, score)</code></td><td>Гравець відповів; реакція — у рядку 3.</td></tr>
+      <tr><td class="globe-ref-fn"><code>final(score, total)</code></td><td>Вікторина скінчилася: фінальний напис у рядку 2.</td></tr>
+      <tr><td class="globe-ref-task">4 · Знавець</td><td class="globe-ref-fn"><code>show_fact(country)</code></td>
+        <td>Щоразу, коли показано екран країни: допиши факт у рядки 2–4.</td></tr>
+      <tr><td class="globe-ref-task">5 · Завантажувач</td><td class="globe-ref-fn"><code>loading()</code></td>
+        <td>Одразу після ввімкнення, ще до <code>hello_screen</code>: смужка завантаження.</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h2>Як це працює</h2>
+  <div class="steps3">
+    <div class="step3"><span class="step3-n">1</span><b>Пишеш задачу</b><p>У кожної задачі вгорі опис: що зробити й які функції допоможуть. Заготовки функцій уже є — допиши тіло замість <code>pass</code>.</p></div>
+    <div class="step3"><span class="step3-n">2</span><b>Запускаєш глобус</b><p>Праворуч рядок команд, як <code>globe press</code>: <code>1 2 3</code> — кнопки по черзі, <code>q</code> — вікторина, <code>g</code> — гра, <code>2:600</code> — кнопка 2 за 600 мс. Або просто тисни кнопки під дисплеєм.</p></div>
+    <div class="step3"><span class="step3-n">3</span><b>Код зберігається</b><p>Щоразу, коли запускаєш чи перевіряєш код, він зберігається для вчителя. На іншому комп'ютері просто увійди з тим самим ім'ям і кодом класу.</p></div>
+  </div>
+  <p>Перевірка — та сама, що й <code>globe test</code>: вона ловить те, що не перенесеться на плату (наприклад, рядок екрана 9 або текст, довший за 14 символів). Код із помилками не запускається — виправ, і пробуй знову.</p>
+
+
+  <h2>Забрати проєкт собі</h2>
+  <p>Увесь проєкт Touch The Globe з твоїм кодом у папці <code>students/</code>: на своєму комп'ютері запускай <code>make press 1</code> (на Windows — <code>globe press 1</code>), а <code>make build</code> перекладе код у C++ для Arduino.</p>
+  <p><button type="button" class="ctl primary" data-act="download" disabled>⬇ Скачати мій проєкт (.zip)</button></p>
+
+  </div>
+  </section>
+
+  <!-- ================= Touch The Globe: сторінка вчителя (js/pages/globe-teacher.js) ================= -->
+  <section class="page" id="page-globe-teacher" hidden>
+  <div class="wrap wide">
+
+  <header class="top">
+    <h1>Touch The Globe: учитель</h1>
+    <p class="lede">Код учнів з Google Таблиці: хто що написав, як він працює в симуляторі, і архіви для плати — скетч Arduino з кодом усього класу або увесь Python-проєкт.</p>
+  </header>
+
+  <div id="globe-teacher"></div>
+
+  </div>
+  </section>
+
   <!-- ================= самостійні роботи: загальна сторінка ================= -->
   <section class="page" id="page-tests" hidden>
   <div class="wrap wide">
@@ -2075,7 +2243,7 @@ print("Оля" in names)</pre>
 <!-- чисті помічники оболонки: «пройдено», номери розділів, стежка, пагінація -->
 <script src="js/book.js?v=20260927a"></script>
 <!-- оболонка: роутер, меню, анімації головної -->
-<script src="js/app.js?v=20261008a"></script>
+<script src="js/app.js?v=20261011a"></script>
 <!-- перемикач теми оформлення -->
 <script src="js/theme.js?v=20260927b"></script>
 <!-- рушій руху: FLIP-переїзди й твіни; має бути до collkit.js -->
@@ -2100,6 +2268,18 @@ print("Оля" in names)</pre>
 <script src="js/pages/dict.js?v=20260926t22"></script>
 <script src="js/pages/set.js?v=20260922f"></script>
 <script src="js/pages/files.js?v=20261008a"></script>
+<!-- Touch The Globe: налаштування сховища, дисплей, сховище, рушій (Pyodide + знімок
+     проєкту), архіви, симулятор і дві сторінки -->
+<script src="js/globe-config.js?v=20261009b"></script>
+<script src="js/globe/lcd.js?v=20261009b"></script>
+<script src="js/globe/store.js?v=20261011b"></script>
+<script src="js/globe/runtime.js?v=20261011c"></script>
+<script src="js/globe/bundle.js?v=20261011a"></script>
+<script src="js/globe/sim.js?v=20261009b"></script>
+<script src="js/globe/countries-admin.js?v=20261011e"></script>
+<script src="js/globe/buttons-admin.js?v=20261011e"></script>
+<script src="js/pages/globe.js?v=20261011d"></script>
+<script src="js/pages/globe-teacher.js?v=20261011a"></script>
 <!-- самостійні роботи: ядро, Python, рушій і дані тестів по класах -->
 <script src="js/checks/core.js?v=20260924g"></script>
 <script src="js/checks/harness.js?v=20260924a"></script>

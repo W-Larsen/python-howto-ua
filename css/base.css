@@ -49,6 +49,7 @@
     --tc-func:#b45309;
     --tc-coll:#2563eb;
     --tc-files:#a21caf;
+    --tc-globe:#0e7490;
     --tc-tests:var(--ink);
     --tc:var(--accent);
     --on-tc:#fff;
@@ -58,6 +59,14 @@
     --scrim:rgba(40,32,22,.42);
     /* текст на var(--hl-bar): --ink дає лише 1.63:1 у темній темі */
     --on-hl-bar:#1b1814;
+    /* дисплей Nokia 5110 на сторінці Touch The Globe: зелене тло з підсвіткою,
+       темні точки, ледь помітні «вимкнені» точки, корпус глобуса */
+    --lcd-bg:#a9c5a0;
+    --lcd-on:#1c2b1d;
+    --lcd-ghost:rgba(28,43,29,.07);
+    --lcd-dim:#7d9277;
+    --device:#2b3a4a;
+    --device-ink:#e6eef5;
     /* рамки-відтінки семантичних кольорів (раніше зашиті #bda8f7, #8ed3bb…) */
     --i-line:color-mix(in srgb, var(--i) 45%, var(--card));
     --j-line:color-mix(in srgb, var(--j) 45%, var(--card));
@@ -100,9 +109,11 @@
       --shadow-3:0 26px 48px -22px rgba(0,0,0,.8);
       --paper-dot:rgba(255,240,210,.035); --on-tc:#1d1a16;
       --tc-vars:#a78bfa; --tc-cond:#2dd4bf; --tc-loops:#f59e6b; --tc-func:#fbbf24; --tc-coll:#60a5fa;
-      --tc-files:#e879f9;
+      --tc-files:#e879f9; --tc-globe:#22d3ee;
       --faint:#5f574b; --hl-ink:#f5d58a; --scrim:rgba(0,0,0,.6);
       --on-hl-bar:#1d1a16;
+      --lcd-bg:#8fae86; --lcd-on:#142015; --lcd-ghost:rgba(20,32,21,.08); --lcd-dim:#5e7258;
+      --device:#101820; --device-ink:#d6e2ec;
     }
   }
   :root[data-theme="dark"]{
@@ -117,9 +128,11 @@
       --shadow-3:0 26px 48px -22px rgba(0,0,0,.8);
       --paper-dot:rgba(255,240,210,.035); --on-tc:#1d1a16;
       --tc-vars:#a78bfa; --tc-cond:#2dd4bf; --tc-loops:#f59e6b; --tc-func:#fbbf24; --tc-coll:#60a5fa;
-      --tc-files:#e879f9;
+      --tc-files:#e879f9; --tc-globe:#22d3ee;
       --faint:#5f574b; --hl-ink:#f5d58a; --scrim:rgba(0,0,0,.6);
       --on-hl-bar:#1d1a16;
+      --lcd-bg:#8fae86; --lcd-on:#142015; --lcd-ghost:rgba(20,32,21,.08); --lcd-dim:#5e7258;
+      --device:#101820; --device-ink:#d6e2ec;
   }
   /* явно світла в темній системі: нативні контроли й смуги теж світлі */
   :root[data-theme="light"]{color-scheme:light}
