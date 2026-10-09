@@ -195,7 +195,7 @@ root.addEventListener("click", (e) => {
   const b = e.target.closest("button[data-act]");
   if(!b) return;
   if(b.dataset.act === "refresh") loadClass();
-  else download(b.dataset.act, b);
+  else if(b.dataset.act === "sketch" || b.dataset.act === "project") download(b.dataset.act, b);
 });
 
 if(!GlobeStore.configured()){

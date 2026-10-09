@@ -276,4 +276,31 @@ T.test("globe page: повільна відповідь таблиці не по
   clearGlobeStorage();
 });
 
+/* ---------------- симулятор: кнопка «вимкнути» ---------------- */
+T.test("globe sim: «вимкнути» зупиняє гру — екран гасне, а наступна кнопка вмикає глобус заново", async () => {
+  GlobeRuntime.base = "../";
+  await GlobeRuntime.boot();
+  const box = document.getElementById("sandbox");
+  box.innerHTML = "<div></div>";
+  const t2 = 'def next_target(round):\n    target("JP", "Tokyo!")\n';
+  const sim = GlobeSim.mount(box.firstChild, { sources: () => ({ "task1.py": T1, "task2.py": t2 }), autoBoot: false });
+  await sleep(100);
+  const key = (k) => box.querySelector(`[data-key="${k}"]`).click();
+  key("g");
+  await sleep(300);                                   /* відлік 3-2-1 ще триває */
+  box.querySelector('[data-act="power"]').click();
+  await sleep(2500);                                  /* якби таймери не скасувались — тут був би раунд */
+  let lit = 0;
+  for(let y = 0; y < GlobeLCD.H; y++) for(let x = 0; x < GlobeLCD.W; x++) lit += sim.lcd.pixel(x, y);
+  T.eq(lit, 0, "екран погашено");
+  const log = box.querySelector(".gsim-log").innerText;
+  T.ok(/вимкнено/i.test(log), log);
+  T.ok(!/Round/.test(log));
+  key("1");
+  await sleep(300);
+  T.ok(/Глобус увімкнено/.test(box.querySelector(".gsim-log").innerText));
+  sim.stop();
+  box.innerHTML = "";
+});
+
 })();

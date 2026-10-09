@@ -100,13 +100,15 @@
   .gsim-lcd{display:block; width:100%; height:auto; aspect-ratio:84 / 48; border-radius:3px;
     image-rendering:pixelated; transition:filter 60ms linear}
   /* підсвітку вимкнено (blink) */
-  .gsim-lcd.off{filter:brightness(.55) saturate(.6)}
+  .gsim-lcd.off, .gsim-lcd.sleep{filter:brightness(.55) saturate(.6)}
   .gsim-keys{display:flex; flex-wrap:wrap; justify-content:center; gap:10px; margin-top:16px}
   .gsim-key{width:44px; height:44px; border-radius:50%; border:2px solid var(--device-ink);
     background:var(--tc-globe); color:var(--on-tc); font-family:var(--mono); font-weight:700; font-size:1rem;
     cursor:pointer; box-shadow:0 3px 0 var(--lcd-on);
     transition:transform var(--t-fast) var(--ease), box-shadow var(--t-fast) var(--ease)}
   .gsim-key.mode{background:var(--device-ink); color:var(--device)}
+  /* вимкнути — окремо від кнопок країн і режимів */
+  .gsim-key.power{margin-left:12px; background:var(--stop); color:var(--on-tc); font-size:1.15rem}
   .gsim-key:active:not(:disabled){transform:translateY(3px); box-shadow:0 0 0 var(--lcd-on)}
   .gsim-key:disabled{opacity:.4; cursor:progress}
   .gsim-key:focus-visible{outline:3px solid var(--hl-bar); outline-offset:2px}

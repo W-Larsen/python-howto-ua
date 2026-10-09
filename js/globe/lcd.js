@@ -180,10 +180,13 @@ function create(canvas){
     });
   }
 
+  /* глобус вимкнено: екран тьмяний, доки його знову не ввімкнуть */
+  const sleep = (on) => canvas.classList.toggle("sleep", !!on);
+
   const pixel = (x, y) => buf[y * W + x];
 
   clear();
-  return { draw, clear, blink, pixel };
+  return { draw, clear, blink, sleep, pixel };
 }
 
 return { FONT, glyph, create, W, H };

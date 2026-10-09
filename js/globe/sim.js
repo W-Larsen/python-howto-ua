@@ -39,6 +39,8 @@ function mount(el, opts){
         ${[1, 2, 3, 4, 5].map(n => `<button type="button" class="gsim-key" data-key="${n}" disabled title="Кнопка ${n}">${n}</button>`).join("")}
         <button type="button" class="gsim-key mode" data-key="q" disabled title="Вікторина (task3)">Q</button>
         <button type="button" class="gsim-key mode" data-key="g" disabled title="Гра «Блискавка» (task2)">G</button>
+        <button type="button" class="gsim-key power" data-act="power" disabled
+          title="Вимкнути глобус: вийти з гри чи вікторини" aria-label="Вимкнути глобус">⏻</button>
       </div>
     </div>
     <form class="gsim-cmd" autocomplete="off">
@@ -102,6 +104,7 @@ function mount(el, opts){
   }
   /* append — у чергу за тим, що ще грає (живий режим); інакше з нуля */
   function play(events, append){
+    lcd.sleep(false);
     const now = performance.now();
     if(!append) stop();
     const start = Math.max(busyUntil, now);
@@ -171,6 +174,18 @@ function mount(el, opts){
     syncTicker();
   }
 
+  /* ---------- вимкнути ---------- */
+  /* Як висмикнути живлення: гра чи вікторина обриваються, недограна стрічка
+     зникає, екран гасне. Наступна кнопка ввімкне глобус з нуля. */
+  function power(){
+    stop();
+    resetLive();
+    lcd.clear();
+    lcd.sleep(true);
+    clearLog();
+    log("info", "Глобус вимкнено. Натисни будь-яку кнопку або «Запустити», щоб увімкнути.");
+  }
+
   /* ---------- події ---------- */
   $(".gsim-cmd").addEventListener("submit", (e) => { e.preventDefault(); run(); });
   $(".gsim-presets").addEventListener("click", (e) => {
@@ -182,6 +197,7 @@ function mount(el, opts){
   $(".gsim-keys").addEventListener("click", (e) => {
     const b = e.target.closest("[data-key]");
     if(b) key(b.dataset.key);
+    else if(e.target.closest('[data-act="power"]')) power();
   });
   soundBox.addEventListener("change", () => { if(!soundBox.checked) player.pause(); });
 
@@ -199,6 +215,7 @@ function mount(el, opts){
     /* код змінився — живий глобус увімкнеться заново з новим кодом */
     reset(){ if(live){ resetLive(); log("note", "Код змінився — глобус увімкнеться заново."); } },
     stop(){ stop(); resetLive(); },
+    power,
     log, clearLog, lcd,
     get command(){ return input.value; }
   };
