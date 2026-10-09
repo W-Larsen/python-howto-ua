@@ -9,12 +9,18 @@
      аркуш settings — у клітинці B1 ключ учителя (без нього код інших не видно)
      аркуш code     — по рядку на учня й задачу: останній збережений код
      аркуш history  — кожне збереження окремим рядком (на випадок «я все стер»)
+     аркуш countries — країни, які вчитель додав на сайті; їхні mp3 лежать
+                      на Google Drive у теці «Touch The Globe — аудіо»
 
    Сторінка надсилає POST з JSON {action, ...}:
      save — {cls, name, task, code, problems}    зберегти свою задачу
      load — {cls, name}                          свій код на новому комп'ютері
      list — {cls, teacherKey}                    учні класу (без коду)
      get  — {cls, name, teacherKey}              код одного учня
+     countries — {}                              країни, додані вчителем (без аудіо)
+     audio     — {id}                            mp3 країни (base64)
+     add_country    — {teacherKey, id, country, audio?}   додати / замінити країну
+     delete_country — {teacherKey, id}                    прибрати країну
 
    handle() — лише логіка, без Google: її перевіряє
    tests/test_globe_appscript.mjs.
@@ -46,18 +52,70 @@ function tasksOf(rows, cls, key){
   return tasks;
 }
 
+var COUNTRY_FIELDS = ["name", "capital", "continent", "lcd_name", "lcd_capital", "text"];
+var MAX_AUDIO = 7000000;   /* base64 від mp3 ~5 МБ */
+
+function keyOk(req, sheets){
+  return !!sheets.teacherKey && String(sheets.teacherKey) !== DEFAULT_KEY &&
+    String(req.teacherKey) === String(sheets.teacherKey);
+}
+
+function findCountry(sheets, id){
+  for(var i = 0; i < sheets.countries.length; i++) if(sheets.countries[i].id === id) return sheets.countries[i];
+  return null;
+}
+
+/* Країни, які вчитель додав на сайті: опис у таблиці, mp3 — на Google Drive.
+   Повну перевірку (латиниця, 14 символів) робить сторінка тими самими
+   правилами, що й проєкт; тут — лише те, без чого рядок не має сенсу. */
+function handleCountry(req, sheets){
+  if(req.action === "countries"){
+    return { ok: true, countries: sheets.countries.map(function(r){
+      var fields = {};
+      COUNTRY_FIELDS.forEach(function(f){ fields[f] = r[f] || ""; });
+      return { id: r.id, fields: fields, has_audio: !!r.audio_file, updated: r.updated };
+    }) };
+  }
+  if(req.action === "audio"){
+    var found = findCountry(sheets, String(req.id || ""));
+    if(!found || !found.audio_file) return { ok: false, error: "no_audio" };
+    return { ok: true, audio: sheets.readAudio(found.audio_file) };
+  }
+  if(!keyOk(req, sheets)) return { ok: false, error: "bad_key" };
+  var id = String(req.id || "");
+  if(!/^[A-Z]{2,3}$/.test(id)) return { ok: false, error: "bad_id" };
+  var old = findCountry(sheets, id);
+  if(req.action === "delete_country"){
+    if(old && old.audio_file) sheets.dropAudio(old.audio_file);
+    sheets.deleteCountry(id);
+    return { ok: true };
+  }
+  /* add_country */
+  var c = req.country || {};
+  if(!normName(c.name) || !normName(c.lcd_name) || !String(c.text || "").trim())
+    return { ok: false, error: "bad_country" };
+  var audio = req.audio ? String(req.audio) : "";
+  if(audio.length > MAX_AUDIO) return { ok: false, error: "too_big" };
+  var row = { id: id, updated: new Date().toISOString(), audio_file: old ? old.audio_file : "" };
+  COUNTRY_FIELDS.forEach(function(f){ row[f] = String(c[f] || ""); });
+  if(audio){
+    if(old && old.audio_file) sheets.dropAudio(old.audio_file);
+    row.audio_file = sheets.saveAudio(id, audio);
+  }
+  sheets.upsertCountry(row);
+  return { ok: true, updated: row.updated };
+}
+
 function handle(req, sheets){
   req = req || {};
+  if(["countries", "audio", "add_country", "delete_country"].indexOf(req.action) >= 0)
+    return handleCountry(req, sheets);
   var cls = normClass(req.cls);
   var name = normName(req.name);
   var teacher = req.teacherKey !== undefined;
 
   if(["save", "load", "list", "get"].indexOf(req.action) < 0) return { ok: false, error: "bad_action" };
-  if(teacher){
-    if(!sheets.teacherKey || String(sheets.teacherKey) === DEFAULT_KEY ||
-       String(req.teacherKey) !== String(sheets.teacherKey))
-      return { ok: false, error: "bad_key" };
-  }
+  if(teacher && !keyOk(req, sheets)) return { ok: false, error: "bad_key" };
   var known = sheets.classes.map(normClass);
   if(known.indexOf(cls) < 0) return { ok: false, error: "bad_class" };
 
@@ -93,6 +151,14 @@ function handle(req, sheets){
 /* ---------------- Google Таблиця ---------------- */
 
 var CODE_COLUMNS = ["cls", "key", "name", "task", "code", "problems", "updated"];
+var COUNTRY_COLUMNS = ["id", "name", "capital", "continent", "lcd_name", "lcd_capital", "text", "audio_file", "updated"];
+var AUDIO_FOLDER = "Touch The Globe — аудіо";
+
+/* тека з mp3 країн на Google Drive вчителя (створюється сама) */
+function audioFolder(){
+  var it = DriveApp.getFoldersByName(AUDIO_FOLDER);
+  return it.hasNext() ? it.next() : DriveApp.createFolder(AUDIO_FOLDER);
+}
 
 /* Текст, що починається з = + - @, таблиця прочитала б як формулу. */
 function asText(v){
@@ -125,7 +191,46 @@ function sheetsFromSpreadsheet(){
   var classes = classSh.getDataRange().getValues().slice(1)
     .map(function(v){ return String(v[0]); }).filter(function(c){ return c.trim(); });
 
+  var countrySh = sheet(book, "countries", COUNTRY_COLUMNS);
+  var countries = countrySh.getDataRange().getValues().slice(1).map(function(v){
+    var r = {};
+    COUNTRY_COLUMNS.forEach(function(c, i){ r[c] = String(v[i]); });
+    return r;
+  });
+
   return {
+    countries: countries,
+    upsertCountry: function(r){
+      var values = [COUNTRY_COLUMNS.map(function(c){ return asText(r[c] || ""); })];
+      for(var i = 0; i < countries.length; i++){
+        if(countries[i].id === r.id){
+          countrySh.getRange(i + 2, 1, 1, COUNTRY_COLUMNS.length).setValues(values);
+          countries[i] = r;
+          return;
+        }
+      }
+      countrySh.appendRow(values[0]);
+      countries.push(r);
+    },
+    deleteCountry: function(id){
+      for(var i = 0; i < countries.length; i++){
+        if(countries[i].id === id){
+          countrySh.deleteRow(i + 2);
+          countries.splice(i, 1);
+          return;
+        }
+      }
+    },
+    saveAudio: function(id, b64){
+      var blob = Utilities.newBlob(Utilities.base64Decode(b64), "audio/mpeg", id + ".mp3");
+      return audioFolder().createFile(blob).getId();
+    },
+    readAudio: function(fileId){
+      return Utilities.base64Encode(DriveApp.getFileById(fileId).getBlob().getBytes());
+    },
+    dropAudio: function(fileId){
+      try { DriveApp.getFileById(fileId).setTrashed(true); } catch(e){}
+    },
     classes: classes,
     teacherKey: String(setSh.getRange("B1").getValue() || ""),
     rows: rows,
@@ -167,6 +272,8 @@ function setup(){
   var book = SpreadsheetApp.getActiveSpreadsheet();
   sheet(book, "code", CODE_COLUMNS).getRange("A:G").setNumberFormat("@");
   sheet(book, "history", ["updated", "cls", "name", "task", "problems", "code"]).getRange("A:F").setNumberFormat("@");
+  sheet(book, "countries", COUNTRY_COLUMNS).getRange("A:I").setNumberFormat("@");
+  audioFolder();   /* заодно Google попросить дозвіл на Drive */
   var classes = sheet(book, "classes", ["Код класу"]);
   if(classes.getLastRow() < 2) classes.getRange("A2").setValue("9A");
   var settings = sheet(book, "settings");

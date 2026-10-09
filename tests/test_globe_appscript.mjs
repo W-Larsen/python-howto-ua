@@ -49,4 +49,47 @@ assert.equal(ctx.normName("  Олена   Петренко "), "Олена Пе�
 /* ключ за замовчуванням із setup() опубліковано в репозиторії — він не має працювати */
 const fresh = mem(); fresh.teacherKey = "змініть-мене";
 assert.equal(ctx.handle({ action:"list", cls:"9A", teacherKey:"змініть-мене" }, fresh).error, "bad_key");
+/* ---------- країни вчителя: таблиця countries + mp3 на Google Drive ---------- */
+function withDrive(sheet){
+  const files = {}; let n = 0;
+  return Object.assign(sheet, {
+    countries: [], files,
+    upsertCountry(r){ const i = this.countries.findIndex(x => x.id === r.id); if(i < 0) this.countries.push(r); else this.countries[i] = r; },
+    deleteCountry(id){ this.countries = this.countries.filter(x => x.id !== id); },
+    saveAudio(id, b64){ const fid = "f" + (++n); files[fid] = b64; return fid; },
+    readAudio(fid){ return files[fid]; },
+    dropAudio(fid){ delete files[fid]; }
+  });
+}
+const d = withDrive(mem());
+const C = (req) => ctx.handle(req, d);
+const fr = { name:"Франція", capital:"Париж", continent:"Європа", lcd_name:"France", lcd_capital:"Paris", text:"Сир." };
+
+assert.equal(C({ action:"add_country", teacherKey:"bad", id:"FR", country:fr }).error, "bad_key");
+assert.equal(C({ action:"add_country", teacherKey:"k", id:"fr1", country:fr }).error, "bad_id");
+assert.equal(C({ action:"add_country", teacherKey:"k", id:"FR", country:{ name:"", lcd_name:"France", text:"x" } }).error, "bad_country");
+assert.equal(C({ action:"add_country", teacherKey:"k", id:"FR", country:fr, audio:"A".repeat(7000001) }).error, "too_big");
+assert.equal(C({ action:"add_country", teacherKey:"k", id:"FR", country:fr, audio:"AAAA" }).ok, true);
+assert.equal(Object.keys(d.files).length, 1);
+const clist = C({ action:"countries" });
+assert.equal(clist.ok, true);
+assert.equal(clist.countries.length, 1);
+assert.equal(clist.countries[0].id, "FR");
+assert.equal(clist.countries[0].fields.lcd_name, "France");
+assert.equal(clist.countries[0].has_audio, true);
+assert.equal(clist.countries[0].audio_file, undefined, "id файлу на Drive назовні не віддаємо");
+assert.equal(C({ action:"audio", id:"FR" }).audio, "AAAA");
+assert.equal(C({ action:"audio", id:"JP" }).error, "no_audio");
+/* новий текст без нового mp3 — старий запис лишається */
+C({ action:"add_country", teacherKey:"k", id:"FR", country:Object.assign({}, fr, { text:"Новий." }) });
+assert.equal(C({ action:"countries" }).countries[0].fields.text, "Новий.");
+assert.equal(C({ action:"audio", id:"FR" }).audio, "AAAA");
+/* новий mp3 замінює старий, старий файл прибирається */
+C({ action:"add_country", teacherKey:"k", id:"FR", country:fr, audio:"BBBB" });
+assert.equal(C({ action:"audio", id:"FR" }).audio, "BBBB");
+assert.equal(Object.keys(d.files).length, 1);
+assert.equal(C({ action:"delete_country", teacherKey:"x", id:"FR" }).error, "bad_key");
+assert.equal(C({ action:"delete_country", teacherKey:"k", id:"FR" }).ok, true);
+assert.equal(C({ action:"countries" }).countries.length, 0);
+assert.equal(Object.keys(d.files).length, 0);
 console.log("ok");
