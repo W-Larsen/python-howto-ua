@@ -200,13 +200,25 @@
   .gt-tag.new{border-color:var(--j-line); background:var(--j-soft); color:var(--j)}
   .gt-tag.over{border-color:var(--n-line); background:var(--n-soft); color:var(--n)}
   .gt-skipped td{color:var(--stop); background:var(--stop-soft)}
-  .gt-cform, .gt-bform{margin:1.2em 0; padding:16px 18px; border:1px solid var(--rule); border-radius:14px; background:var(--panel)}
+  .gt-countries > p{max-width:var(--measure)}
+  /* попередження над таблицею: відступ і зверху, і знизу, а не впритул */
+  .gt-countries .callout{margin:1.2em 0 1.4em}
+  .gt-countries .gt-scroll{margin:0}
+  .gt-cform{margin:1.2em 0; padding:16px 18px; border:1px solid var(--rule); border-radius:14px; background:var(--panel)}
   .gt-cform h3{margin:0 0 .6em}
-  .gt-bscroll{margin-bottom:12px; max-width:30em}
+  /* кнопки: без зайвої панелі навколо таблиці — вона сама картка */
+  .gt-bform{margin:1.2em 0 0}
+  .gt-bscroll{max-width:30em}
   .gt-btable td{vertical-align:middle}
   .gt-btable td.gt-name{width:5.5em; font-weight:700}
-  .gt-bform select{width:100%; min-width:12em; max-width:20em;font:inherit; font-size:.95rem; color:var(--ink); padding:7px 10px; border-radius:9px;
-    border:1px solid var(--rule); background:var(--card)}
+  .gt-btable td:last-child{padding-right:14px}
+  .gt-bform select{width:100%; min-width:12em; font:inherit; font-size:.95rem; color:var(--ink);
+    padding:7px 10px; border-radius:9px; border:1px solid var(--rule); background:var(--card)}
+  /* «Зберегти» і результат в одному рядку; довге повідомлення переноситься поруч, а не під кнопкою */
+  .gt-bform .gt-actions{align-items:center; margin:14px 0 0}
+  .gt-bform .gt-cmsg{flex:1 1 20em; max-width:var(--measure); margin:0; line-height:1.5}
+  .gt-bform .gt-cmsg:empty{display:none}
+  .gt-bform .gt-cmsg.ok{color:var(--j)}
   .gt-cgrid{display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:10px 14px}
   .gt-cgrid label{display:flex; flex-direction:column; gap:4px; font-size:.82rem; color:var(--muted)}
   .gt-cgrid .gt-cwide{grid-column:1 / -1}
