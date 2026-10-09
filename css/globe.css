@@ -75,10 +75,22 @@
   .globe-problems li.warn .globe-problem{border-color:var(--n-line); background:var(--n-soft)}
   .globe-problem:hover{border-color:var(--ink)}
 
-  .globe-api{margin:1.6em 0; border:1px solid var(--rule); border-radius:12px; background:var(--card)}
-  .globe-api summary{cursor:pointer; padding:12px 16px; font-weight:600}
-  .globe-api-code{margin:0; padding:12px 16px 16px; border-top:1px solid var(--rule); overflow-x:auto;
-    font-family:var(--mono); font-size:.8rem; line-height:1.6; background:var(--panel)}
+  /* довідка: функції глобуса і функції учня — таблиці на всю ширину */
+  .globe-ref-scroll{overflow-x:auto; border:1px solid var(--rule); border-radius:14px; background:var(--card);
+    margin:1em 0 1.2em; box-shadow:0 2px 0 var(--rule)}
+  .globe-ref{width:100%; border-collapse:collapse; font-size:.92rem; line-height:1.55}
+  .globe-ref th{text-align:left; padding:9px 14px; background:var(--panel-2); color:var(--muted);
+    font-size:.78rem; font-weight:600; letter-spacing:.02em; border-bottom:1px solid var(--rule)}
+  .globe-ref td{padding:10px 14px; border-top:1px solid var(--rule-soft); vertical-align:top}
+  .globe-ref tbody tr:first-child td{border-top:0}
+  .globe-ref tbody tr:hover td{background:var(--tc-soft)}
+  .globe-ref td:first-child{white-space:nowrap; background:var(--panel)}
+  .globe-ref td:first-child code, .globe-ref td:last-child > code:only-child{white-space:nowrap}
+  .globe-ref-hooks td:first-child{background:none}
+  .globe-ref-hooks td.globe-ref-task{font-weight:600; color:var(--ink); white-space:nowrap}
+  .globe-ref-hooks td.globe-ref-fn{background:var(--panel); white-space:nowrap}
+  .globe-ref-only{display:inline-block; margin-top:4px; padding:1px 8px; border-radius:999px; font-size:.75rem;
+    border:1px solid var(--n-line); background:var(--n-soft); color:var(--n)}
 
   /* ==================== симулятор ==================== */
   .gsim{display:flex; flex-direction:column; gap:12px}

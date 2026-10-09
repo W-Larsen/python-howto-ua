@@ -320,7 +320,6 @@ GlobeRuntime.boot().then(async () => {
   ready = true;
   ta.disabled = false;
   ta.placeholder = "";
-  $("#globe-api").innerHTML = PyEditor.highlight(GlobeRuntime.apiDoc());
   page.querySelectorAll('[data-act="check"], [data-act="download"]').forEach(b => { b.disabled = false; });
   await loadCode();
   quiet = true;
