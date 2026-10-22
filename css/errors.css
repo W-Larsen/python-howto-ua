@@ -39,3 +39,8 @@
 
   /* ---------- схема гілок: стан «пропущено» ---------- */
   .tryblk.skip{opacity:.4; border-style:dashed; text-decoration:line-through}
+
+  /* ---------- статичний код в Advanced ---------- */
+  pre.adv-code{margin:.8em 0 1.1em; font-family:var(--mono); font-size:.84rem; line-height:1.65; color:var(--body);
+    background:var(--card); border:1px solid var(--rule-soft); padding:11px 14px; border-radius:8px; overflow-x:auto}
+  .adv-intro pre.adv-code{background:var(--panel)}

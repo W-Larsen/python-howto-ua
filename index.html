@@ -23,7 +23,7 @@
 <link rel="stylesheet" href="css/shop.css?v=20260927a">
 <link rel="stylesheet" href="css/check.css?v=20261022a">
 <link rel="stylesheet" href="css/files.css?v=20261008a">
-<link rel="stylesheet" href="css/errors.css?v=20261022a">
+<link rel="stylesheet" href="css/errors.css?v=20261022b">
 <link rel="stylesheet" href="css/globe.css?v=20261011f">
 </head>
 <body data-route="home">
@@ -2084,7 +2084,7 @@ print("Оля" in names)</pre>
   <div class="adv-intro">
     <h3>Коли готових типів замало</h3>
     <p>Для великої програми зручно мати свої типи помилок: <code>except AgeError</code> читається краще, ніж загальний <code>ValueError</code>. Власний виняток — це клас, який «успадковує» готовий:</p>
-<pre>class AgeError(ValueError):
+<pre class="adv-code">class AgeError(ValueError):
     pass
 
 def set_age(age):
@@ -2096,12 +2096,12 @@ def set_age(age):
 
   <h2>raise from і assert</h2>
   <p>Іноді виняток ловлять лише для того, щоб кинути інший, зрозуміліший. Щоб не втратити першопричину, пишуть <code>raise … from e</code>: у трейсбеку з'являться обидві помилки з пояснювальним рядком між ними.</p>
-<pre>try:
+<pre class="adv-code">try:
     age = int(text)
 except ValueError as e:
     raise AgeError("вік має бути числом") from e</pre>
   <p>Ще один інструмент — <code>assert</code>: «я впевнений, що тут це правда». Якщо умова хибна, Python кидає <code>AssertionError</code>. Його використовують для перевірок «для себе» під час розробки, а не для перевірки того, що ввів користувач:</p>
-<pre>assert len(scores) &gt; 0, "список оцінок порожній"</pre>
+<pre class="adv-code">assert len(scores) &gt; 0, "список оцінок порожній"</pre>
 
   <h2>Перевір себе</h2>
 
@@ -2558,7 +2558,7 @@ print(age)</pre>
 <script src="js/pages/dict.js?v=20260926t22"></script>
 <script src="js/pages/set.js?v=20260922f"></script>
 <script src="js/pages/files.js?v=20261008a"></script>
-<script src="js/pages/errors.js?v=20261022b"></script>
+<script src="js/pages/errors.js?v=20261022d"></script>
 <!-- Touch The Globe: налаштування сховища, дисплей, сховище, рушій (Pyodide + знімок
      проєкту), архіви, симулятор і дві сторінки -->
 <script src="js/globe-config.js?v=20261009b"></script>

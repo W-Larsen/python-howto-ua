@@ -7,7 +7,7 @@ const $id = (s) => document.getElementById(s);
 /* Підсвітка: власний список слів цієї теми. Якщо в новому прикладі з'явиться
    інше слово (range, join …), додай його сюди. */
 const hl = K.makeHl(
-  /\b(def|return|if|else|for|in|while|not|and|or|True|False|None|import|from|with|as|try|except|finally|raise|break|pass)\b/g,
+  /\b(class|assert|def|return|if|else|for|in|while|not|and|or|True|False|None|import|from|with|as|try|except|finally|raise|break|pass)\b/g,
   /\b(print|len|sum|int|input|open|write|read|close|ValueError|TypeError|IndexError|KeyError|ZeroDivisionError|FileNotFoundError)\b/g);
 const createPlayer = K.makePlayer({ hl, tick:800 });
 
@@ -26,6 +26,12 @@ function branches(blocks){
 }
 const LEGEND = `<span><i class="y"></i>виконується</span><span><i class="g"></i>минуло без помилки</span>` +
   `<span><i class="r"></i>тут сталася помилка</span>`;
+
+/* статичні приклади коду в Advanced: той самий розбір, що й у віджетах */
+document.querySelectorAll("#page-errors pre.adv-code").forEach(pre => {
+  pre.classList.add("syn");
+  pre.innerHTML = pre.textContent.split("\n").map(hl).join("\n");
+});
 
 /* ================= hero: програма падає ================= */
 (function(){
