@@ -2085,23 +2085,21 @@ print("Оля" in names)</pre>
     <h3>Коли готових типів замало</h3>
     <p>Для великої програми зручно мати свої типи помилок: <code>except AgeError</code> читається краще, ніж загальний <code>ValueError</code>. Власний виняток — це клас, який «успадковує» готовий:</p>
 <pre class="adv-code">class AgeError(ValueError):
-    pass
-
-def set_age(age):
-    if age &lt; 0:
-        raise AgeError("вік не може бути від'ємним")
-    return age</pre>
-    <p>Тепер <code>except AgeError</code> ловить саме цю помилку, а <code>except ValueError</code> — теж ловить, бо <code>AgeError</code> — різновид <code>ValueError</code>. Так працюють усі винятки Python: вони утворюють «родину», і <code>except</code> з типом-«батьком» піймає й усіх «дітей».</p>
+    pass</pre>
+    <p>Тепер <code>except AgeError</code> ловить саме цю помилку, а <code>except ValueError</code> — теж ловить, бо <code>AgeError</code> — різновид <code>ValueError</code>. Так працюють усі винятки Python: вони утворюють «родину», і <code>except</code> з типом-«батьком» піймає й усіх «дітей». Перемикай, який <code>except</code> стоїть у коді.</p>
   </div>
 
-  <h2>raise from і assert</h2>
-  <p>Іноді виняток ловлять лише для того, щоб кинути інший, зрозуміліший. Щоб не втратити першопричину, пишуть <code>raise … from e</code>: у трейсбеку з'являться обидві помилки з пояснювальним рядком між ними.</p>
-<pre class="adv-code">try:
-    age = int(text)
-except ValueError as e:
-    raise AgeError("вік має бути числом") from e</pre>
-  <p>Ще один інструмент — <code>assert</code>: «я впевнений, що тут це правда». Якщо умова хибна, Python кидає <code>AssertionError</code>. Його використовують для перевірок «для себе» під час розробки, а не для перевірки того, що ввів користувач:</p>
-<pre class="adv-code">assert len(scores) &gt; 0, "список оцінок порожній"</pre>
+  <div class="widget" id="errors-w-custom" tabindex="0"></div>
+
+  <h2>raise from</h2>
+  <p>Іноді виняток ловлять лише для того, щоб кинути інший, зрозуміліший. Щоб не втратити першопричину, пишуть <code>raise … from e</code>: у трейсбеку з'являться обидві помилки з пояснювальним рядком між ними. Порівняй із варіантом без <code>from</code>.</p>
+
+  <div class="widget" id="errors-w-from" tabindex="0"></div>
+
+  <h2>assert</h2>
+  <p>Ще один інструмент — <code>assert</code>: «я впевнений, що тут це правда». Якщо умова хибна, Python кидає <code>AssertionError</code> із текстом після коми. Його використовують для перевірок «для себе» під час розробки, а не для перевірки того, що ввів користувач.</p>
+
+  <div class="widget" id="errors-w-assert" tabindex="0"></div>
 
   <h2>Перевір себе</h2>
 
@@ -2558,7 +2556,7 @@ print(age)</pre>
 <script src="js/pages/dict.js?v=20260926t22"></script>
 <script src="js/pages/set.js?v=20260922f"></script>
 <script src="js/pages/files.js?v=20261008a"></script>
-<script src="js/pages/errors.js?v=20261022d"></script>
+<script src="js/pages/errors.js?v=20261022e"></script>
 <!-- Touch The Globe: налаштування сховища, дисплей, сховище, рушій (Pyodide + знімок
      проєкту), архіви, симулятор і дві сторінки -->
 <script src="js/globe-config.js?v=20261009b"></script>

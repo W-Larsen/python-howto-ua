@@ -473,4 +473,128 @@ createPlayer($id("errors-w-raise"), {
     : `<div class="errwhy"><b>Тиха помилка.</b> Програма не впала, але вже працює з неправильними даними.</div>`
 });
 
+/* ================= Advanced: власний виняток ================= */
+const AGE_MSG = "вік не може бути від'ємним";
+createPlayer($id("errors-w-custom"), {
+  config:`<span class="seg">
+      <button data-mode="AgeError" aria-pressed="true">except AgeError</button>
+      <button data-mode="ValueError" aria-pressed="false">except ValueError</button>
+      <button data-mode="KeyError" aria-pressed="false">except KeyError</button>
+    </span>`,
+  readCfg:(r)=>({exc:modeCfg(r)}),
+  build:({exc})=>{
+    const code = [
+      `class AgeError(ValueError):`,
+      `    pass`,
+      ``,
+      `try:`,
+      `    raise AgeError("${AGE_MSG}")`,
+      `except ${exc} as e:`,
+      `    print("спіймали:", e)`,
+      `print("кінець")`
+    ];
+    const E = V("e", `AgeError("${AGE_MSG}")`, "n");
+    const frames = [
+      {line:1, vars:[], out:[], blk:["idle", "idle"],
+        note:`Описуємо власний тип помилки. У дужках — «батько»: AgeError є різновидом ValueError і успадковує все, що той вміє. Тіло порожнє (pass): нам досить самого імені.`},
+      {line:3, vars:[], out:[], blk:["run", "idle"], note:`Входимо в try.`},
+      {line:4, vars:[], out:[], blk:["boom", "idle"],
+        note:`raise кидає AgeError — так само, як це робить Python із вбудованими помилками.`}
+    ];
+    if(exc === "KeyError"){
+      frames.push({line:5, vars:[], out:[TRACE, `  File "main.py", line 5, in <module>`, `    raise AgeError("${AGE_MSG}")`, `__main__.AgeError: ${AGE_MSG}`],
+        blk:["boom", "skip"], kind:"end",
+        note:`except KeyError не підходить: AgeError — не KeyError і не його «дитина». Помилку ніхто не ловить, і програма падає. У трейсбеку тип записано як __main__.AgeError: __main__ — це «головний файл», де ми описали клас.`});
+      return {code, frames};
+    }
+    frames.push({line:5, vars:[E], out:[], blk:["boom", "ok"],
+      note: exc === "AgeError" ? `except AgeError збігся з типом помилки.`
+        : `AgeError — різновид ValueError, тому except ValueError теж його ловить. Саме тому «родина» типів зручна: можна ловити і конкретно, і всіх «родичів» одразу.`});
+    frames.push({line:6, vars:[E], out:["спіймали: " + AGE_MSG], blk:["boom", "ok"], note:`Повідомлення — рівно те, що ми передали в AgeError(...).`});
+    frames.push({line:7, vars:[E], out:["спіймали: " + AGE_MSG, "кінець"], blk:["boom", "ok"], kind:"end", note:`Програма пішла далі.`});
+    return {code, frames};
+  },
+  sizeVariants:()=>["AgeError", "ValueError", "KeyError"].map(exc=>({exc})),
+  legend:LEGEND,
+  extra:(f)=> stack(
+    branches([{tag:"try", text:"raise AgeError(…)", st:f.blk[0]}, {tag:"except", text:"ловить, якщо тип — той самий або «батько»", st:f.blk[1]}]),
+    `<div class="errwhy"><b>Родина типів.</b> AgeError → ValueError → Exception → BaseException. Ловити можна будь-який тип у цьому ланцюжку.</div>`)
+});
+
+/* ================= Advanced: raise ... from ================= */
+createPlayer($id("errors-w-from"), {
+  config:`<span class="seg">
+      <button data-mode="plain" aria-pressed="true">без from</button>
+      <button data-mode="from" aria-pressed="false">from e</button>
+    </span>`,
+  readCfg:(r)=>({from:modeCfg(r) === "from"}),
+  build:({from})=>{
+    const RAISE = `raise AgeError("вік має бути числом")` + (from ? " from e" : "");
+    const code = [
+      `class AgeError(ValueError):`,
+      `    pass`,
+      ``,
+      `try:`,
+      `    age = int("abc")`,
+      `except ValueError as e:`,
+      `    ${RAISE}`
+    ];
+    const VE = `ValueError: invalid literal for int() with base 10: 'abc'`;
+    const LINK = from ? `The above exception was the direct cause of the following exception:`
+                      : `During handling of the above exception, another exception occurred:`;
+    const E = V("e", `ValueError("invalid literal for int() with base 10: 'abc'")`, "n");
+    const full = [TRACE, `  File "main.py", line 5, in <module>`, `    age = int("abc")`, VE, ``, LINK, ``,
+      TRACE, `  File "main.py", line 7, in <module>`, `    ${RAISE}`, `__main__.AgeError: вік має бути числом`];
+    const ch = (a, b, c) => ({a, b, c});
+    return {code, frames:[
+      {line:3, vars:[], out:[], ch:ch("idle", "idle", "idle"), note:`Входимо в try.`},
+      {line:4, vars:[], out:[], ch:ch("boom", "idle", "idle"), note:`int("abc") кидає ValueError — це перша помилка.`},
+      {line:5, vars:[E], out:[], ch:ch("boom", "idle", "idle"),
+        note:`except ValueError ловить її, і e тримає першу помилку. Тепер ми хочемо замість неї показати зрозумілішу — свою.`},
+      {line:6, vars:[E], out:full, ch:ch("boom", "run", "boom"), kind:"end",
+        note: from
+          ? `Із from e Python зберігає зв'язок: у трейсбеку обидві помилки, а між ними — «The above exception was the direct cause…» (пряма причина). Читай згори вниз: що сталося спочатку й до чого це призвело.`
+          : `Без from Python теж покаже обидві помилки, але з нейтральним «During handling…» (під час обробки першої виникла інша): виходить, що друга — ніби випадковість. Якщо друга помилка є наслідком першої, пиши from e.`}
+    ]};
+  },
+  sizeVariants:()=>[{from:false}, {from:true}],
+  legend:LEGEND,
+  extra:(f)=> branches([
+    {tag:"1", text:"ValueError: int(\"abc\")", st:f.ch.a},
+    {tag:"зв'язок", text:"from e — причина; без from — «під час обробки»", st:f.ch.b},
+    {tag:"2", text:"AgeError: вік має бути числом", st:f.ch.c}])
+});
+
+/* ================= Advanced: assert ================= */
+createPlayer($id("errors-w-assert"), {
+  config:`<span class="seg">
+      <button data-mode="empty" aria-pressed="true">scores = []</button>
+      <button data-mode="full" aria-pressed="false">scores = [5, 4]</button>
+    </span>`,
+  readCfg:(r)=>({empty:modeCfg(r) === "empty"}),
+  build:({empty})=>{
+    const code = [
+      `scores = ${empty ? "[]" : "[5, 4]"}`,
+      `assert len(scores) > 0, "список оцінок порожній"`,
+      `print("середнє:", sum(scores) / len(scores))`
+    ];
+    const S = V("scores", empty ? "[]" : "[5, 4]", "i");
+    const frames = [{line:0, vars:[S], out:[], st:"idle", note:`Список оцінок.`}];
+    if(empty){
+      frames.push({line:1, vars:[S], out:[TRACE, `  File "main.py", line 2, in <module>`, `    assert len(scores) > 0, "список оцінок порожній"`, `AssertionError: список оцінок порожній`],
+        st:"boom", kind:"end",
+        note:`Умова len(scores) > 0 хибна — assert кидає AssertionError із нашим текстом. Без assert далі було б ділення на нуль, але повідомлення про нього нічого не сказало б про справжню причину.`});
+      frames.push({line:2, vars:[S], out:[TRACE, `  File "main.py", line 2, in <module>`, `    assert len(scores) > 0, "список оцінок порожній"`, `AssertionError: список оцінок порожній`],
+        st:"boom", kind:"end", note:`До цього рядка програма не дійшла.`});
+    }else{
+      frames.push({line:1, vars:[S], out:[], st:"ok", note:`Умова істинна — assert нічого не робить і програма йде далі.`});
+      frames.push({line:2, vars:[S], out:["середнє: 4.5"], st:"ok", kind:"end", note:`(5 + 4) / 2 = 4.5.`});
+    }
+    return {code, frames};
+  },
+  sizeVariants:()=>[{empty:true}, {empty:false}],
+  legend:LEGEND,
+  extra:(f)=> branches([{tag:"assert", text:"len(scores) > 0 — інакше AssertionError", st:f.st}])
+});
+
 };
