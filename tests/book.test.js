@@ -82,6 +82,8 @@ T.test("book: підпис обкладинки — тема, практика; 
   T.eq(Book.coverCaption({ slug:"tests", num:"✓" }, 0), "");
   T.eq(Book.coverCaption({ slug:"check-9", num:"9" }, 3), "");
   T.eq(Book.coverCaption({ slug:"tests-9", num:"9", grade:true }, 0), "");
+  T.eq(Book.coverCaption({ slug:"practice", num:"✎" }, 0), "");
+  T.eq(Book.coverCaption({ slug:"practice-9", num:"9", grade:true }, 0), "");
 });
 
 T.test("book: заголовок виноски — лише <b> на самому початку першого абзацу", () => {
@@ -148,6 +150,7 @@ T.test("book: підпис «далі» — тема, практика, робо
   T.eq(Book.kindLabel({ slug:"tests", num:"✓" }), "самостійні роботи");
   T.eq(Book.kindLabel({ slug:"check-9", num:"9" }), "самостійна робота");
   T.eq(Book.kindLabel({ slug:"tests-9", num:"9", grade:true }), "самостійні роботи");
+  T.eq(Book.kindLabel({ slug:"practice-9", num:"9", grade:true }), "практика");
 });
 
 T.test("book: пагінація — тихе «назад», картка «далі», крапки прогресу", () => {

@@ -49,8 +49,10 @@
     --tc-func:#b45309;
     --tc-coll:#2563eb;
     --tc-files:#a21caf;
+    --tc-errors:#b91c1c;
     --tc-globe:#0e7490;
     --tc-tests:var(--ink);
+    --tc-practice:var(--ink);
     --tc:var(--accent);
     --on-tc:#fff;
     /* блідий текст-заглушка; текст на жовтій підсвітці; затемнення під меню */
@@ -109,7 +111,7 @@
       --shadow-3:0 26px 48px -22px rgba(0,0,0,.8);
       --paper-dot:rgba(255,240,210,.035); --on-tc:#1d1a16;
       --tc-vars:#a78bfa; --tc-cond:#2dd4bf; --tc-loops:#f59e6b; --tc-func:#fbbf24; --tc-coll:#60a5fa;
-      --tc-files:#e879f9; --tc-globe:#22d3ee;
+      --tc-files:#e879f9; --tc-errors:#f87171; --tc-globe:#22d3ee;
       --faint:#5f574b; --hl-ink:#f5d58a; --scrim:rgba(0,0,0,.6);
       --on-hl-bar:#1d1a16;
       --lcd-bg:#8fae86; --lcd-on:#142015; --lcd-ghost:rgba(20,32,21,.08); --lcd-dim:#5e7258;
@@ -128,7 +130,7 @@
       --shadow-3:0 26px 48px -22px rgba(0,0,0,.8);
       --paper-dot:rgba(255,240,210,.035); --on-tc:#1d1a16;
       --tc-vars:#a78bfa; --tc-cond:#2dd4bf; --tc-loops:#f59e6b; --tc-func:#fbbf24; --tc-coll:#60a5fa;
-      --tc-files:#e879f9; --tc-globe:#22d3ee;
+      --tc-files:#e879f9; --tc-errors:#f87171; --tc-globe:#22d3ee;
       --faint:#5f574b; --hl-ink:#f5d58a; --scrim:rgba(0,0,0,.6);
       --on-hl-bar:#1d1a16;
       --lcd-bg:#8fae86; --lcd-on:#142015; --lcd-ghost:rgba(20,32,21,.08); --lcd-dim:#5e7258;

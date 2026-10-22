@@ -59,7 +59,7 @@ function numberHeads(page, num){
 /* Підпис над заголовком обкладинки. Самостійні роботи — без підпису:
    їхня шапка з'являється пізніше й номер «9» там — клас, а не тема. */
 function coverCaption(route, count){
-  if(/^(check|tests)/.test(route.slug)) return "";
+  if(/^(check|tests|practice)/.test(route.slug)) return "";
   const tail = " · " + count + " " + plural(count, SECTIONS);
   if(route.practice) return "практика" + tail;
   if(/^\d/.test(route.num)) return "тема " + route.num + tail;
@@ -152,6 +152,7 @@ function wrapCheats(root){
 function kindLabel(route){
   if(route.practice) return "практика";
   if(/^tests/.test(route.slug)) return "самостійні роботи";
+  if(/^practice/.test(route.slug)) return "практика";
   if(/^check/.test(route.slug)) return "самостійна робота";
   return "тема " + route.num;
 }
