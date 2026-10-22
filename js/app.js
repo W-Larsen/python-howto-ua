@@ -25,6 +25,8 @@ const ROUTES = [
     ]},
   { slug:"files", id:"page-files", num:"06",
     nav:"Файли",                 title:"Файли в Python — open, with, читання, запис і CSV" },
+  { slug:"errors", id:"page-errors", num:"07",
+    nav:"Помилки та винятки",    title:"Помилки в Python — traceback, try/except, raise" },
   /* проєкт для 9 класу: код для глобуса, симулятор дисплея, збереження для
      вчителя. У бічному меню його немає (hidden): відкривається з вкладки
      «Практика» на головній. Сторінка вчителя — лише за прямим посиланням. */
@@ -70,7 +72,7 @@ const ROUTES = [
 const ALL  = ROUTES.reduce((a, r) => a.concat([r], r.kids || []), []);
 const FLAT = ALL.filter(r => !r.hidden);
 /* теми, які учень «проходить»: для них — номери розділів і позначка «пройдено» */
-const TOPIC_SLUGS = ["vars","cond","loops","func","coll","list","dict","set","files"];
+const TOPIC_SLUGS = ["vars","cond","loops","func","coll","list","dict","set","files","errors"];
 /* корінь маршруту: підтема належить своєму розділу (list → coll, check-9 → tests) */
 const topicOf = (route) =>
   (ROUTES.find(r => r === route || (r.kids || []).includes(route)) || route).slug;
@@ -530,6 +532,20 @@ function vizFiles(svg){
   return cycler(steps);
 }
 
+/* --- 7. помилки --- */
+function vizErrors(svg){
+  const lines = [0,1,2].map(k=>$('[data-l="' + k + '"]', svg));
+  const boom = $("[data-boom]", svg);
+  const mark = (on, now, skip) => lines.forEach((l, k)=>
+    l.setAttribute("class", "vz-er-code" + (on > k ? " done" : "") + (now === k ? " now" : "") + (skip === k ? " skip" : "")));
+  return cycler([
+    { d:900,  run(){ mark(0, -1, -1); boom.setAttribute("class", "vz-er-box off"); }},
+    { d:900,  run(){ mark(0, 0, -1); }},
+    { d:900,  run(){ mark(1, 1, -1); }},
+    { d:2000, run(){ mark(1, 1, 2); boom.setAttribute("class", "vz-er-box"); }}
+  ]);
+}
+
 /* --- 7. практика: магазин --- */
 function vizShop(svg){
   const line = $("[data-line]", svg), note = $("[data-note]", svg);
@@ -568,7 +584,7 @@ const VIZ = {}, VIZ_CARD = {};
 /* картка показана, якщо її сторінка не схована (вкладки головної не рахуємо) */
 const vizShown = (card) => !!card && !card.closest(".page[hidden]");
 (function initViz(){
-  const map = { vars: vizVars, cond: vizCond, loops: vizLoop, func: vizFunc, dicts: vizDict, files: vizFiles, shop: vizShop };
+  const map = { vars: vizVars, cond: vizCond, loops: vizLoop, func: vizFunc, dicts: vizDict, files: vizFiles, errors: vizErrors, shop: vizShop };
   /* Раніше картки оживали лише на mouseenter — тобто на сенсорному екрані
      не грали ніколи. Тепер запускає поява в екрані, а наведення лишається
      додатковим тригером. */
