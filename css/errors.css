@@ -1,0 +1,59 @@
+/* ==========================================================================
+   7. Помилки та винятки: hero, трейсбек, схема гілок try
+   ========================================================================== */
+
+  /* ---------- hero: код ліворуч, термінал праворуч ---------- */
+  .errhero{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.25fr); gap:14px; font-family:var(--mono); font-size:.82rem}
+  @media (max-width:640px){ .errhero{grid-template-columns:1fr} }
+  .eh-code, .eh-term{border:1.5px solid var(--rule); border-radius:10px; padding:10px 0; min-height:128px}
+  .eh-code{background:var(--card)}
+  .eh-term{background:var(--term); border-color:var(--term); padding:10px 14px}
+  .eh-ln{display:flex; gap:12px; padding:3px 12px; color:var(--body); border-left:3px solid transparent;
+    transition:background var(--t-base) var(--ease), opacity var(--t-base) var(--ease)}
+  .eh-no{flex:none; width:1.4em; text-align:right; color:var(--faint); user-select:none}
+  .eh-ln.done{opacity:.6}
+  .eh-ln.now{background:var(--hl); color:var(--hl-ink); border-left-color:var(--hl-bar)}
+  .eh-ln.skip{opacity:.45; text-decoration:line-through}
+  .eh-out{color:var(--term-ink); white-space:pre-wrap; overflow-wrap:anywhere; line-height:1.55}
+  .eh-out.bad{color:var(--stop)}
+  .eh-out.dim{color:var(--term-ink); opacity:.45; font-style:italic}
+
+  /* ---------- трейсбек у віджеті 7.2 ---------- */
+  .errtb{border:1.5px solid var(--rule); border-radius:10px; background:var(--card); padding:10px 12px;
+    font-family:var(--mono); font-size:.8rem; display:flex; flex-direction:column; gap:6px}
+  .errtb.empty{color:var(--faint); font-style:italic; font-family:inherit}
+  .tb-head{color:var(--muted)}
+  .tb-fr, .tb-msg{border-left:3px solid transparent; padding:3px 8px; border-radius:4px;
+    transition:background var(--t-base) var(--ease), border-color var(--t-base) var(--ease)}
+  .tb-file{color:var(--muted)}
+  .tb-code{color:var(--ink); padding-left:1.4em; overflow-wrap:anywhere}
+  .tb-msg{color:var(--stop)}
+  .tb-fr.on, .tb-msg.on{background:var(--hl); border-left-color:var(--hl-bar)}
+  .tb-fr.on .tb-file, .tb-fr.on .tb-code{color:var(--hl-ink)}
+  .tb-msg.on{color:var(--hl-ink)}
+
+  /* ---------- «чому так» під віджетом 7.3 ---------- */
+  .errwhy{border:1.5px solid var(--rule); border-radius:10px; background:var(--panel); padding:9px 12px;
+    font-size:.88rem; line-height:1.55; color:var(--body)}
+  .errwhy.dim{color:var(--muted); font-style:italic}
+
+  /* ---------- схема гілок: стан «пропущено» ---------- */
+  .tryblk.skip{opacity:.4; border-style:dashed; text-decoration:line-through}
+
+  /* ---------- статичний код в Advanced ---------- */
+  pre.adv-code{margin:.8em 0 1.1em; font-family:var(--mono); font-size:.84rem; line-height:1.65; color:var(--body);
+    background:var(--card); border:1px solid var(--rule-soft); padding:11px 14px; border-radius:8px; overflow-x:auto}
+  .adv-intro pre.adv-code{background:var(--panel)}
+
+  /* ---------- практика «Помилки та винятки» (#/errors-practice) ----------
+     Прогрес і картки задач — ті самі класи, що в магазину. */
+  /* display:flex у .exc-boot перебив би атрибут hidden */
+  #page-errors-practice [hidden]{display:none !important}
+  #exc-progress-text{font-family:var(--mono); font-size:.8rem; color:var(--muted); white-space:nowrap}
+  #exc-hero.done #exc-progress-text{color:var(--j); font-weight:700}
+  .exc-boot{display:flex; align-items:center; gap:10px; color:var(--muted); font-size:.9rem}
+  .exc-boot.err{color:var(--stop)}
+  .exc-adv{font-family:var(--mono); font-size:.62rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+    color:var(--tc-ink); background:var(--tc-soft); border-radius:999px; padding:2px 8px; margin-left:6px; vertical-align:middle}
+  .viz-exc .vz-exc-ok{fill:var(--j-soft); stroke:var(--j-line); stroke-width:1.5}
+  .viz-exc .vz-exc-t{font-size:11px; font-weight:700; fill:var(--j); text-anchor:middle}

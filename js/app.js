@@ -25,14 +25,32 @@ const ROUTES = [
     ]},
   { slug:"files", id:"page-files", num:"06",
     nav:"Файли",                 title:"Файли в Python — open, with, читання, запис і CSV" },
+  { slug:"errors", id:"page-errors", num:"07",
+    nav:"Помилки та винятки",    title:"Помилки в Python — traceback, try/except, raise" },
   /* проєкт для 9 класу: код для глобуса, симулятор дисплея, збереження для
      вчителя. У бічному меню його немає (hidden): відкривається з вкладки
      «Практика» на головній. Сторінка вчителя — лише за прямим посиланням. */
-  { slug:"globe", id:"page-globe", num:"🌍", practice:true, hidden:true, toc:false,
+  { slug:"globe", id:"page-globe", num:"🌍", practice:true, hidden:true, toc:false, cls:"practice-9",
     nav:"Touch The Globe · 9 клас", title:"Touch The Globe — код для глобуса, 9 клас",
     kids:[
       { slug:"globe-teacher", id:"page-globe-teacher", num:"🌍", hidden:true, cls:"globe", toc:false,
         nav:"Touch The Globe: вчитель", title:"Touch The Globe — сторінка вчителя" }
+    ]},
+  /* практика з винятків для Старшої інженерної школи: так само прихована,
+     відкривається з сторінки класу «Практика → Старша інженерна школа» */
+  { slug:"errors-practice", id:"page-errors-practice", num:"✎", practice:true, hidden:true, toc:false, cls:"practice-eng",
+    nav:"Практика: помилки · Старша інженерна школа", title:"Практика: помилки та винятки — Старша інженерна школа" },
+  /* Практика: розділ → клас (grade) → проєкт, як у самостійних. Проєкти
+     (shop, globe) лишаються на своїх маршрутах, тож старі посилання живі;
+     у меню показуємо лише класи. Поки відкрито глобус, підсвічуємо його
+     клас (cls). */
+  { slug:"practice", id:"page-practice", num:"✎", toc:false,
+    nav:"Практика", title:"Практика — Python крок за кроком",
+    kids:[
+      { slug:"practice-eng", id:"page-practice-eng", num:"ІШ", grade:true, toc:false,
+        nav:"Старша інженерна школа", title:"Практика — Старша інженерна школа" },
+      { slug:"practice-9", id:"page-practice-9", num:"9", grade:true, toc:false,
+        nav:"9 клас", title:"Практика — 9 клас" }
     ]},
   /* toc:false — без змісту-якорів під пунктом меню: сторінки й так лише картки.
      Самостійні: розділ → клас (grade) → робота. Роботи в меню не показуємо
@@ -58,7 +76,7 @@ const ROUTES = [
 const ALL  = ROUTES.reduce((a, r) => a.concat([r], r.kids || []), []);
 const FLAT = ALL.filter(r => !r.hidden);
 /* теми, які учень «проходить»: для них — номери розділів і позначка «пройдено» */
-const TOPIC_SLUGS = ["vars","cond","loops","func","coll","list","dict","set","files"];
+const TOPIC_SLUGS = ["vars","cond","loops","func","coll","list","dict","set","files","errors"];
 /* корінь маршруту: підтема належить своєму розділу (list → coll, check-9 → tests) */
 const topicOf = (route) =>
   (ROUTES.find(r => r === route || (r.kids || []).includes(route)) || route).slug;
@@ -183,7 +201,7 @@ function buildToc(route){
    по темах немає, лише бічне меню. */
 function buildPager(route){
   if(!window.Book) return;      /* без Book нема ні pagerHtml, ні kindLabel — краще без пагінації, ніж крах */
-  if(topicOf(route) === "tests" || route.hidden) return;
+  if(topicOf(route) === "tests" || topicOf(route) === "practice" || route.hidden) return;
   const wrap = $(".wrap", document.getElementById(route.id));
   if(!wrap) return;
   const old = $(":scope > .pager", wrap);
@@ -237,14 +255,15 @@ function render(){
   $$(".subnav").forEach(d=>{
     const parent = ROUTES.find(r=>r.slug===d.dataset.sub);
     const on = !!route && !!parent &&
-      (route.slug===parent.slug || (parent.kids||[]).some(c=>c.slug===route.slug));
+      (route.slug===parent.slug || (parent.kids||[]).some(c=>c.slug===route.slug || c.slug===route.cls));
     d.classList.toggle("open", on);
     const head = $(`.nav-item[data-slug="${d.dataset.sub}"]`);
     if(head) head.classList.toggle("trail", on && route.slug!==parent.slug);
   });
   $$(".nav-group").forEach(g=>{
     const r = ROUTES.find(x=>x.slug===g.dataset.group);
-    g.classList.toggle("current", !!route && (r===route || (r.kids||[]).includes(route)));
+    g.classList.toggle("current", !!route && (r===route || (r.kids||[]).includes(route) ||
+      (r.kids||[]).some(c=>c.slug===route.cls)));
   });
 
   if(route && !started[route.slug]){
@@ -258,7 +277,7 @@ function render(){
 
   closeMenu();
   window.scrollTo(0, 0);
-  homeAnim(!route);
+  homeAnim();
   startPageAnims();
   updateProgress();
 }
@@ -517,6 +536,20 @@ function vizFiles(svg){
   return cycler(steps);
 }
 
+/* --- 7. помилки --- */
+function vizErrors(svg){
+  const lines = [0,1,2].map(k=>$('[data-l="' + k + '"]', svg));
+  const boom = $("[data-boom]", svg);
+  const mark = (on, now, skip) => lines.forEach((l, k)=>
+    l.setAttribute("class", "vz-er-code" + (on > k ? " done" : "") + (now === k ? " now" : "") + (skip === k ? " skip" : "")));
+  return cycler([
+    { d:900,  run(){ mark(0, -1, -1); boom.setAttribute("class", "vz-er-box off"); }},
+    { d:900,  run(){ mark(0, 0, -1); }},
+    { d:900,  run(){ mark(1, 1, -1); }},
+    { d:2000, run(){ mark(1, 1, 2); boom.setAttribute("class", "vz-er-box"); }}
+  ]);
+}
+
 /* --- 7. практика: магазин --- */
 function vizShop(svg){
   const line = $("[data-line]", svg), note = $("[data-note]", svg);
@@ -551,9 +584,11 @@ function vizShop(svg){
   ]);
 }
 
-const VIZ = {};
+const VIZ = {}, VIZ_CARD = {};
+/* картка показана, якщо її сторінка не схована (вкладки головної не рахуємо) */
+const vizShown = (card) => !!card && !card.closest(".page[hidden]");
 (function initViz(){
-  const map = { vars: vizVars, cond: vizCond, loops: vizLoop, func: vizFunc, dicts: vizDict, files: vizFiles, shop: vizShop };
+  const map = { vars: vizVars, cond: vizCond, loops: vizLoop, func: vizFunc, dicts: vizDict, files: vizFiles, errors: vizErrors, shop: vizShop };
   /* Раніше картки оживали лише на mouseenter — тобто на сенсорному екрані
      не грали ніколи. Тепер запускає поява в екрані, а наведення лишається
      додатковим тригером. */
@@ -561,7 +596,7 @@ const VIZ = {};
     ? new IntersectionObserver(entries=>{
         entries.forEach(en=>{
           const anim = VIZ[en.target.dataset.viz];
-          if(anim && en.isIntersecting && !activeRoute && !document.hidden) anim.start();
+          if(anim && en.isIntersecting && vizShown(en.target) && !document.hidden) anim.start();
         });
       }, { threshold:.4 })
     : null;
@@ -572,16 +607,19 @@ const VIZ = {};
     if(!map[kind] || !svg) return;
     const anim = map[kind](svg);
     VIZ[kind] = anim;
+    VIZ_CARD[kind] = card;
     if(reduced){ anim.once(); return; }
     card.addEventListener("mouseenter", ()=>anim.start());
     if(io) io.observe(card);
   });
 })();
 
-function homeAnim(on){
-  Object.values(VIZ).forEach(a => on && !document.hidden ? a.start() : a.stop());
+/* Анімації карток крутяться, лише поки видно їхню сторінку: головну або
+   сторінку класу практики, куди переїхала картка магазину. */
+function homeAnim(){
+  Object.keys(VIZ).forEach(k => vizShown(VIZ_CARD[k]) && !document.hidden ? VIZ[k].start() : VIZ[k].stop());
 }
-document.addEventListener("visibilitychange", ()=>homeAnim(!activeRoute));
+document.addEventListener("visibilitychange", homeAnim);
 
 /* поява карток */
 (function reveal(){
@@ -608,16 +646,20 @@ homeCards.forEach(card=>{
     $(".card-body", card).insertAdjacentHTML("afterbegin", `<span class="card-tag">Тема ${route.num}</span>`);
 });
 
-/* Сторінка #/tests показує ті самі картки класів, що й вкладка на головній:
-   копія вже з кольором і водяним номером, але без появи (.reveal) — вона
-   спрацьовує лише на старті, коли сторінка ще схована. */
+/* Сторінки #/tests і #/practice показують ті самі картки класів, що й вкладки
+   на головній: копія вже з кольором і водяним номером, але без появи
+   (.reveal) — вона спрацьовує лише на старті, коли сторінка ще схована.
+   Пара «джерело — слот»: data-class-cards → data-class-cards-slot, так само
+   для data-practice-cards. */
 (function classCards(){
-  const src = $("#page-home [data-class-cards]"), slot = $("[data-class-cards-slot]");
-  if(!src || !slot) return;
-  const copy = src.cloneNode(true);
-  copy.removeAttribute("data-class-cards");
-  $$(".reveal", copy).forEach(el=>el.classList.remove("reveal"));
-  slot.replaceWith(copy);
+  ["class-cards", "practice-cards"].forEach(name=>{
+    const src = $(`#page-home [data-${name}]`), slot = $(`[data-${name}-slot]`);
+    if(!src || !slot) return;
+    const copy = src.cloneNode(true);
+    copy.removeAttribute("data-" + name);
+    $$(".reveal", copy).forEach(el=>el.classList.remove("reveal"));
+    slot.replaceWith(copy);
+  });
 })();
 
 /* Мітки «пройдено» на головній і в меню */

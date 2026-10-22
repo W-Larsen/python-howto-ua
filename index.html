@@ -14,15 +14,16 @@
 <link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400..800;1,7..72,600..700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 
 <!-- ?v=… — версія для кешу браузера: після змін у css/js підніми її тут і для скриптів унизу -->
-<link rel="stylesheet" href="css/base.css?v=20261009a">
+<link rel="stylesheet" href="css/base.css?v=20261022b">
 <link rel="stylesheet" href="css/topics.css?v=20260927a">
-<link rel="stylesheet" href="css/shell.css?v=20261009a">
+<link rel="stylesheet" href="css/shell.css?v=20261022c">
 <link rel="stylesheet" href="css/collections.css?v=20260926t24">
 <link rel="stylesheet" href="css/functions.css?v=20260926t4">
 <link rel="stylesheet" href="css/pyeditor.css?v=20260926t25">
 <link rel="stylesheet" href="css/shop.css?v=20260927a">
-<link rel="stylesheet" href="css/check.css?v=20260927c">
+<link rel="stylesheet" href="css/check.css?v=20261022a">
 <link rel="stylesheet" href="css/files.css?v=20261008a">
+<link rel="stylesheet" href="css/errors.css?v=20261022g">
 <link rel="stylesheet" href="css/globe.css?v=20261011f">
 </head>
 <body data-route="home">
@@ -235,54 +236,52 @@
           </div>
         </a>
 
-      </div>
-      </div>
-
-      <div class="tab-panel" role="tabpanel" id="home-p-practice" aria-labelledby="home-t-practice" hidden>
-      <p class="tab-note">пиши код — і дивись, як він оживляє справжній сайт</p>
-      <div class="cards practice-cards">
-
-        <a class="card practice reveal" href="#/shop" data-viz="shop">
+        <a class="card reveal" href="#/errors" data-viz="errors">
           <div class="card-viz">
-            <svg viewBox="0 0 320 152" class="viz viz-shop" aria-hidden="true">
-              <text class="vz-code" x="14" y="20" data-line>prices = [1899, 449, 3499, 799]</text>
-              <g data-tile="0"><rect class="vz-tile" x="14" y="34" width="64" height="82" rx="9"/><rect class="vz-pic" x="21" y="41" width="50" height="38" rx="5"/><text class="vz-price" x="46" y="102">1899</text></g>
-              <g data-tile="1"><rect class="vz-tile" x="90" y="34" width="64" height="82" rx="9"/><rect class="vz-pic" x="97" y="41" width="50" height="38" rx="5"/><text class="vz-price" x="122" y="102">449</text></g>
-              <g data-tile="2"><rect class="vz-tile" x="166" y="34" width="64" height="82" rx="9"/><rect class="vz-pic" x="173" y="41" width="50" height="38" rx="5"/><text class="vz-price" x="198" y="102">3499</text></g>
-              <g data-tile="3"><rect class="vz-tile" x="242" y="34" width="64" height="82" rx="9"/><rect class="vz-pic" x="249" y="41" width="50" height="38" rx="5"/><text class="vz-price" x="274" y="102">799</text></g>
-              <text class="vz-line" x="14" y="140" data-note>каталог як є</text>
-            </svg>
-          </div>
-          <div class="card-body">
-            <span class="card-tag">практика до теми «Списки»</span>
-            <h3>Оживи магазин</h3>
-            <p>Інтернет-магазин, у якому не працюють сортування, фільтри й статистика. Десять функцій на <code>len</code>, <code>min</code>, <code>max</code>, <code>sorted</code>, цикли й зрізи вмикають їх по черзі.</p>
-            <div class="card-meta"><span>10 завдань</span><span>тести одразу</span><span>Python у браузері</span></div>
-            <div class="card-go">Відкрити практику <em>→</em></div>
-          </div>
-        </a>
-
-        <a class="card practice reveal" href="#/globe" data-viz="globe" style="--tc:var(--tc-globe)">
-          <div class="card-viz">
-            <svg viewBox="0 0 320 152" class="viz viz-globe" aria-hidden="true">
-              <rect class="vz-device" x="70" y="10" width="180" height="132" rx="16"/>
-              <rect class="vz-lcd" x="88" y="24" width="144" height="82" rx="4"/>
-              <rect class="vz-lcd-inv" x="92" y="30" width="136" height="16"/>
-              <text class="vz-lcd-t inv" x="96" y="42">Ukraine</text>
-              <text class="vz-lcd-t" x="96" y="60">Kyiv</text>
-              <text class="vz-lcd-t" x="96" y="96">x1</text>
-              <g class="vz-keys">
-                <circle cx="104" cy="124" r="8"/><circle cx="128" cy="124" r="8"/><circle cx="152" cy="124" r="8"/>
-                <circle cx="176" cy="124" r="8"/><circle cx="200" cy="124" r="8"/>
+            <svg viewBox="0 0 320 152" class="viz viz-errors" aria-hidden="true">
+              <rect class="vz-er-term" x="40" y="12" width="240" height="130" rx="10"/>
+              <text class="vz-er-code" data-l="0" x="58" y="42">print("починаємо")</text>
+              <text class="vz-er-code" data-l="1" x="58" y="68">age = int("abc")</text>
+              <text class="vz-er-code" data-l="2" x="58" y="94">print("кінець")</text>
+              <g class="vz-er-box off" data-boom>
+                <rect x="52" y="104" width="216" height="28" rx="6"/>
+                <text x="64" y="123">ValueError: invalid literal</text>
               </g>
             </svg>
           </div>
           <div class="card-body">
-            <span class="card-tag">проєкт · 9 клас</span>
-            <h3>Touch The Globe</h3>
-            <p>Код для глобуса, що розповідає про країни: п'ять задач, симулятор дисплея Nokia 5110 і справжній Python у браузері. Код зберігається для вчителя, а звідси — на Arduino.</p>
-            <div class="card-meta"><span>5 задач</span><span>симулятор дисплея</span><span>Arduino</span></div>
-            <div class="card-go">Відкрити проєкт <em>→</em></div>
+            <h3>Помилки та винятки</h3>
+            <p>Як читати трейсбек, чим відрізняються <code>ValueError</code>, <code>KeyError</code> і <code>FileNotFoundError</code>, як перехопити помилку через <code>try / except</code> і кинути власну через <code>raise</code>.</p>
+            <div class="card-meta"><span>try / except</span><span>raise</span></div>
+            <div class="card-go">Читати тему <em>→</em></div>
+          </div>
+        </a>
+
+      </div>
+      </div>
+
+      <div class="tab-panel" role="tabpanel" id="home-p-practice" aria-labelledby="home-t-practice" hidden>
+      <p class="tab-note">обери свій клас — там проєкти, у яких код оживляє справжній сайт чи прилад</p>
+      <!-- ці ж картки показує сторінка #/practice: app.js копіює їх туди -->
+      <div class="cards check-cards" data-practice-cards>
+
+        <a class="card check reveal" href="#/practice-eng">
+          <div class="card-viz class-viz" aria-hidden="true"></div>
+          <div class="card-body">
+            <h3>Старша інженерна школа</h3>
+            <p class="card-count">2 проєкти</p>
+            <p>Практика для Старшої інженерної школи: інтернет-магазин, який оживає від функцій для списків, і шість функцій на помилки та винятки.</p>
+            <div class="card-go">Обрати клас <em>→</em></div>
+          </div>
+        </a>
+
+        <a class="card check reveal" href="#/practice-9">
+          <div class="card-viz class-viz" aria-hidden="true"></div>
+          <div class="card-body">
+            <h3>9 клас</h3>
+            <p class="card-count">1 проєкт</p>
+            <p>Практика для 9 класу: код для глобуса, який розповідає про країни, із симулятором дисплея й справжнім Python у браузері.</p>
+            <div class="card-go">Обрати клас <em>→</em></div>
           </div>
         </a>
 
@@ -1879,7 +1878,7 @@ b = list(dict.fromkeys(names))</pre>
 
   <h2>Коли файлу немає</h2>
   <p>Відкрити на читання файл, якого немає, не вийде: <code>open</code> упаде з помилкою <code>FileNotFoundError</code>. Режими <code>"w"</code> і <code>"a"</code> самі створюють <b>файл</b>, тож відсутній файл — не проблема. Але <b>папки</b> вони не створюють: якщо потрібної папки немає, <code>open</code> теж упаде з <code>FileNotFoundError</code>.</p>
-  <p>Відсутній файл — звичайна ситуація: програму запустили вперше, файл видалили чи перейменували. Таку помилку ловлять знайомим з теми <a href="#/func">«Функції»</a> <code>try / except</code>. Спробуй обидва перемикачі.</p>
+  <p>Відсутній файл — звичайна ситуація: програму запустили вперше, файл видалили чи перейменували. Таку помилку ловлять знайомим з теми <a href="#/func">«Функції»</a> <code>try / except</code>. Спробуй обидва перемикачі. Усе про винятки — у наступній темі, <a href="#/errors">«Помилки та винятки»</a>.</p>
 
   <div class="widget" id="files-w-missing" tabindex="0"></div>
 
@@ -1993,6 +1992,309 @@ print("Оля" in names)</pre>
     <tr><td>int(row["grade"])</td><td>з CSV усе приходить рядками</td></tr>
     <tr><td>csv.DictWriter(f, fieldnames=[...])</td><td>запис CSV: writeheader(), writerow(d)</td></tr>
     <tr><td>open(..., "w", newline="")</td><td>обов'язково для запису CSV</td></tr>
+  </table>
+
+  </div>
+  </section>
+
+  <!-- ================= тема: помилки та винятки ================= -->
+  <section class="page" id="page-errors" hidden>
+  <div class="wrap">
+
+  <header class="top">
+    <h1>Помилки та винятки</h1>
+    <p class="lede">Рано чи пізно будь-яка програма натрапляє на проблему: користувач вводить літери замість числа, потрібного файлу немає, а список виявляється коротшим, ніж ти думав. Python у таких випадках не мовчить, а <b>кидає виняток</b> і зупиняє програму. Добра новина: винятки можна <b>прочитати</b>, <b>перехопити</b> і навіть <b>кинути самому</b>.</p>
+  </header>
+
+  <div class="hero" id="errors-hero">
+    <div id="errors-heroBox"></div>
+    <div class="hero-line" id="errors-heroLine">натисни, щоб подивитись, як програма падає</div>
+    <button class="ctl replay" id="errors-heroBtn">Показати ще раз</button>
+  </div>
+
+  <h2>Помилка — це не кінець</h2>
+  <p>Помилки в Python бувають двох видів. <b>Синтаксичні</b> — це «граматика»: забута двокрапка чи дужка. Python помічає їх ще до запуску й не виконує жодного рядка, поки ти їх не виправиш. З такими нічого не вдієш, окрім як виправити код.</p>
+  <p><b>Винятки</b> (<i>exceptions</i>) трапляються вже під час роботи програми: код написаний правильно, але в цей запуск щось пішло не так — не те значення, немає файлу, ділення на нуль. Виняток — це сигнал: «тут проблема». Якщо ніхто його не перехопив, Python зупиняє програму й друкує <b>трейсбек</b> — звіт про те, що і де сталось.</p>
+  <p>Уся ця тема — про винятки. І починається вона з вміння читати трейсбек: у ньому майже завжди вже є відповідь.</p>
+
+  <h2>Читаємо трейсбек</h2>
+  <p>Трейсбек виглядає лячно, але читається просто. Правило одне: <b>починай з нижнього рядка</b>. У ньому — тип помилки й коротке пояснення. Вище йде ланцюжок викликів: у кожному записі є файл, номер рядка, назва функції й сам рядок коду. Найнижчий запис — місце, де помилка сталась, найвищий — звідки все почалось.</p>
+  <p>Пройди програму крок за кроком. Коли вона впаде, ті самі кроки прочитають трейсбек по частинах.</p>
+
+  <div class="widget" id="errors-w-trace" tabindex="0"></div>
+
+  <div class="callout">
+    <p><b>Знаки ^^^^ у трейсбеку.</b> У новіших версіях Python (від 3.11) під рядком коду з'являється ще один — зі значками <code>^^^^</code> або <code>~~~^~~</code>. Вони показують, яка саме частина рядка впала. На сенс помилки це не впливає.</p>
+  </div>
+
+  <h2>Найчастіші винятки</h2>
+  <p>Тип помилки — це її «діагноз», і по ньому часто вже зрозуміло, що робити. Ось шість, з якими ти зустрічатимешся найчастіше. Перемикай і дивись, який рядок падає.</p>
+
+  <div class="widget" id="errors-w-kinds" tabindex="0"></div>
+
+  <p>Є й інші: <code>NameError</code> (змінної з таким іменем немає — часто через одруківку), <code>AttributeError</code> (у об'єкта немає такого методу), <code>RecursionError</code>, <code>KeyboardInterrupt</code> (програму перервали з клавіатури). Вчити їх напам'ять не треба: назву помилки завжди видно в трейсбеку, і за нею легко знайти опис.</p>
+
+  <h2>try і except</h2>
+  <p>Іноді помилка — не провина програми, а звичайна ситуація: користувач ввів не те, файлу ще немає. Тоді замість падіння ми хочемо <b>план Б</b>. Для цього код, який може впасти, кладуть у <code>try</code>, а план Б — в <code>except</code>.</p>
+  <p>Python виконує <code>try</code> рядок за рядком. Щойно стається виняток, решта блоку <b>пропускається</b>, і керування переходить у <code>except</code> — якщо його тип збігається з типом помилки. Якщо помилки не було, <code>except</code> просто пропускається. Порівняй обидва варіанти на тому самому «вводі».</p>
+
+  <div class="widget" id="errors-w-try" tabindex="0"></div>
+
+  <div class="callout">
+    <p><b>Куди писати try.</b> У <code>try</code> клади лише ті рядки, що справді можуть упасти (тут — перетворення на число). Чим менший блок, тим легше зрозуміти, що саме ми ловимо. Про те, як <code>try</code> працює всередині функцій, ти вже бачив у темі <a href="#/func">«Функції»</a>.</p>
+  </div>
+
+  <h2>Конкретний except і as e</h2>
+  <p>Після <code>except</code> вказують <b>тип помилки</b>, яку ловлять. Помилок може бути кілька — тоді <code>except</code>-ів теж кілька, і Python перевіряє їх згори вниз, поки не знайде той, що підходить. Слово <code>as e</code> кладе сам виняток у змінну <code>e</code>: його можна надрукувати й побачити те саме пояснення, що було б у трейсбеку.</p>
+  <p>Спробуй три значення — і прибери другий <code>except</code>: тоді помилка ділення на нуль уже ніким не ловиться, а програма падає. <code>except</code> ловить рівно те, що в нього вписано.</p>
+
+  <div class="widget" id="errors-w-except" tabindex="0"></div>
+
+  <div class="callout warn">
+    <p><b>Не ковтай помилки мовчки.</b> Запис <code>except: pass</code> (або просто <code>except:</code>) ловить усе й нічого не робить із помилкою. Програма не падає, але ти більше не знаєш, що пішло не так, і справжня помилка вилізе пізніше, в іншому місці. Лови конкретний тип і завжди роби щось корисне: пиши повідомлення, повторюй спробу, підставляй значення за замовчуванням.</p>
+  </div>
+
+  <h2>else і finally</h2>
+  <p>До <code>try / except</code> можна додати ще дві гілки. <code>else</code> виконується, лише якщо помилки <b>не було</b> — це місце для коду, який має спрацювати після успішного <code>try</code>. <code>finally</code> виконується <b>завжди</b>: після успіху, після перехопленої помилки й навіть після непійманої. У ньому роблять прибирання, найчастіше — закривають файл.</p>
+  <p>Нижче той самий код із <a href="#/files">теми про файли</a>: ми відкрили файл і хочемо гарантовано його закрити, що б не трапилось у <code>write</code>. Подивись на блокнот: у шапці видно, коли файл закрито.</p>
+
+  <div class="widget" id="errors-w-finally" tabindex="0"></div>
+
+  <div class="callout">
+    <p><b>Нагадування про with.</b> Блок <code>with open(...) as f:</code> робить саме це за тебе: закриває файл, що б не сталося всередині — так, ніби в тебе є <code>try / finally: f.close()</code>. Тому з файлами зазвичай пишуть <code>with</code>, а <code>finally</code> знадобиться для інших «ресурсів» — з'єднань, тимчасових файлів, лічильників.</p>
+  </div>
+
+  <div class="callout warn">
+    <p><b>finally спрацьовує навіть після return.</b> Якщо в <code>try</code> є <code>return</code>, Python спершу виконає <code>finally</code> і лише потім повернеться з функції. Тому <code>return</code> у <code>finally</code> писати не варто: він «з'їсть» і результат, і помилку.</p>
+  </div>
+
+  <h2>Питаємо, поки не введуть правильно</h2>
+  <p>Найкорисніше поєднання — <code>while True</code> і <code>try</code>. Цикл повторює запитання, а <code>break</code> стоїть <b>після</b> успішного перетворення: якщо було виняток, до <code>break</code> справа не дійшла, і цикл крутиться знову. Це візитівка надійних програм із введенням.</p>
+
+  <div class="widget" id="errors-w-retry" tabindex="0"></div>
+
+  <h2>raise: кидаємо власну помилку</h2>
+  <p>Виняток можна кинути самому командою <code>raise</code>. Це корисно у функціях: якщо їй передали значення, з яким працювати не можна, краще <b>відмовитись одразу й голосно</b>, ніж мовчки повернути дурницю. Після <code>raise</code> функція зупиняється, а виняток летить нагору, до найближчого <code>except</code> із відповідним типом — як і ті, що кидає сам Python.</p>
+  <p>Порівняй функцію без перевірки й з перевіркою. Тип помилки добирай за змістом: <code>ValueError</code> — значення не підходить, <code>TypeError</code> — не той тип.</p>
+
+  <div class="widget" id="errors-w-raise" tabindex="0"></div>
+
+  <h2 class="adv">Advanced: власні винятки<span class="badge">advanced</span></h2>
+
+  <div class="adv-intro">
+    <h3>Коли готових типів замало</h3>
+    <p>Для великої програми зручно мати свої типи помилок: <code>except AgeError</code> читається краще, ніж загальний <code>ValueError</code>. Власний виняток — це клас, який «успадковує» готовий:</p>
+<pre class="adv-code">class AgeError(ValueError):
+    pass</pre>
+    <p>Тепер <code>except AgeError</code> ловить саме цю помилку, а <code>except ValueError</code> — теж ловить, бо <code>AgeError</code> — різновид <code>ValueError</code>. Так працюють усі винятки Python: вони утворюють «родину», і <code>except</code> з типом-«батьком» піймає й усіх «дітей». Перемикай, який <code>except</code> стоїть у коді.</p>
+  </div>
+
+  <div class="widget" id="errors-w-custom" tabindex="0"></div>
+
+  <h2>raise from</h2>
+  <p>Іноді виняток ловлять лише для того, щоб кинути інший, зрозуміліший. Щоб не втратити першопричину, пишуть <code>raise … from e</code>: у трейсбеку з'являться обидві помилки з пояснювальним рядком між ними. Порівняй із варіантом без <code>from</code>.</p>
+
+  <div class="widget" id="errors-w-from" tabindex="0"></div>
+
+  <h2>assert</h2>
+  <p>Ще один інструмент — <code>assert</code>: «я впевнений, що тут це правда». Якщо умова хибна, Python кидає <code>AssertionError</code> із текстом після коми. Його використовують для перевірок «для себе» під час розробки, а не для перевірки того, що ввів користувач.</p>
+
+  <div class="widget" id="errors-w-assert" tabindex="0"></div>
+
+  <h2>Перевір себе</h2>
+
+  <div class="task">
+    <p>1. Що надрукує програма?</p>
+    <pre>try:
+    print("а")
+    print(10 / 0)
+    print("б")
+except ZeroDivisionError:
+    print("в")
+print("г")</pre>
+    <button class="ctl" data-answer="errors-a1">Показати відповідь</button>
+    <div class="answer" id="errors-a1"><p><code>а</code>, <code>в</code>, <code>г</code> — кожне з нового рядка. Після помилки в <code>10 / 0</code> решта <code>try</code> (рядок <code>б</code>) пропускається, спрацьовує <code>except</code>, а потім програма йде далі й друкує <code>г</code>.</p></div>
+  </div>
+
+  <div class="task">
+    <p>2. Який рядок надрукується?</p>
+    <pre>data = {"name": "Оля"}
+try:
+    print(data["age"])
+except IndexError:
+    print("індекс")
+except KeyError:
+    print("ключ")</pre>
+    <button class="ctl" data-answer="errors-a2">Показати відповідь</button>
+    <div class="answer" id="errors-a2"><p><code>ключ</code>. У словнику немає ключа <code>"age"</code> — це <code>KeyError</code>. Перший <code>except</code> (<code>IndexError</code>) не підходить, Python переходить до другого.</p></div>
+  </div>
+
+  <div class="task">
+    <p>3. Що буде на екрані, і в якому порядку?</p>
+    <pre>def check():
+    try:
+        return "try"
+    finally:
+        print("finally")
+
+print(check())</pre>
+    <button class="ctl" data-answer="errors-a3">Показати відповідь</button>
+    <div class="answer" id="errors-a3"><p>Спершу <code>finally</code>, потім <code>try</code>. <code>return</code> готує значення, але перед виходом із функції Python виконує <code>finally</code> — тому слово <code>finally</code> з'являється раніше, ніж <code>print</code> зовні надрукує <code>try</code>.</p></div>
+  </div>
+
+  <div class="task">
+    <p>4. Файлу <code>grades.txt</code> немає. Яка помилка виникне і як її обійти без падіння?</p>
+    <pre>with open("grades.txt", encoding="utf-8") as f:
+    print(f.read())</pre>
+    <button class="ctl" data-answer="errors-a4">Показати відповідь</button>
+    <div class="answer" id="errors-a4"><p><code>FileNotFoundError</code>. Обійти можна так: обгорнути <code>with</code> у <code>try</code> і додати <code>except FileNotFoundError:</code> із повідомленням, наприклад <code>print("файлу ще немає")</code>.</p></div>
+  </div>
+
+  <div class="task">
+    <p>5. Що надрукує цикл?</p>
+    <pre>for text in ["5", "x"]:
+    try:
+        n = int(text)
+    except ValueError:
+        print("помилка")
+    else:
+        print("ок", n)</pre>
+    <button class="ctl" data-answer="errors-a5">Показати відповідь</button>
+    <div class="answer" id="errors-a5"><p><code>ок 5</code>, а потім <code>помилка</code>. Для <code>"5"</code> помилки немає, тож виконується <code>else</code>; для <code>"x"</code> <code>int</code> кидає <code>ValueError</code>, і <code>else</code> пропускається.</p></div>
+  </div>
+
+  <div class="task">
+    <p>6. Чому цей код — погана ідея? Що станеться, якщо ввести <code>abc</code>?</p>
+    <pre>try:
+    age = int(input("Вік: "))
+except:
+    pass
+print(age)</pre>
+    <button class="ctl" data-answer="errors-a6">Показати відповідь</button>
+    <div class="answer" id="errors-a6"><p><code>except: pass</code> мовчки ковтає помилку. Для <code>abc</code> змінна <code>age</code> так і не з'явиться, і програма впаде вже на <code>print(age)</code> з <code>NameError: name 'age' is not defined</code> — далеко від справжньої причини. Краще ловити <code>ValueError</code> і просити ввести число ще раз у циклі <code>while True</code>.</p></div>
+  </div>
+
+  <h2>Шпаргалка</h2>
+  <table class="cheat">
+    <tr><td>Traceback</td><td>читай знизу: тип помилки, потім де сталось</td></tr>
+    <tr><td>ValueError</td><td>тип правильний, значення — ні: int("abc")</td></tr>
+    <tr><td>TypeError</td><td>не той тип: "5" + 3</td></tr>
+    <tr><td>IndexError / KeyError</td><td>немає індексу в списку / ключа в словнику</td></tr>
+    <tr><td>ZeroDivisionError</td><td>ділення на нуль</td></tr>
+    <tr><td>FileNotFoundError</td><td>файлу чи папки немає</td></tr>
+    <tr><td>try: … except Тип:</td><td>спробувати; якщо такий виняток — план Б</td></tr>
+    <tr><td>except Тип as e:</td><td>e — сам виняток, print(e) дає пояснення</td></tr>
+    <tr><td>except A: … except B:</td><td>перевіряються згори вниз, спрацьовує перший підходящий</td></tr>
+    <tr><td>else:</td><td>виконується, лише якщо помилки не було</td></tr>
+    <tr><td>finally:</td><td>виконується завжди, навіть після return</td></tr>
+    <tr><td>with open(...) as f:</td><td>файл закриється сам, навіть після помилки</td></tr>
+    <tr><td>while True: try: … break</td><td>питати, поки не введуть правильно</td></tr>
+    <tr><td>raise ValueError("текст")</td><td>кинути виняток самому</td></tr>
+    <tr><td>raise … from e</td><td>кинути інший виняток, зберігши причину</td></tr>
+    <tr><td>except: pass</td><td>так не роби: помилка зникає непоміченою</td></tr>
+  </table>
+
+  <h2>Далі: практика</h2>
+  <p>Час перевірити, чи ловиш ти потрібні помилки й пропускаєш непотрібні. На сторінці практики шість функцій із тестами: від першого <code>try / except</code> до власного винятку.</p>
+
+  <div class="subcards">
+    <a class="subcard" href="#/errors-practice">
+      <span class="sc-mark">практика</span>
+      <span class="sc-t">Помилки та винятки</span>
+      <span class="sc-d">6 функцій на <code>try / except</code>, <code>else</code>, <code>finally</code>, <code>raise</code> і власний виняток.</span>
+    </a>
+  </div>
+
+  </div>
+  </section>
+
+  <!-- ================= практика: помилки та винятки (js/pages/errors-practice.js) ================= -->
+  <section class="page" id="page-errors-practice" hidden>
+  <div class="wrap wide">
+
+  <header class="top">
+    <h1>Практика: помилки та винятки</h1>
+    <p class="lede">Шість маленьких функцій, у яких помилки — це не катастрофа, а звичайна частина роботи: форма, куди вводять вік, налаштування, яких може не бути, порожній список і власні правила перевірки. Пиши код, запускай тести й дивись, чи <b>впіймала</b> твоя функція те, що треба, і <b>пропустила</b> те, що не можна ковтати.</p>
+  </header>
+
+  <div class="hero shop-hero" id="exc-hero">
+    <div class="shop-prog">
+      <div class="shop-prog-bar"><i id="exc-progress-fill"></i></div>
+      <span id="exc-progress-text">Виконано 0 з 6</span>
+    </div>
+    <div class="shop-chips" id="exc-chips"></div>
+  </div>
+  <p class="exc-boot" id="exc-boot"><span class="shop-spin" aria-hidden="true"></span> Завантажую Python…</p>
+
+  <h2>Як це працює</h2>
+  <div class="steps3">
+    <div class="step3"><span class="step3-n">1</span><b>Пишеш функцію</b><p>У кожної задачі є заготовка. Прибери рядок <code>raise NotImplementedError(...)</code> і напиши свою реалізацію.</p></div>
+    <div class="step3"><span class="step3-n">2</span><b>Запускаєш тести</b><p>Кнопка <b>▶ Запустити</b> або <kbd>Ctrl</kbd>+<kbd>Enter</kbd>. Нижче з'явиться таблиця: що мало вийти і що вийшло насправді.</p></div>
+    <div class="step3"><span class="step3-n">3</span><b>Код зберігається</b><p>Усе, що ти пишеш, автоматично лишається в цьому браузері: можна закрити сторінку й повернутись.</p></div>
+  </div>
+  <p>У деяких тестах функція має <b>кинути виняток</b>: у таблиці це рядок <code>кидає ValueError</code>. Тоді «отримано» покаже, що кинула твоя функція насправді. Теорію шукай у темі <a href="#/errors">«Помилки та винятки»</a>.</p>
+
+  <article class="pytask" id="exc-task-parse_age">
+    <div class="pyt-info">
+      <h2>1. try / except: вік із форми</h2>
+      <p>Користувач вписує вік у форму, і програма отримує <b>рядок</b>. Якщо там літери, <code>int()</code> кине <code>ValueError</code>, і програма впаде. Функція <code>parse_age</code> має перетворити рядок на ціле число, а якщо не вийшло, повернути <code>None</code>.</p>
+      <p>Перевіряти рядок вручну не треба: спробуй перетворити й лови конкретну помилку.</p>
+    </div>
+    <div class="pyt-work"></div>
+  </article>
+
+  <article class="pytask" id="exc-task-safe_get">
+    <div class="pyt-info">
+      <h2>2. Конкретний except: безпечне читання</h2>
+      <p>Налаштування приходять то як словник, то як список. Функція <code>safe_get</code> повертає елемент за ключем чи індексом, а якщо його немає, значення <code>default</code>.</p>
+      <p>Ловити треба рівно <code>KeyError</code> і <code>IndexError</code>. Останній тест дає списку ключ-рядок: це <code>TypeError</code>, тобто помилка програміста, і вона має <b>пролетіти</b> повз твій <code>except</code>.</p>
+    </div>
+    <div class="pyt-work"></div>
+  </article>
+
+  <article class="pytask" id="exc-task-parse_logged">
+    <div class="pyt-info">
+      <h2>3. else і finally: журнал спроби</h2>
+      <p>Функція <code>parse_logged</code> перетворює рядок на число й веде журнал у списку <code>log</code>: <code>"ок"</code>, якщо вдалося, <code>"помилка"</code>, якщо ні, і <code>"кінець"</code> у будь-якому разі.</p>
+      <p>Тести перевіряють не лише результат, а й те, що лежить у <code>log</code> після виклику. Подумай, у яку гілку <code>try</code> який запис належить.</p>
+    </div>
+    <div class="pyt-work"></div>
+  </article>
+
+  <article class="pytask" id="exc-task-first_number">
+    <div class="pyt-info">
+      <h2>4. Повторна спроба: питаємо, поки не введуть число</h2>
+      <p>У справжній програмі ми б питали через <code>input()</code> у циклі <code>while True</code>. Тут відповіді користувача лежать у списку <code>answers</code>, а функція <code>first_number</code> повертає перше з них, що є цілим числом. Якщо таких немає, <code>None</code>.</p>
+      <p>Погані відповіді не повинні зупиняти програму: пропускай їх і йди далі.</p>
+    </div>
+    <div class="pyt-work"></div>
+  </article>
+
+  <article class="pytask" id="exc-task-average">
+    <div class="pyt-info">
+      <h2>5. raise: середнє без ділення на нуль</h2>
+      <p>Середнє порожнього списку не існує. Якщо порахувати «наївно» через <code>sum(...) / len(...)</code>, Python кине <code>ZeroDivisionError</code>, і причину доведеться розгадувати. Функція <code>average</code> має <b>відмовитись сама</b>: для порожнього списку кинути <code>ValueError</code> із зрозумілим текстом.</p>
+    </div>
+    <div class="pyt-work"></div>
+  </article>
+
+  <article class="pytask" id="exc-task-validate_age">
+    <div class="pyt-info">
+      <h2>6. Власний виняток <span class="exc-adv">advanced</span></h2>
+      <p>Створи свій тип помилки: <code>AgeError</code>, різновид <code>ValueError</code>. Функція <code>validate_age</code> кидає його, якщо вік менший за 0 або більший за 120, інакше повертає вік.</p>
+      <p>Завдяки успадкуванню <code>except ValueError</code> піймає й твою <code>AgeError</code>, а <code>except AgeError</code> лише її.</p>
+    </div>
+    <div class="pyt-work"></div>
+  </article>
+
+  <h2>Що ми використали</h2>
+  <table class="cheat">
+    <tr><td>try: … except ValueError:</td><td>спробувати; якщо такий виняток, виконати план Б</td></tr>
+    <tr><td>except (KeyError, IndexError):</td><td>один <code>except</code> на кілька типів</td></tr>
+    <tr><td>else: / finally:</td><td>«не було помилки» / «завжди»</td></tr>
+    <tr><td>for x in items: try: … return …</td><td>пробувати значення по черзі, поганим дати пропуск</td></tr>
+    <tr><td>raise ValueError("текст")</td><td>кинути виняток самому</td></tr>
+    <tr><td>class MyError(ValueError):</td><td>власний тип помилки</td></tr>
   </table>
 
   </div>
@@ -2142,6 +2444,115 @@ print("Оля" in names)</pre>
   </section>
 
   <!-- ================= самостійні роботи: загальна сторінка ================= -->
+  <section class="page" id="page-practice" hidden>
+  <div class="wrap wide">
+
+  <header class="top">
+    <h1>Практика</h1>
+    <p class="lede"><b>Обери свій клас,</b> а потім проєкт, який задав учитель. Пиши код — і дивись, як він оживляє справжній сайт чи прилад. Код зберігається в цьому браузері автоматично.</p>
+  </header>
+
+  <!-- картки класів копіює сюди app.js з вкладки «Практика» на головній -->
+  <div data-practice-cards-slot></div>
+
+  </div>
+  </section>
+
+  <!-- ================= практика: сторінки класів ================= -->
+  <section class="page" id="page-practice-eng" hidden>
+  <div class="wrap wide">
+
+  <header class="top">
+    <h1>Старша інженерна школа</h1>
+    <p class="lede"><b>Обери проєкт, який задав учитель.</b> Пиши код у браузері, запускай тести й дивись, як він оживляє проєкт.</p>
+  </header>
+
+  <div class="cards practice-cards">
+
+    <a class="card practice" href="#/shop" data-viz="shop" style="--tc:var(--tc-coll)">
+      <div class="card-viz">
+        <svg viewBox="0 0 320 152" class="viz viz-shop" aria-hidden="true">
+          <text class="vz-code" x="14" y="20" data-line>prices = [1899, 449, 3499, 799]</text>
+          <g data-tile="0"><rect class="vz-tile" x="14" y="34" width="64" height="82" rx="9"/><rect class="vz-pic" x="21" y="41" width="50" height="38" rx="5"/><text class="vz-price" x="46" y="102">1899</text></g>
+          <g data-tile="1"><rect class="vz-tile" x="90" y="34" width="64" height="82" rx="9"/><rect class="vz-pic" x="97" y="41" width="50" height="38" rx="5"/><text class="vz-price" x="122" y="102">449</text></g>
+          <g data-tile="2"><rect class="vz-tile" x="166" y="34" width="64" height="82" rx="9"/><rect class="vz-pic" x="173" y="41" width="50" height="38" rx="5"/><text class="vz-price" x="198" y="102">3499</text></g>
+          <g data-tile="3"><rect class="vz-tile" x="242" y="34" width="64" height="82" rx="9"/><rect class="vz-pic" x="249" y="41" width="50" height="38" rx="5"/><text class="vz-price" x="274" y="102">799</text></g>
+          <text class="vz-line" x="14" y="140" data-note>каталог як є</text>
+        </svg>
+      </div>
+      <div class="card-body">
+        <span class="card-tag">практика до теми «Списки»</span>
+        <h3>Оживи магазин</h3>
+        <p>Інтернет-магазин, у якому не працюють сортування, фільтри й статистика. Десять функцій на <code>len</code>, <code>min</code>, <code>max</code>, <code>sorted</code>, цикли й зрізи вмикають їх по черзі.</p>
+        <div class="card-meta"><span>10 завдань</span><span>тести одразу</span><span>Python у браузері</span></div>
+        <div class="card-go">Відкрити практику <em>→</em></div>
+      </div>
+    </a>
+
+    <a class="card practice" href="#/errors-practice" style="--tc:var(--tc-errors)">
+      <div class="card-viz">
+        <svg viewBox="0 0 320 152" class="viz viz-exc" aria-hidden="true">
+          <text class="vz-code" x="14" y="26">try:</text>
+          <text class="vz-code" x="38" y="50">age = int(text)</text>
+          <text class="vz-code" x="14" y="74">except ValueError:</text>
+          <text class="vz-code" x="38" y="98">age = None</text>
+          <rect class="vz-exc-ok" x="14" y="112" width="124" height="28" rx="14"/>
+          <text class="vz-exc-t" x="76" y="131">✓ програма живе</text>
+        </svg>
+      </div>
+      <div class="card-body">
+        <span class="card-tag">практика до теми «Помилки»</span>
+        <h3>Помилки та винятки</h3>
+        <p>Шість функцій, які ловлять потрібні помилки й кидають свої: від першого <code>try / except</code> до власного винятку.</p>
+        <div class="card-meta"><span>6 завдань</span><span>тести одразу</span><span>Python у браузері</span></div>
+        <div class="card-go">Відкрити практику <em>→</em></div>
+      </div>
+    </a>
+
+  </div>
+
+  </div>
+  </section>
+
+  <section class="page" id="page-practice-9" hidden>
+  <div class="wrap wide">
+
+  <header class="top">
+    <h1>9 клас</h1>
+    <p class="lede"><b>Обери проєкт, який задав учитель.</b> Пиши код у браузері й дивись, що він робить.</p>
+  </header>
+
+  <div class="cards practice-cards">
+
+    <a class="card practice" href="#/globe" data-viz="globe" style="--tc:var(--tc-globe)">
+      <div class="card-viz">
+        <svg viewBox="0 0 320 152" class="viz viz-globe" aria-hidden="true">
+          <rect class="vz-device" x="70" y="10" width="180" height="132" rx="16"/>
+          <rect class="vz-lcd" x="88" y="24" width="144" height="82" rx="4"/>
+          <rect class="vz-lcd-inv" x="92" y="30" width="136" height="16"/>
+          <text class="vz-lcd-t inv" x="96" y="42">Ukraine</text>
+          <text class="vz-lcd-t" x="96" y="60">Kyiv</text>
+          <text class="vz-lcd-t" x="96" y="96">x1</text>
+          <g class="vz-keys">
+            <circle cx="104" cy="124" r="8"/><circle cx="128" cy="124" r="8"/><circle cx="152" cy="124" r="8"/>
+            <circle cx="176" cy="124" r="8"/><circle cx="200" cy="124" r="8"/>
+          </g>
+        </svg>
+      </div>
+      <div class="card-body">
+        <span class="card-tag">проєкт · 9 клас</span>
+        <h3>Touch The Globe</h3>
+        <p>Код для глобуса, що розповідає про країни: п'ять задач, симулятор дисплея Nokia 5110 і справжній Python у браузері. Код зберігається для вчителя, а звідси — на Arduino.</p>
+        <div class="card-meta"><span>5 задач</span><span>симулятор дисплея</span><span>Arduino</span></div>
+        <div class="card-go">Відкрити проєкт <em>→</em></div>
+      </div>
+    </a>
+
+  </div>
+
+  </div>
+  </section>
+
   <section class="page" id="page-tests" hidden>
   <div class="wrap wide">
 
@@ -2241,9 +2652,9 @@ print("Оля" in names)</pre>
 
 
 <!-- чисті помічники оболонки: «пройдено», номери розділів, стежка, пагінація -->
-<script src="js/book.js?v=20260927a"></script>
+<script src="js/book.js?v=20261022a"></script>
 <!-- оболонка: роутер, меню, анімації головної -->
-<script src="js/app.js?v=20261011a"></script>
+<script src="js/app.js?v=20261022c"></script>
 <!-- перемикач теми оформлення -->
 <script src="js/theme.js?v=20260927b"></script>
 <!-- рушій руху: FLIP-переїзди й твіни; має бути до collkit.js -->
@@ -2268,6 +2679,8 @@ print("Оля" in names)</pre>
 <script src="js/pages/dict.js?v=20260926t22"></script>
 <script src="js/pages/set.js?v=20260922f"></script>
 <script src="js/pages/files.js?v=20261008a"></script>
+<script src="js/pages/errors.js?v=20261022e"></script>
+<script src="js/pages/errors-practice.js?v=20261022b"></script>
 <!-- Touch The Globe: налаштування сховища, дисплей, сховище, рушій (Pyodide + знімок
      проєкту), архіви, симулятор і дві сторінки -->
 <script src="js/globe-config.js?v=20261009b"></script>

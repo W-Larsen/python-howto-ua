@@ -518,12 +518,15 @@ T.test("globe page: у таблицю йде свіжа кількість по�
   T.eq(p.rows.find(r => r.task === "task1.py").problems, 1);
 });
 
-T.test("globe page: у бічному меню Touch The Globe немає, а з вкладки «Практика» він відкривається", async () => {
+T.test("globe page: у бічному меню Touch The Globe немає, а з практики 9 класу він відкривається", async () => {
   const p = await openGlobePage([]);
   T.ok(!p.d.querySelector('.nav-item[data-slug="globe"], .nav-sub[data-slug="globe"]'), "у меню зліва його немає");
   T.ok(!p.d.getElementById("page-globe").hidden, "за прямим посиланням сторінка відкривається");
-  T.ok(p.d.querySelector('#home-p-practice a.card[href="#/globe"]'), "картка на вкладці «Практика» головної");
+  T.ok(p.d.querySelector('#home-p-practice a.card[href="#/practice-9"]'), "клас 9 на вкладці «Практика» головної");
+  T.ok(p.d.querySelector('#page-practice-9 a.card[href="#/globe"]'), "картка проєкту на сторінці класу");
   T.ok(p.d.querySelector('.nav-item[data-slug="shop"], .nav-sub[data-slug="shop"]'), "решта меню на місці");
+  T.ok(p.d.querySelector('#page-practice-eng a.card[href="#/shop"]'), "у Старшої інженерної лишився магазин");
+  T.ok(p.d.querySelector('#page-practice-eng a.card[href="#/errors-practice"]'), "і з'явилась практика з винятків");
   document.getElementById("sandbox").innerHTML = "";
 });
 

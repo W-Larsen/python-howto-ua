@@ -49,8 +49,10 @@
     --tc-func:#b45309;
     --tc-coll:#2563eb;
     --tc-files:#a21caf;
+    --tc-errors:#b91c1c;
     --tc-globe:#0e7490;
     --tc-tests:var(--ink);
+    --tc-practice:var(--ink);
     --tc:var(--accent);
     --on-tc:#fff;
     /* блідий текст-заглушка; текст на жовтій підсвітці; затемнення під меню */
@@ -109,7 +111,7 @@
       --shadow-3:0 26px 48px -22px rgba(0,0,0,.8);
       --paper-dot:rgba(255,240,210,.035); --on-tc:#1d1a16;
       --tc-vars:#a78bfa; --tc-cond:#2dd4bf; --tc-loops:#f59e6b; --tc-func:#fbbf24; --tc-coll:#60a5fa;
-      --tc-files:#e879f9; --tc-globe:#22d3ee;
+      --tc-files:#e879f9; --tc-errors:#f87171; --tc-globe:#22d3ee;
       --faint:#5f574b; --hl-ink:#f5d58a; --scrim:rgba(0,0,0,.6);
       --on-hl-bar:#1d1a16;
       --lcd-bg:#8fae86; --lcd-on:#142015; --lcd-ghost:rgba(20,32,21,.08); --lcd-dim:#5e7258;
@@ -128,7 +130,7 @@
       --shadow-3:0 26px 48px -22px rgba(0,0,0,.8);
       --paper-dot:rgba(255,240,210,.035); --on-tc:#1d1a16;
       --tc-vars:#a78bfa; --tc-cond:#2dd4bf; --tc-loops:#f59e6b; --tc-func:#fbbf24; --tc-coll:#60a5fa;
-      --tc-files:#e879f9; --tc-globe:#22d3ee;
+      --tc-files:#e879f9; --tc-errors:#f87171; --tc-globe:#22d3ee;
       --faint:#5f574b; --hl-ink:#f5d58a; --scrim:rgba(0,0,0,.6);
       --on-hl-bar:#1d1a16;
       --lcd-bg:#8fae86; --lcd-on:#142015; --lcd-ghost:rgba(20,32,21,.08); --lcd-dim:#5e7258;
@@ -157,13 +159,13 @@
 
   /* ---------- компонування: одна колонка на все ----------
      Один аркуш однакової ширини на всіх сторінках — теми, практика,
-     самостійні. Віджети, таблиці, задачі й шпаргалки займають усю смугу, а
-     проза (абзаци, списки, виноски, lede) — лише --measure від лівого краю:
-     рядок довший за ~70 знаків читати важко.
+     самостійні. Віджети, таблиці, задачі, шпаргалки й проза (абзаци, списки,
+     виноски, lede) займають усю смугу: --measure:none. Щоб знову обмежити
+     рядок прози, поверни тут ширину в ch (було 70ch).
      У grid вертикальні відступи НЕ схлопуються, тому ритм тримається на
      односторонніх margin-top; margin-bottom у прямих дітей .wrap завжди 0. */
   .wrap{
-    --wrap-px:40px; --wrap-pt:8px; --measure:70ch;
+    --wrap-px:40px; --wrap-pt:8px; --measure:none;
     display:grid;
     grid-template-columns:[full-start text-start] minmax(0,1fr) [text-end full-end];
     row-gap:0;

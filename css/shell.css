@@ -15,8 +15,10 @@
   body[data-topic="func"]{--tc:var(--tc-func)}
   body[data-topic="coll"]{--tc:var(--tc-coll)}
   body[data-topic="files"]{--tc:var(--tc-files)}
+  body[data-topic="errors"], body[data-topic="errors-practice"]{--tc:var(--tc-errors)}
   body[data-topic="globe"]{--tc:var(--tc-globe)}
   body[data-topic="tests"]{--tc:var(--tc-tests)}
+  body[data-topic="practice"]{--tc:var(--tc-practice)}
 
   /* ---------- бічне меню ---------- */
   .sidebar{
@@ -324,6 +326,16 @@
   .vz-np-tx{font-size:13px; font-weight:700; fill:var(--ink); opacity:0; transition:opacity .3s}
   .vz-np-tx.on{opacity:1}
   .vz-np-tx .nl{fill:var(--faint); font-weight:400}
+  /* картка теми «Помилки»: код і червона смуга з винятком */
+  .vz-er-term{fill:var(--card); stroke:var(--rule); stroke-width:1.5}
+  .vz-er-code{font-size:13px; font-weight:700; fill:var(--faint); transition:fill .3s, opacity .3s}
+  .vz-er-code.done{fill:var(--body)}
+  .vz-er-code.now{fill:var(--tc)}
+  .vz-er-code.skip{opacity:.4; text-decoration:line-through}
+  .vz-er-box{transition:opacity .3s}
+  .vz-er-box.off{opacity:0}
+  .vz-er-box rect{fill:var(--stop-soft); stroke:var(--stop-line); stroke-width:1.2}
+  .vz-er-box text{font-size:11px; font-weight:700; fill:var(--stop)}
   .vz-caret{fill:var(--i); transition:transform .35s var(--ease), opacity .2s}
   .vz-caret.off{opacity:0; transition:opacity .2s}
 
