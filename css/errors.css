@@ -44,3 +44,16 @@
   pre.adv-code{margin:.8em 0 1.1em; font-family:var(--mono); font-size:.84rem; line-height:1.65; color:var(--body);
     background:var(--card); border:1px solid var(--rule-soft); padding:11px 14px; border-radius:8px; overflow-x:auto}
   .adv-intro pre.adv-code{background:var(--panel)}
+
+  /* ---------- практика «Помилки та винятки» (#/errors-practice) ----------
+     Прогрес і картки задач — ті самі класи, що в магазину. */
+  /* display:flex у .exc-boot перебив би атрибут hidden */
+  #page-errors-practice [hidden]{display:none !important}
+  #exc-progress-text{font-family:var(--mono); font-size:.8rem; color:var(--muted); white-space:nowrap}
+  #exc-hero.done #exc-progress-text{color:var(--j); font-weight:700}
+  .exc-boot{display:flex; align-items:center; gap:10px; color:var(--muted); font-size:.9rem}
+  .exc-boot.err{color:var(--stop)}
+  .exc-adv{font-family:var(--mono); font-size:.62rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+    color:var(--tc-ink); background:var(--tc-soft); border-radius:999px; padding:2px 8px; margin-left:6px; vertical-align:middle}
+  .viz-exc .vz-exc-ok{fill:var(--j-soft); stroke:var(--j-line); stroke-width:1.5}
+  .viz-exc .vz-exc-t{font-size:11px; font-weight:700; fill:var(--j); text-anchor:middle}

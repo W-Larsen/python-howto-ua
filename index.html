@@ -16,14 +16,14 @@
 <!-- ?v=… — версія для кешу браузера: після змін у css/js підніми її тут і для скриптів унизу -->
 <link rel="stylesheet" href="css/base.css?v=20261022b">
 <link rel="stylesheet" href="css/topics.css?v=20260927a">
-<link rel="stylesheet" href="css/shell.css?v=20261022b">
+<link rel="stylesheet" href="css/shell.css?v=20261022c">
 <link rel="stylesheet" href="css/collections.css?v=20260926t24">
 <link rel="stylesheet" href="css/functions.css?v=20260926t4">
 <link rel="stylesheet" href="css/pyeditor.css?v=20260926t25">
 <link rel="stylesheet" href="css/shop.css?v=20260927a">
 <link rel="stylesheet" href="css/check.css?v=20261022a">
 <link rel="stylesheet" href="css/files.css?v=20261008a">
-<link rel="stylesheet" href="css/errors.css?v=20261022b">
+<link rel="stylesheet" href="css/errors.css?v=20261022g">
 <link rel="stylesheet" href="css/globe.css?v=20261011f">
 </head>
 <body data-route="home">
@@ -269,8 +269,8 @@
           <div class="card-viz class-viz" aria-hidden="true"></div>
           <div class="card-body">
             <h3>Старша інженерна школа</h3>
-            <p class="card-count">1 проєкт</p>
-            <p>Практика для Старшої інженерної школи: інтернет-магазин, який оживає, коли пишеш функції для списків.</p>
+            <p class="card-count">2 проєкти</p>
+            <p>Практика для Старшої інженерної школи: інтернет-магазин, який оживає від функцій для списків, і шість функцій на помилки та винятки.</p>
             <div class="card-go">Обрати клас <em>→</em></div>
           </div>
         </a>
@@ -2194,6 +2194,109 @@ print(age)</pre>
     <tr><td>except: pass</td><td>так не роби: помилка зникає непоміченою</td></tr>
   </table>
 
+  <h2>Далі: практика</h2>
+  <p>Час перевірити, чи ловиш ти потрібні помилки й пропускаєш непотрібні. На сторінці практики шість функцій із тестами: від першого <code>try / except</code> до власного винятку.</p>
+
+  <div class="subcards">
+    <a class="subcard" href="#/errors-practice">
+      <span class="sc-mark">практика</span>
+      <span class="sc-t">Помилки та винятки</span>
+      <span class="sc-d">6 функцій на <code>try / except</code>, <code>else</code>, <code>finally</code>, <code>raise</code> і власний виняток.</span>
+    </a>
+  </div>
+
+  </div>
+  </section>
+
+  <!-- ================= практика: помилки та винятки (js/pages/errors-practice.js) ================= -->
+  <section class="page" id="page-errors-practice" hidden>
+  <div class="wrap wide">
+
+  <header class="top">
+    <h1>Практика: помилки та винятки</h1>
+    <p class="lede">Шість маленьких функцій, у яких помилки — це не катастрофа, а звичайна частина роботи: форма, куди вводять вік, налаштування, яких може не бути, порожній список і власні правила перевірки. Пиши код, запускай тести й дивись, чи <b>впіймала</b> твоя функція те, що треба, і <b>пропустила</b> те, що не можна ковтати.</p>
+  </header>
+
+  <div class="hero shop-hero" id="exc-hero">
+    <div class="shop-prog">
+      <div class="shop-prog-bar"><i id="exc-progress-fill"></i></div>
+      <span id="exc-progress-text">Виконано 0 з 6</span>
+    </div>
+    <div class="shop-chips" id="exc-chips"></div>
+  </div>
+  <p class="exc-boot" id="exc-boot"><span class="shop-spin" aria-hidden="true"></span> Завантажую Python…</p>
+
+  <h2>Як це працює</h2>
+  <div class="steps3">
+    <div class="step3"><span class="step3-n">1</span><b>Пишеш функцію</b><p>У кожної задачі є заготовка. Прибери рядок <code>raise NotImplementedError(...)</code> і напиши свою реалізацію.</p></div>
+    <div class="step3"><span class="step3-n">2</span><b>Запускаєш тести</b><p>Кнопка <b>▶ Запустити</b> або <kbd>Ctrl</kbd>+<kbd>Enter</kbd>. Нижче з'явиться таблиця: що мало вийти і що вийшло насправді.</p></div>
+    <div class="step3"><span class="step3-n">3</span><b>Код зберігається</b><p>Усе, що ти пишеш, автоматично лишається в цьому браузері: можна закрити сторінку й повернутись.</p></div>
+  </div>
+  <p>У деяких тестах функція має <b>кинути виняток</b>: у таблиці це рядок <code>кидає ValueError</code>. Тоді «отримано» покаже, що кинула твоя функція насправді. Теорію шукай у темі <a href="#/errors">«Помилки та винятки»</a>.</p>
+
+  <article class="pytask" id="exc-task-parse_age">
+    <div class="pyt-info">
+      <h2>1. try / except: вік із форми</h2>
+      <p>Користувач вписує вік у форму, і програма отримує <b>рядок</b>. Якщо там літери, <code>int()</code> кине <code>ValueError</code>, і програма впаде. Функція <code>parse_age</code> має перетворити рядок на ціле число, а якщо не вийшло, повернути <code>None</code>.</p>
+      <p>Перевіряти рядок вручну не треба: спробуй перетворити й лови конкретну помилку.</p>
+    </div>
+    <div class="pyt-work"></div>
+  </article>
+
+  <article class="pytask" id="exc-task-safe_get">
+    <div class="pyt-info">
+      <h2>2. Конкретний except: безпечне читання</h2>
+      <p>Налаштування приходять то як словник, то як список. Функція <code>safe_get</code> повертає елемент за ключем чи індексом, а якщо його немає, значення <code>default</code>.</p>
+      <p>Ловити треба рівно <code>KeyError</code> і <code>IndexError</code>. Останній тест дає списку ключ-рядок: це <code>TypeError</code>, тобто помилка програміста, і вона має <b>пролетіти</b> повз твій <code>except</code>.</p>
+    </div>
+    <div class="pyt-work"></div>
+  </article>
+
+  <article class="pytask" id="exc-task-parse_logged">
+    <div class="pyt-info">
+      <h2>3. else і finally: журнал спроби</h2>
+      <p>Функція <code>parse_logged</code> перетворює рядок на число й веде журнал у списку <code>log</code>: <code>"ок"</code>, якщо вдалося, <code>"помилка"</code>, якщо ні, і <code>"кінець"</code> у будь-якому разі.</p>
+      <p>Тести перевіряють не лише результат, а й те, що лежить у <code>log</code> після виклику. Подумай, у яку гілку <code>try</code> який запис належить.</p>
+    </div>
+    <div class="pyt-work"></div>
+  </article>
+
+  <article class="pytask" id="exc-task-first_number">
+    <div class="pyt-info">
+      <h2>4. Повторна спроба: питаємо, поки не введуть число</h2>
+      <p>У справжній програмі ми б питали через <code>input()</code> у циклі <code>while True</code>. Тут відповіді користувача лежать у списку <code>answers</code>, а функція <code>first_number</code> повертає перше з них, що є цілим числом. Якщо таких немає, <code>None</code>.</p>
+      <p>Погані відповіді не повинні зупиняти програму: пропускай їх і йди далі.</p>
+    </div>
+    <div class="pyt-work"></div>
+  </article>
+
+  <article class="pytask" id="exc-task-average">
+    <div class="pyt-info">
+      <h2>5. raise: середнє без ділення на нуль</h2>
+      <p>Середнє порожнього списку не існує. Якщо порахувати «наївно» через <code>sum(...) / len(...)</code>, Python кине <code>ZeroDivisionError</code>, і причину доведеться розгадувати. Функція <code>average</code> має <b>відмовитись сама</b>: для порожнього списку кинути <code>ValueError</code> із зрозумілим текстом.</p>
+    </div>
+    <div class="pyt-work"></div>
+  </article>
+
+  <article class="pytask" id="exc-task-validate_age">
+    <div class="pyt-info">
+      <h2>6. Власний виняток <span class="exc-adv">advanced</span></h2>
+      <p>Створи свій тип помилки: <code>AgeError</code>, різновид <code>ValueError</code>. Функція <code>validate_age</code> кидає його, якщо вік менший за 0 або більший за 120, інакше повертає вік.</p>
+      <p>Завдяки успадкуванню <code>except ValueError</code> піймає й твою <code>AgeError</code>, а <code>except AgeError</code> лише її.</p>
+    </div>
+    <div class="pyt-work"></div>
+  </article>
+
+  <h2>Що ми використали</h2>
+  <table class="cheat">
+    <tr><td>try: … except ValueError:</td><td>спробувати; якщо такий виняток, виконати план Б</td></tr>
+    <tr><td>except (KeyError, IndexError):</td><td>один <code>except</code> на кілька типів</td></tr>
+    <tr><td>else: / finally:</td><td>«не було помилки» / «завжди»</td></tr>
+    <tr><td>for x in items: try: … return …</td><td>пробувати значення по черзі, поганим дати пропуск</td></tr>
+    <tr><td>raise ValueError("текст")</td><td>кинути виняток самому</td></tr>
+    <tr><td>class MyError(ValueError):</td><td>власний тип помилки</td></tr>
+  </table>
+
   </div>
   </section>
 
@@ -2386,6 +2489,26 @@ print(age)</pre>
       </div>
     </a>
 
+    <a class="card practice" href="#/errors-practice" style="--tc:var(--tc-errors)">
+      <div class="card-viz">
+        <svg viewBox="0 0 320 152" class="viz viz-exc" aria-hidden="true">
+          <text class="vz-code" x="14" y="26">try:</text>
+          <text class="vz-code" x="38" y="50">age = int(text)</text>
+          <text class="vz-code" x="14" y="74">except ValueError:</text>
+          <text class="vz-code" x="38" y="98">age = None</text>
+          <rect class="vz-exc-ok" x="14" y="112" width="124" height="28" rx="14"/>
+          <text class="vz-exc-t" x="76" y="131">✓ програма живе</text>
+        </svg>
+      </div>
+      <div class="card-body">
+        <span class="card-tag">практика до теми «Помилки»</span>
+        <h3>Помилки та винятки</h3>
+        <p>Шість функцій, які ловлять потрібні помилки й кидають свої: від першого <code>try / except</code> до власного винятку.</p>
+        <div class="card-meta"><span>6 завдань</span><span>тести одразу</span><span>Python у браузері</span></div>
+        <div class="card-go">Відкрити практику <em>→</em></div>
+      </div>
+    </a>
+
   </div>
 
   </div>
@@ -2531,7 +2654,7 @@ print(age)</pre>
 <!-- чисті помічники оболонки: «пройдено», номери розділів, стежка, пагінація -->
 <script src="js/book.js?v=20261022a"></script>
 <!-- оболонка: роутер, меню, анімації головної -->
-<script src="js/app.js?v=20261022b"></script>
+<script src="js/app.js?v=20261022c"></script>
 <!-- перемикач теми оформлення -->
 <script src="js/theme.js?v=20260927b"></script>
 <!-- рушій руху: FLIP-переїзди й твіни; має бути до collkit.js -->
@@ -2557,6 +2680,7 @@ print(age)</pre>
 <script src="js/pages/set.js?v=20260922f"></script>
 <script src="js/pages/files.js?v=20261008a"></script>
 <script src="js/pages/errors.js?v=20261022e"></script>
+<script src="js/pages/errors-practice.js?v=20261022b"></script>
 <!-- Touch The Globe: налаштування сховища, дисплей, сховище, рушій (Pyodide + знімок
      проєкту), архіви, симулятор і дві сторінки -->
 <script src="js/globe-config.js?v=20261009b"></script>

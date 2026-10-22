@@ -36,6 +36,10 @@ const ROUTES = [
       { slug:"globe-teacher", id:"page-globe-teacher", num:"🌍", hidden:true, cls:"globe", toc:false,
         nav:"Touch The Globe: вчитель", title:"Touch The Globe — сторінка вчителя" }
     ]},
+  /* практика з винятків для Старшої інженерної школи: так само прихована,
+     відкривається з сторінки класу «Практика → Старша інженерна школа» */
+  { slug:"errors-practice", id:"page-errors-practice", num:"✎", practice:true, hidden:true, toc:false, cls:"practice-eng",
+    nav:"Практика: помилки · Старша інженерна школа", title:"Практика: помилки та винятки — Старша інженерна школа" },
   /* Практика: розділ → клас (grade) → проєкт, як у самостійних. Проєкти
      (shop, globe) лишаються на своїх маршрутах, тож старі посилання живі;
      у меню показуємо лише класи. Поки відкрито глобус, підсвічуємо його

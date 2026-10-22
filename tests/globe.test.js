@@ -525,6 +525,8 @@ T.test("globe page: у бічному меню Touch The Globe немає, а з
   T.ok(p.d.querySelector('#home-p-practice a.card[href="#/practice-9"]'), "клас 9 на вкладці «Практика» головної");
   T.ok(p.d.querySelector('#page-practice-9 a.card[href="#/globe"]'), "картка проєкту на сторінці класу");
   T.ok(p.d.querySelector('.nav-item[data-slug="shop"], .nav-sub[data-slug="shop"]'), "решта меню на місці");
+  T.ok(p.d.querySelector('#page-practice-eng a.card[href="#/shop"]'), "у Старшої інженерної лишився магазин");
+  T.ok(p.d.querySelector('#page-practice-eng a.card[href="#/errors-practice"]'), "і з'явилась практика з винятків");
   document.getElementById("sandbox").innerHTML = "";
 });
 
