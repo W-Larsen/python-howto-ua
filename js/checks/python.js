@@ -2,7 +2,8 @@
    Python для самостійних робіт: один раз запускає Pyodide (спільний з
    практикою через PyEditor.bootPyodide) і обв'язку js/checks/harness.js,
    далі — запуск і оцінювання завдань «функція» й «програма» та
-   самоперевірка пулів завдань (validate).
+   самоперевірка пулів завдань (validate). Завдання з частковим балом
+   (slot.partial) рахують, скільки прихованих тестів пройдено.
    Поки Python не завантажився (або не зміг — немає інтернету), будь-яка
    перевірка дає «не пройдено» з поясненням NOT_READY, а не кидає помилку.
    ========================================================================== */
@@ -18,7 +19,8 @@ function boot(){
        а її обв'язка має функції з тими самими іменами, напр. _error_text */
     const ns = py.globals.get("dict")();
     py.runPython(CheckHarness.PY, { globals:ns });
-    fns = { install: ns.get("check_install"), test: ns.get("check_test"), run: ns.get("prog_run") };
+    fns = { install: ns.get("check_install"), test: ns.get("check_test"), run: ns.get("prog_run"),
+      tryRun: ns.get("check_try") };
   });
   return booting;
 }
@@ -28,9 +30,20 @@ function install(name, source){
   if(!fns) return NOT_READY;
   try { return fns.install(name, source); } catch(err){ return String(err); }
 }
-function testsPass(name, tests){
-  if(!fns) return false;
-  try { return JSON.parse(fns.test(name, JSON.stringify(tests))).ok === true; } catch(err){ return false; }
+/* скільки прихованих тестів пройдено: { passed, total } */
+function testsRun(name, tests){
+  if(!fns) return { passed:0, total:tests.length };
+  try {
+    const r = JSON.parse(fns.test(name, JSON.stringify(tests)));
+    return { passed:r.passed, total:r.total };
+  } catch(err){ return { passed:0, total:tests.length }; }
+}
+/* кнопка «Запустити» для функції: код виконується в папці з файлами-прикладами
+   (files), повертається помилка й те, що код надрукував */
+function tryCode(name, source, files){
+  if(!fns) return { error:NOT_READY, out:"" };
+  try { return JSON.parse(fns.tryRun(name, source, JSON.stringify(files || {}))); }
+  catch(err){ return { error:String(err), out:"" }; }
 }
 function runProgram(source, inputText){
   if(!fns) return { out:"", error:NOT_READY };
@@ -38,9 +51,15 @@ function runProgram(source, inputText){
   catch(err){ return { out:"", error:String(err) }; }
 }
 
+/* passed — усі тести; passedCount — скільки з total (для часткового балу).
+   Код встановлюється так само, як на «Запустити», — у папці з файлами-
+   прикладами й без виводу: перевірочний print(f("numbers.txt")), який учень
+   лишив у коді, не має валити оцінювання. */
 function gradeCode(variant, source){
-  const error = install(variant.fn, source);
-  return { passed: !error && testsPass(variant.fn, variant.tests), error };
+  const error = tryCode(variant.fn, source, variant.files).error;
+  const total = variant.tests.length;
+  const passedCount = error ? 0 : testsRun(variant.fn, variant.tests).passed;
+  return { passed: passedCount === total, passedCount, total, error };
 }
 
 /* бал лише за всі набори; для першого проваленого запам'ятовуємо вивід */
@@ -77,8 +96,18 @@ async function validate(def){
       return;
     }
     if(slot.type === "code"){
-      if(!gradeCode(v, v.solution).passed) add(`${where}: розв'язок не проходить тести`);
-      if(gradeCode(v, v.starter).passed) add(`${where}: стартовий код проходить тести`);
+      const sol = gradeCode(v, v.solution);
+      if(!sol.passed) add(`${where}: розв'язок не проходить тести (${sol.passedCount} з ${sol.total})${sol.error ? ": " + sol.error : ""}`);
+      const st = gradeCode(v, v.starter);
+      if(st.passed) add(`${where}: стартовий код проходить тести`);
+      if(slot.partial){
+        if(st.passedCount > 0) add(`${where}: стартовий код проходить ${st.passedCount} тест(и), а має 0`);
+        if(v.tests.length < 6) add(`${where}: прихованих тестів ${v.tests.length}, а для часткового балу треба щонайменше 6`);
+      }
+      if(v.files){
+        const r = tryCode(v.fn, v.solution, v.files);
+        if(r.error) add(`${where}: розв'язок падає на файлах-прикладах: ${r.error}`);
+      }
       return;
     }
     const g = gradeProgram(v, v.solution);
@@ -91,6 +120,6 @@ async function validate(def){
   return problems;
 }
 
-return { NOT_READY, boot, isReady, install, runProgram, gradeCode, gradeProgram, validate };
+return { NOT_READY, boot, isReady, install, tryCode, runProgram, gradeCode, gradeProgram, validate };
 
 })();

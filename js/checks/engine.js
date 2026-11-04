@@ -11,8 +11,15 @@
                правильна, але синтаксична помилка, або у «що виведе?» —
                правильне значення, але не той тип, зайві пробіли, вивід
                на кожному кроці циклу) / 0, помножений на points слота;
-               необов'язкове поле code — програма для питань «що виведе?»;
-     code    — написати функцію; перевіряється прихованими тестами;
+               необов'язкове поле code — програма для питань «що виведе?»
+               (або приклад даних — тоді codeOptions:true, щоб відповіді
+               підсвічувались як код);
+     code    — написати функцію; перевіряється прихованими тестами.
+               Необов'язкове example — код-приклад даних під умовою. Якщо
+               в тесті partial:true — частковий бал за частку пройдених
+               тестів (униз до 0.5). Варіант може мати files — файли-
+               приклади: їх видно в умові, і «Запустити» виконує код у
+               папці з ними;
      program — написати програму з input()/print(); рушій підставляє
                приховані вхідні дані й звіряє вивід.
    Чисті функції (бали, пункти результату, посилання) — js/checks/core.js,
@@ -38,9 +45,11 @@ const readJSON = (k, fallback) => {
 const writeJSON = (k, v) => store.set(k, JSON.stringify(v));
 
 /* Тексти завдань (q, intro, hint, explain) — звичайні рядки з легкою
-   розміткою: `код` → <code>, порожній рядок — новий абзац, рядки з «- » —
-   список, інший перенос — новий рядок. Решта екранується. */
-const inline = (s) => esc(s).replace(/`([^`\n]+)`/g, "<code>$1</code>");
+   розміткою: `код` → <code> з підсвіткою Python, порожній рядок — новий
+   абзац, рядки з «- » — список, інший перенос — новий рядок. Решта
+   екранується. split з групою дає по черзі: текст, код, текст, … */
+const inline = (s) => String(s).split(/`([^`\n]+)`/).map((part, i) =>
+  i % 2 ? `<code class="syn">${PyEditor.highlight(part)}</code>` : esc(part)).join("");
 const plain = (s) => String(s).replace(/`/g, "");
 function rich(text){
   return String(text).split(/\n{2,}/).map(block => {
@@ -58,10 +67,11 @@ function rich(text){
 /* lede і rules — готовий HTML; без блочного тега на початку — один абзац */
 const blockHtml = (html) => /^\s*<(p|ul|ol|div)[\s>]/.test(html) ? html : `<p>${html}</p>`;
 
-/* def: { slug, storage, title, lede, rules, slots, acHidden?, shareVersion? } */
+/* def: { slug, storage, title, lede, rules, slots, acHidden?, shareVersion?, partial? } */
 function define(def){
   def.shareVersion = def.shareVersion || 1;
   def.acHidden = def.acHidden || {};
+  if(def.partial) def.slots.forEach(slot => { if(slot.type === "code") slot.partial = true; });
   DEFS[def.slug] = def;
   window.PageInit[def.slug] = () => mount(def);
 }
@@ -167,9 +177,12 @@ function mount(def){
     const opts = pick[slot.id].order.map(idx => {
       const opt = variant.options[idx];
       const on = chosen === idx;
+      /* у «що виведе?» (є variant.code) відповіді — вивід програми, а не код;
+         codeOptions:true — code лише приклад даних, а відповіді все ж код */
+      const text = variant.code && !variant.codeOptions ? `<pre>${esc(opt.text)}</pre>` : `<pre class="pysrc">${PyEditor.highlight(opt.text)}</pre>`;
       return `<label class="checkq-opt${on ? " on" : ""}" data-idx="${idx}">
         <input type="radio" name="mcq_${def.slug}_${slot.id}" value="${idx}" ${on ? "checked" : ""}>
-        <pre>${esc(opt.text)}</pre>
+        ${text}
       </label>`;
     }).join("");
     return `
@@ -181,14 +194,23 @@ function mount(def){
     </article>`;
   }
 
+  /* файли-приклади варіанта: ім'я й вміст як є */
+  const filesHtml = (files) => !files ? "" : `
+      <div class="checkq-files">${Object.keys(files).map(name => `
+        <div class="checkq-file"><span>Файл <code>${esc(name)}</code> для прикладу</span><pre>${esc(files[name])}</pre></div>`).join("")}
+      </div>`;
+
   function codeCard(slot, n){
     const variant = variantOf(slot);
     return `
     <article class="checkq" data-slot="${slot.id}" data-type="code">
       ${head(slot, n)}
       <div class="checkq-text"><p class="checkq-title">${esc(variant.title)}</p>${rich(variant.intro)}</div>
+      ${variant.example ? `<pre class="checkq-code pysrc">${PyEditor.highlight(variant.example)}</pre>` : ""}
+      ${filesHtml(variant.files)}
       ${editorHtml("Код функції " + variant.fn)}
       ${controlsHtml(variant.hint)}
+      <pre class="checkq-out" data-role="out" hidden></pre>
     </article>`;
   }
 
@@ -249,9 +271,13 @@ function mount(def){
 
   function wireCode(card, slot){
     const variant = variantOf(slot);
+    const out = part(card, "out");
     wireEditorFor(card, slot, (source) => {
-      const err = CheckPy.install(variant.fn, source);
-      if(err) setMsg(card, esc(err), "bad");
+      const r = CheckPy.tryCode(variant.fn, source, variant.files);
+      /* вивід показуємо, лише якщо код щось надрукував (напр. перевірочний виклик) */
+      out.hidden = r.out === "";
+      out.textContent = r.out;
+      if(r.error) setMsg(card, esc(r.error), "bad");
       else setMsg(card, "Код виконується без помилок. Це не каже, чи правильна відповідь, — лише те, що код запускається.", "good");
     });
   }
@@ -306,7 +332,7 @@ function mount(def){
       const source = draft.code[slot.id] != null ? draft.code[slot.id] : variant.starter;
       if(slot.type === "code"){
         const g = CheckPy.gradeCode(variant, source);
-        return C.codeItem(slot, v, source, g.passed, g.error);
+        return C.codeItem(slot, v, source, g.passed, g.error, g.passedCount);
       }
       return C.programItem(slot, v, source, CheckPy.gradeProgram(variant, source));
     });
@@ -344,7 +370,8 @@ function mount(def){
 
   /* ---------- екран результатів ---------- */
   function resultBadge(item){
-    if(item.type === "mcq") return item.earned === item.points ? "ok" : (item.earned > 0 ? "partial" : "bad");
+    if(item.type === "mcq" || item.testsTotal != null)
+      return item.earned === item.points ? "ok" : (item.earned > 0 ? "partial" : "bad");
     return item.passed ? "ok" : "bad";
   }
 
@@ -373,10 +400,17 @@ function mount(def){
     </article>`;
   }
 
+  function codeVerdict(item){
+    if(item.passed) return "Усі приховані тести пройдено.";
+    if(item.error) return esc(item.error);
+    if(item.testsTotal != null) return `Пройдено ${item.passedCount} з ${item.testsTotal} прихованих тестів.`;
+    return "Не всі приховані тести пройдено.";
+  }
+
   function codeResult(item, n){
     return `<article class="checkr-item ${resultBadge(item)}">
       ${itemHead(n, item.title, item)}
-      <p class="checkr-q">${item.passed ? "Усі приховані тести пройдено." : (item.error ? esc(item.error) : "Не всі приховані тести пройдено.")}</p>
+      <p class="checkr-q">${codeVerdict(item)}</p>
       ${codeBlocks(item)}
     </article>`;
   }

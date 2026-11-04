@@ -102,6 +102,37 @@ T.test("engine: чуже посилання в браузері, де тест �
   history.replaceState(null, "", location.pathname);
 });
 
+T.test("engine: partial:true — файли-приклади в умові, вивід «Запустити», частковий бал у результаті", async () => {
+  const slug = "toyp";
+  clear("test_" + slug);
+  sandbox(slug);
+  CheckEngine.define({ slug, storage:"test_" + slug, title:"Частковий", lede:"Лід", rules:"Правила", partial:true, total:2,
+    slots:[{ id:"f", type:"code", topic:"Файли", points:2, variants:[{ title:"Сума з файлу", fn:"total", sig:"total(path)",
+      intro:"Сума чисел.", hint:"int()", files:{ "n.txt":"1\n2\n" },
+      starter:"def total(path):\n    raise NotImplementedError()\n",
+      tests:[ { args:["n.txt"], files:{ "n.txt":"1\n2\n" }, expected:3 }, { args:["n.txt"], files:{ "n.txt":"5\n" }, expected:5 },
+              { args:["n.txt"], files:{ "n.txt":"\n4\n" }, expected:4 }, { args:["n.txt"], files:{ "n.txt":"2\n\n2\n" }, expected:4 } ],
+      solution:"def total(path):\n    s = 0\n    with open(path) as f:\n        for line in f:\n            if line.strip():\n                s += int(line)\n    return s\n" }]}] });
+  T.ok(CheckEngine.get(slug).slots[0].partial, "partial проставлено слоту");
+  PageInit[slug]();
+  await T.until(() => !$in(slug, '[data-part="body"]').hidden);
+  const card = $in(slug, '[data-slot="f"]');
+  T.ok(card.querySelector(".checkq-file").textContent.includes("n.txt"), "файл-приклад показано");
+  /* без пропуску порожніх рядків: проходить 2 з 4 тестів */
+  type(card.querySelector('[data-role="editor"]'),
+    "def total(path):\n    s = 0\n    with open(path) as f:\n        for line in f:\n            s += int(line)\n    return s\nprint(total('n.txt'))\n");
+  card.querySelector('[data-act="run"]').click();
+  T.eq(card.querySelector('[data-role="out"]').textContent, "3\n", "друк на файлі-прикладі");
+  T.ok(card.querySelector('[data-role="msg"]').classList.contains("good"));
+  const btn = $in(slug, '[data-part="finish"]');
+  btn.click(); btn.click();
+  const saved = JSON.parse(localStorage.getItem("test_" + slug + "_result"));
+  T.eq([saved.total, saved.items[0].passedCount, saved.items[0].testsTotal], [1, 2, 4]);
+  const item = $in(slug, ".checkr-item");
+  T.ok(item.classList.contains("partial"), item.className);
+  T.ok(item.textContent.includes("Пройдено 2 з 4 прихованих тестів"), item.textContent);
+});
+
 T.test("engine: результат програми з проваленим набором показує «ввели → очікувалось → вивела»", async () => {
   const slug = "toy3";
   defineToy(slug);

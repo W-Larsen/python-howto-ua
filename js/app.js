@@ -64,6 +64,8 @@ const ROUTES = [
         nav:"9 клас", title:"Самостійні роботи — 9 клас" },
       { slug:"check", id:"page-check", num:"ІШ", hidden:true, cls:"tests-eng",
         nav:"Інженерна школа: Самостійна робота 1", title:"Самостійна робота 1 з Python — Старша інженерна школа" },
+      { slug:"check-2", id:"page-check-2", num:"ІШ", hidden:true, cls:"tests-eng",
+        nav:"Інженерна школа: Самостійна робота 2", title:"Самостійна робота 2 з Python — Старша інженерна школа" },
       { slug:"check-9", id:"page-check-9", num:"9", hidden:true, cls:"tests-9",
         nav:"9 клас: Самостійна робота 1", title:"Самостійна робота 1 з Python — 9 клас" },
       /* розширений варіант — лише за прямим посиланням від учителя */

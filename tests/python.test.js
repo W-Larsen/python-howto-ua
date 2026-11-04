@@ -7,7 +7,7 @@ const S = () => window.TOY_SLOTS;
 T.test("python: до завантаження все «не пройдено» з поясненням, без винятків", () => {
   T.ok(!P().isReady());
   T.eq(P().runProgram("print(1)", ""), { out:"", error:P().NOT_READY });
-  T.eq(P().gradeCode(S()[1].variants[0], S()[1].variants[0].solution), { passed:false, error:P().NOT_READY });
+  T.eq(P().gradeCode(S()[1].variants[0], S()[1].variants[0].solution), { passed:false, passedCount:0, total:3, error:P().NOT_READY });
   const g = P().gradeProgram(S()[2].variants[0], S()[2].variants[0].solution);
   T.eq(g, { passed:false, error:P().NOT_READY, failIdx:0, failOut:"" });
 });
@@ -46,8 +46,9 @@ T.test("python: gradeProgram обрізає довгий вивід до 500 с�
 
 T.test("python: gradeCode", () => {
   const v = S()[1].variants[0];
-  T.eq(P().gradeCode(v, v.solution), { passed:true, error:"" });
-  T.eq(P().gradeCode(v, v.starter), { passed:false, error:"" });
+  T.eq(P().gradeCode(v, v.solution), { passed:true, passedCount:3, total:3, error:"" });
+  T.eq(P().gradeCode(v, v.starter), { passed:false, passedCount:0, total:3, error:"" });
+  T.eq(P().gradeCode(v, "def double(x):\n    return 2 if x == 1 else 0\n").passedCount, 2, "частина тестів");
   T.ok(P().gradeCode(v, "def double(x)\n").error.startsWith("Помилка в коді — SyntaxError"));
 });
 
