@@ -122,6 +122,39 @@ T.test("core: посилання — старий результат без vari
   T.eq(C().buildPayload(S(), 1, r, {}), null, "без набору — не вгадуємо");
 });
 
+/* той самий toy, але функція з частковим балом (2 бали, 3 тести) */
+const partialSlots = () => { const s = JSON.parse(JSON.stringify(S())); s[1].partial = true; return s; };
+
+T.test("core: частковий бал — частка пройдених тестів, униз до 0.5", () => {
+  const P = C().partialPoints;
+  T.eq([P(2, 4, 6), P(1.5, 5, 6), P(2, 6, 6), P(2, 0, 6), P(1.5, 3, 6), P(1.5, 1, 6), P(2, 3, 7), P(2, 0, 0)],
+    [1, 1, 2, 0, 0.5, 0, 0.5, 0]);
+  const s = partialSlots();
+  const two = C().codeItem(s[1], 0, "x", false, "", 2);
+  T.eq([two.earned, two.passed, two.passedCount, two.testsTotal], [1, false, 2, 3]);
+  const all = C().codeItem(s[1], 0, "x", true, "");
+  T.eq([all.earned, all.passed, all.passedCount], [2, true, 3]);
+  const plain = C().codeItem(S()[1], 0, "x", false, "", 2);
+  T.eq([plain.earned, "passedCount" in plain], [0, false], "без partial — як раніше");
+});
+
+T.test("core: посилання з частковим балом зберігає кількість пройдених тестів", () => {
+  const s = partialSlots();
+  const r = C().withTotal(s, [
+    C().mcqItem(s[0], 1, 0),
+    C().codeItem(s[1], 0, "def double(x):\n    return x\n", false, "", 1),
+    C().programItem(s[2], 0, "print(3)\n", { passed:false, error:"", failIdx:1, failOut:"3\n" })
+  ], "2026-11-04T10:00:00.000Z");
+  const p = C().buildPayload(s, 1, r, {});
+  T.eq(p[4][1], 1, "у посиланні — 1 пройдений тест");
+  const back = C().parsePayload(s, 1, p);
+  T.eq(back.items[1].passedCount, 1);
+  T.eq(back.items[1].earned, 0.5);
+  T.eq(back.total, r.total);
+  const bad = JSON.parse(JSON.stringify(p)); bad[4][1] = 4;
+  T.eq(C().parsePayload(s, 1, bad), null, "пройдено більше, ніж тестів");
+});
+
 T.test("core: packShare / unpackShare з кирилицею", async () => {
   const obj = [1, "", "abc", [0, 1, [3, 0, "print(\"Привіт, світе!\")"], ""]];
   const s = await C().packShare(obj);

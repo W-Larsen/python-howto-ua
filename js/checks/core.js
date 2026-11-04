@@ -10,7 +10,9 @@
    компактним масивом у порядку слотів:
      [версія, час завершення (секунди, base36), контрольна сума, пункти…]
      mcq     — [варіант, вибрана відповідь або -1]
-     code    — [варіант, 1/0 тести пройдено, код, помилка]
+     code    — [варіант, 1/0 тести пройдено, код, помилка]; у слоті з
+               частковим балом (slot.partial) замість 1/0 — скільки
+               прихованих тестів пройдено
      program — [варіант, 1/0, код, помилка, перший провалений набір або -1,
                 вивід програми на ньому (до 500 символів)]
    Код зберігається як різниця зі стартовим: [скільки символів збігається
@@ -94,11 +96,25 @@ function mcqItem(slot, variantIdx, chosenIdx){
   return item;
 }
 
-function codeItem(slot, variantIdx, source, passed, error){
+/* частковий бал: бал × частка пройдених тестів, униз до 0.5 */
+const partialPoints = (points, passedCount, total) =>
+  total > 0 ? Math.floor(points * passedCount / total * 2 + 1e-9) / 2 : 0;
+
+/* passedCount — лише для slot.partial: скільки прихованих тестів пройдено */
+function codeItem(slot, variantIdx, source, passed, error, passedCount){
   const variant = slot.variants[variantIdx];
-  return { slotId:slot.id, type:"code", topic:slot.topic, points:slot.points,
+  const item = { slotId:slot.id, type:"code", topic:slot.topic, points:slot.points,
     variant:variantIdx, earned: passed ? slot.points : 0, passed,
     title:variant.title, yourCode:source, error: error || null, solution:variant.solution };
+  if(slot.partial){
+    const total = variant.tests.length;
+    const n = passed ? total : (passedCount || 0);
+    item.passedCount = n;
+    item.testsTotal = total;
+    item.passed = n === total;
+    item.earned = partialPoints(slot.points, n, total);
+  }
+  return item;
 }
 
 /* grade: { passed, error, failIdx (-1, якщо пройдено), failOut } */
@@ -176,7 +192,8 @@ function buildPayload(slots, version, result, savedPick){
         : slot.variants[v].options.findIndex(o => o.text === item.chosenText);
       byId[slot.id] = [v, idx == null || idx < 0 ? -1 : idx];
     } else if(item.type === "code"){
-      byId[slot.id] = [v, item.passed ? 1 : 0, codeDiff(starter, item.yourCode), item.error || ""];
+      const done = slot.partial ? (item.passedCount || 0) : (item.passed ? 1 : 0);
+      byId[slot.id] = [v, done, codeDiff(starter, item.yourCode), item.error || ""];
     } else {
       byId[slot.id] = [v, item.passed ? 1 : 0, codeDiff(starter, item.yourCode), item.error || "",
         item.failIdx != null ? item.failIdx : -1, item.failOut || ""];
@@ -209,7 +226,10 @@ function parsePayload(slots, version, p){
     const code = applyDiff(variant.starter, e[2]);
     if(code === null || typeof e[3] !== "string") return null;
     if(slot.type === "code"){
-      items.push(codeItem(slot, e[0], code, e[1] === 1, e[3]));
+      if(slot.partial){
+        if(!isIdx(e[1], variant.tests.length + 1)) return null;
+        items.push(codeItem(slot, e[0], code, e[1] === variant.tests.length, e[3], e[1]));
+      } else items.push(codeItem(slot, e[0], code, e[1] === 1, e[3]));
       continue;
     }
     if(!(e[4] === -1 || isIdx(e[4], variant.tests.length)) || typeof e[5] !== "string") return null;
@@ -247,7 +267,7 @@ async function unpackShare(str){
 }
 
 return { makePick, maxPoints, fmtPoints, pointsWord, pointsLabel, normOutput, sameOutput, FAIL_OUT_MAX,
-  mcqItem, codeItem, programItem, withTotal, refreshMcq, starterSum, codeDiff, applyDiff,
+  mcqItem, codeItem, partialPoints, programItem, withTotal, refreshMcq, starterSum, codeDiff, applyDiff,
   buildPayload, parsePayload, packShare, unpackShare };
 
 })();

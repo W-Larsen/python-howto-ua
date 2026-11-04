@@ -5,6 +5,7 @@
 Запуск з кореня репозиторію: python3 -m unittest tests/test_harness.py -v
 """
 import json
+import os
 import pathlib
 import re
 import unittest
@@ -130,6 +131,81 @@ class FunctionTasks(unittest.TestCase):
 
     def test_unknown_function_fails(self):
         self.assertFalse(self.passes("nope", [{"args": [], "expected": 1}]))
+
+
+class PartialFilesRaises(unittest.TestCase):
+    def result(self, name, src, tests):
+        self.assertEqual(H["check_install"](name, src), "")
+        return json.loads(H["check_test"](name, json.dumps(tests)))
+
+    def test_counts_passed_tests(self):
+        r = self.result("double", "def double(x):\n    return 4\n",
+                        [{"args": [2], "expected": 4}, {"args": [1], "expected": 2}, {"args": [3], "expected": 6}])
+        self.assertEqual(r, {"ok": False, "passed": 1, "total": 3})
+
+    def test_unknown_function_counts_zero(self):
+        r = json.loads(H["check_test"]("nope2", json.dumps([{"args": [], "expected": 1}])))
+        self.assertEqual(r, {"ok": False, "passed": 0, "total": 1})
+
+    def test_hanging_function_stops_counting(self):
+        src = "def f(x):\n    if x:\n        return 1\n    while True:\n        pass\n"
+        r = self.result("f", src, [{"args": [1], "expected": 1}, {"args": [0], "expected": 1},
+                                   {"args": [1], "expected": 1}])
+        self.assertEqual(r["passed"], 1)
+
+    def test_files_are_created_and_read(self):
+        src = ("def total(path):\n    s = 0\n    with open(path, encoding='utf-8') as f:\n"
+               "        for line in f:\n            s += int(line)\n    return s\n")
+        r = self.result("total", src, [{"args": ["n.txt"], "files": {"n.txt": "1\n2\n3\n"}, "expected": 6}])
+        self.assertTrue(r["ok"])
+
+    def test_files_do_not_leak_between_tests(self):
+        src = ("import os\ndef make(path):\n    existed = os.path.exists(path)\n"
+               "    open(path, 'w').close()\n    return existed\n")
+        r = self.result("make", src, [{"args": ["x.txt"], "expected": False}, {"args": ["x.txt"], "expected": False}])
+        self.assertTrue(r["ok"])
+
+    def test_cwd_is_restored(self):
+        before = os.getcwd()
+        self.result("noop", "def noop():\n    return 1\n", [{"args": [], "files": {"a.txt": "x"}, "expected": 1}])
+        self.assertEqual(os.getcwd(), before)
+
+    def test_expect_files_with_crlf(self):
+        src = ("import csv\ndef save(path, rows):\n    with open(path, 'w', encoding='utf-8', newline='') as f:\n"
+               "        w = csv.DictWriter(f, fieldnames=['name', 'score'])\n        w.writeheader()\n"
+               "        w.writerows(rows)\n")
+        t = {"args": ["out.csv", [{"name": "Оля", "score": 10}]], "expectFiles": {"out.csv": "name,score\nОля,10\n"}}
+        self.assertTrue(self.result("save", src, [t])["ok"])
+
+    def test_expect_files_mismatch_and_missing(self):
+        src = "def save(path):\n    with open(path, 'w', encoding='utf-8') as f:\n        f.write('a')\n"
+        r = self.result("save", src, [{"args": ["o.txt"], "expectFiles": {"o.txt": "b"}},
+                                      {"args": ["o.txt"], "expectFiles": {"other.txt": "a"}}])
+        self.assertEqual(r["passed"], 0)
+
+    def test_missing_file_raises_file_not_found(self):
+        src = "def read(path):\n    with open(path) as f:\n        return f.read()\n"
+        r = self.result("read", src, [{"args": ["no.txt"], "files": {}, "raises": "FileNotFoundError"},
+                                      {"args": ["no.txt"], "raises": "OSError"}])
+        self.assertEqual(r["passed"], 2)
+
+    def test_raises(self):
+        src = "def check(x):\n    if x < 0:\n        raise ValueError('мінус')\n    if x == 0:\n        raise KeyError(x)\n    return x\n"
+        r = self.result("check", src, [
+            {"args": [-1], "raises": "ValueError"},     # точний тип
+            {"args": [-1], "raises": "Exception"},      # предок
+            {"args": [0], "raises": "ValueError"},      # не той тип
+            {"args": [5], "raises": "ValueError"},      # винятку немає
+            {"args": [5], "expected": 5},
+        ])
+        self.assertEqual(r["passed"], 3)
+
+    def test_check_try_uses_sample_files_and_captures_output(self):
+        src = "def first(path):\n    with open(path, encoding='utf-8') as f:\n        return f.readline().rstrip()\nprint(first('a.txt'))\n"
+        r = json.loads(H["check_try"]("first", src, json.dumps({"a.txt": "Привіт\nсвіт\n"})))
+        self.assertEqual(r, {"error": "", "out": "Привіт\n"})
+        r = json.loads(H["check_try"]("first", src))
+        self.assertTrue(r["error"].startswith("Помилка в коді — FileNotFoundError"), r["error"])
 
 
 if __name__ == "__main__":

@@ -5,7 +5,17 @@
 
    check_install / check_test — завдання «функція» (тип code): код учня
    встановлюється в окремий простір імен, функцію проганяють на прихованих
-   тестах.
+   тестах. check_test рахує, скільки тестів пройдено (для часткового балу).
+   Кожен тест виконується у власній порожній тимчасовій папці; необов'язкові
+   поля тесту:
+     files       — {ім'я: вміст} файли, які лежать у папці до виклику;
+     expectFiles — {ім'я: вміст} якими мають бути файли після виклику
+                   (\r\n і \n не розрізняються);
+     raises      — ім'я винятку, який функція має кинути (або його предка);
+     expected    — значення, яке має повернути функція (можна не вказувати,
+                   якщо перевіряються лише файли).
+   check_try — кнопка «Запустити»: встановлює код у папці з файлами-прикладами
+   й повертає те, що код надрукував.
    prog_run — завдання «програма» (тип program): код щоразу запускається
    з нуля, input() бере рядки з input_text, print() пишеться в буфер.
 
@@ -20,7 +30,7 @@
    ========================================================================== */
 "use strict";
 window.CheckHarness = { PY: String.raw`
-import ast, io, json
+import ast, io, json, os, shutil, tempfile
 from contextlib import redirect_stdout
 
 MAX_STEPS = 200000
@@ -110,22 +120,88 @@ def _check_equal(actual, expected):
         return False
 
 
-def check_test(name, tests_json):
-    entry = _CHECK_FUNCS.get(name)
-    if entry is None:
-        return json.dumps({"ok": False})
-    func, budget = entry
-    tests = json.loads(tests_json)
-    try:
-        for t in tests:
-            budget.reset()
+def _norm_text(text):
+    return text.replace("\r\n", "\n").replace("\r", "\n")
+
+
+def _raised(error, name):
+    return any(cls.__name__ == name for cls in type(error).__mro__)
+
+
+class _Sandbox:
+    # порожня тимчасова папка з файлами; усередині неї — поточна папка
+    def __init__(self, files):
+        self.files = files or {}
+
+    def __enter__(self):
+        self.old = os.getcwd()
+        self.dir = tempfile.mkdtemp(prefix="check_")
+        os.chdir(self.dir)
+        for name, text in self.files.items():
+            with open(name, "w", encoding="utf-8", newline="") as f:
+                f.write(text)
+        return self
+
+    def __exit__(self, *exc):
+        os.chdir(self.old)
+        shutil.rmtree(self.dir, ignore_errors=True)
+        return False
+
+
+def _files_match(expect_files):
+    for name, text in expect_files.items():
+        try:
+            with open(name, encoding="utf-8", newline="") as f:
+                got = f.read()
+        except (OSError, UnicodeDecodeError):
+            return False
+        if _norm_text(got) != _norm_text(text):
+            return False
+    return True
+
+
+def _run_test(func, budget, t):
+    # True / False; None — функція зациклилась (далі не проганяємо)
+    budget.reset()
+    with _Sandbox(t.get("files")):
+        try:
             with redirect_stdout(io.StringIO()):
                 actual = func(*t["args"])
-            if not _check_equal(actual, t["expected"]):
-                return json.dumps({"ok": False})
-    except (Exception, _NoInput, _TooLong):
-        return json.dumps({"ok": False})
-    return json.dumps({"ok": True})
+        except _TooLong:
+            return None
+        except (Exception, _NoInput) as error:
+            return "raises" in t and _raised(error, t["raises"])
+        if "raises" in t:
+            return False
+        if "expected" in t and not _check_equal(actual, t["expected"]):
+            return False
+        return _files_match(t.get("expectFiles") or {})
+
+
+def check_test(name, tests_json):
+    tests = json.loads(tests_json)
+    entry = _CHECK_FUNCS.get(name)
+    passed = 0
+    if entry is not None:
+        func, budget = entry
+        for t in tests:
+            try:
+                ok = _run_test(func, budget, t)
+            except (Exception, _NoInput, _TooLong):
+                ok = False
+            if ok is None:
+                break
+            if ok:
+                passed += 1
+    return json.dumps({"ok": passed == len(tests), "passed": passed, "total": len(tests)})
+
+
+def check_try(name, source, files_json="{}"):
+    out = io.StringIO()
+    with _Sandbox(json.loads(files_json)):
+        with redirect_stdout(out):
+            error = check_install(name, source)
+    return json.dumps({"error": error, "out": out.getvalue()}, ensure_ascii=False)
 
 
 # ---------------------------------------------------------------- «програма»

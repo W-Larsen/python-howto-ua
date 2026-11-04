@@ -2,7 +2,7 @@
 (function(){
 /* кожен пул: розв'язки проходять свої приховані тести, стартовий код — ні,
    у питанні рівно одна повна відповідь, сума балів — 12 */
-["check", "check-9", "check-9plus"].forEach(slug => {
+["check", "check-2", "check-9", "check-9plus"].forEach(slug => {
   T.test("пул " + slug + ": самоперевірка без проблем", async () => {
     const def = CheckEngine.get(slug);
     T.ok(def, "тест " + slug + " зареєстровано");
@@ -19,6 +19,15 @@ T.test("пул check-9: склад як у спеці §9.1", () => {
   T.eq(def.shareVersion, 1);
 });
 
+T.test("пул check-2: 5 питань по 1 балу, практика 1.5 + 1.5 + 2 + 2 з частковим балом", () => {
+  const def = CheckEngine.get("check-2");
+  T.eq(def.slots.map(s => s.type + ":" + s.points), [
+    "mcq:1", "mcq:1", "mcq:1", "mcq:1", "mcq:1", "code:1.5", "code:1.5", "code:2", "code:2"]);
+  T.eq(def.storage, "pyguide_check2");
+  T.ok(def.slots.filter(s => s.type === "code").every(s => s.partial), "практика з частковим балом");
+  T.ok(!CheckEngine.get("check").slots.some(s => s.partial), "СР 1 — без часткового балу");
+});
+
 T.test("пул check-9plus: склад як у спеці §9.2", () => {
   const def = CheckEngine.get("check-9plus");
   T.eq(def.slots.map(s => s.type + ":" + s.points), [
@@ -28,7 +37,7 @@ T.test("пул check-9plus: склад як у спеці §9.2", () => {
 });
 
 T.test("пули: у кожному слоті лишився хоча б один варіант, не виведений з обігу", () => {
-  ["check", "check-9", "check-9plus"].forEach(slug => CheckEngine.get(slug).slots.forEach(s =>
+  ["check", "check-2", "check-9", "check-9plus"].forEach(slug => CheckEngine.get(slug).slots.forEach(s =>
     T.ok(s.variants.some(v => !v.retired), slug + "/" + s.id + ": усі варіанти retired")));
 });
 
